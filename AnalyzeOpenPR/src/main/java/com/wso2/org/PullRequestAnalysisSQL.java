@@ -21,7 +21,7 @@ package com.wso2.org;
 
 public class PullRequestAnalysisSQL  {
 
-    public static void main(String[] args) {
+    public static void getOpenPr(){
 
         try {
             Connection myConn=DriverManager.getConnection("jdbc:mysql://localhost:3306/TaskOpenPulls?useSSL=false","root","wso2123"); //Get a connection to TaskOpenPulls table
