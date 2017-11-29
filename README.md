@@ -6,7 +6,7 @@
 
 3.  After that open AnalyzeOpenPR project folder via your IDE. 
 
-4. open src/main/java/com/wso2/org directory and Run PullRequestAnalysis.java file initially.
+4. open src/main/java/com/wso2/org directory and Run PullRequestAnalysis.java file.
 
     In particular java file you have to insert following String values,
 
@@ -16,4 +16,4 @@
            
            String psw= “Mysql workbench password”
 
- 5.  Then Run PullRequestAnalysisSQL.java file to get the desired results from the local datasbase.
+ 5.  Then required results will be in your local database.
