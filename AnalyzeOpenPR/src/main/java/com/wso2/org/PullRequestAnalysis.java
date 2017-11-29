@@ -1,7 +1,3 @@
-package com.wso2.org;
-
-
-
 /*
 * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -19,7 +15,7 @@ package com.wso2.org;
 * specific language governing permissions and limitations
 * under the License.
 */
-
+package com.wso2.org;
 
 
 
@@ -157,7 +153,7 @@ public class PullRequestAnalysis {
                 String RepoName = jo1.get("name").toString();
                 RepoName = RepoName.substring(1, RepoName.length()-1);
                 System.out.println("Name of the repository   :"+RepoName);
-//
+
                 String RepoUrl = jo1.get("html_url").toString();
                 RepoUrl = RepoUrl.substring(1, RepoUrl.length()-1);
                 System.out.println("Repository URL   :"+RepoUrl);
@@ -172,7 +168,7 @@ public class PullRequestAnalysis {
                 HttpResponse result2 = httpClient2.execute(request2);
                 String pulls_json = EntityUtils.toString(result2.getEntity(), "UTF-8");
 
-                //System.out.println(pulls_json);
+                
 
                 JsonElement jelement2 = new JsonParser().parse(pulls_json);
                 JsonArray jarr2 = jelement2.getAsJsonArray();
@@ -181,15 +177,6 @@ public class PullRequestAnalysis {
 
 
                 int NoOfPR=jarr2.size();
-//                                            System.out.println("No of open pull_request  :"+NoOfPR);
-//                                            System.out.println();
-
-
-
-
-
-
-
 
 
                 if(NoOfPR>0){
@@ -253,10 +240,6 @@ public class PullRequestAnalysis {
                 else
                 {
 
-
-
-
-
                     String sql3="insert into OpenPulls(RepoName,RepoUrl,NoofOpenPulls,GitId,PullUrl,NoOfHours) values(?,?,?,?,?,?);";
 
 
@@ -280,15 +263,7 @@ public class PullRequestAnalysis {
             }
 
 
-
-
-
-
-
-
         }
-
-
 
 
         catch (IOException ex) {
