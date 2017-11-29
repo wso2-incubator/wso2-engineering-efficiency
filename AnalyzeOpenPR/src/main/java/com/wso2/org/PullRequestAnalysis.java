@@ -17,8 +17,6 @@
 */
 package com.wso2.org;
 
-
-
         import java.io.IOException;
         import java.sql.Connection;
         import java.sql.DriverManager;
@@ -29,10 +27,6 @@ package com.wso2.org;
         import java.text.ParseException;
         import java.util.*;
         import java.util.Map;
-
-
-
-
         import org.apache.http.HttpResponse;
         import org.apache.http.client.methods.HttpGet;
         import org.apache.http.impl.client.CloseableHttpClient;
@@ -44,6 +38,7 @@ package com.wso2.org;
         import com.google.gson.JsonParser;
         import org.apache.http.Header;
 
+
 public class PullRequestAnalysis {
 
     private static String Tokenkey = ""; //Enter your Github token here
@@ -51,6 +46,8 @@ public class PullRequestAnalysis {
     public static void main(String[] args) throws  ParseException {
         try {
             getPull();
+            PullRequestAnalysisSQL.getOpenPr();
+                
         } catch (SQLException e) {
             e.printStackTrace();
 
