@@ -1,6 +1,3 @@
-package com.wso2.org;
-
-
 /*
 *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -18,27 +15,17 @@ package com.wso2.org;
 * specific language governing permissions and limitations
 * under the License.
 */
+package com.wso2.org;
 
-
-
-
-
-        import java.sql.*;
+ import java.sql.*;
 
 public class PullRequestAnalysisSQL  {
-
-
-
-
-
 
     public static void main(String[] args) {
 
         try {
-            Connection myConn=DriverManager.getConnection("jdbc:mysql://localhost:3306/TaskOpenPulls?useSSL=false","root","wso2123"); //Get a connection to employee
+            Connection myConn=DriverManager.getConnection("jdbc:mysql://localhost:3306/TaskOpenPulls?useSSL=false","root","wso2123"); //Get a connection to TaskOpenPulls table
             Statement myst=myConn.createStatement(); //create a statement object
-
-
 
 
             String query = "select distinct product.product,product.RepoName,OpenPulls.RepoUrl,OpenPulls.GitId,OpenPulls.pullUrl,OpenPulls.NoOfHours,(OpenPulls.NoOfHours*0.0416667) as OpenDays,(OpenPulls.NoOfHours*0.00136986) as OpenMonths,(OpenPulls.NoOfHours*0.000114155) as OpenYears from product,OpenPulls where product.RepoName=OpenPulls.RepoName ;" ;
@@ -52,8 +39,6 @@ public class PullRequestAnalysisSQL  {
 
             //Execution of sql query
             ResultSet result=myst.executeQuery(query);
-
-
 
             //Process the result set
             while(result.next())
@@ -87,9 +72,6 @@ public class PullRequestAnalysisSQL  {
 
 
                 st1.executeUpdate("insert into RetrievePullData(product,RepoName, RepoUrl,GitId,pullUrl,OpenHours,OpenDays,OpenMonths,OpenYears) values('"+product+"','"+RepoName+"','"+RepoUrl+"','"+GitId+"','"+PullUrl+"','"+NoOfHours+"','"+OpenDays+"','"+OpenMonths+"','"+OpenYears+"')");
-
-
-
 
 
                 System.out.println();
