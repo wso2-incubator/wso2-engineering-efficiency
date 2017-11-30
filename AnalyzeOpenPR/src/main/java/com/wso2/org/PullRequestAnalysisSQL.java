@@ -33,7 +33,7 @@ public class PullRequestAnalysisSQL  {
 
 
 
-            String DeleteTable="delete from RetrievePullData";
+            String DeleteTable="delete from RetrieveOpenPR";
             PreparedStatement st1=myConn.prepareStatement(DeleteTable,Statement.RETURN_GENERATED_KEYS);
             st1.executeUpdate();
 
@@ -71,7 +71,7 @@ public class PullRequestAnalysisSQL  {
                 System.out.println("Pull request in open state(years) : "+OpenYears);
 
 
-                st1.executeUpdate("insert into RetrievePullData(product,RepoName, RepoUrl,GitId,pullUrl,OpenHours,OpenDays,OpenMonths,OpenYears) values('"+product+"','"+RepoName+"','"+RepoUrl+"','"+GitId+"','"+PullUrl+"','"+NoOfHours+"','"+OpenDays+"','"+OpenMonths+"','"+OpenYears+"')");
+                st1.executeUpdate("insert into RetrieveOpenPR(product,RepoName, RepoUrl,GitId,pullUrl,OpenHours,OpenDays,OpenMonths,OpenYears) values('"+product+"','"+RepoName+"','"+RepoUrl+"','"+GitId+"','"+PullUrl+"','"+NoOfHours+"','"+OpenDays+"','"+OpenMonths+"','"+OpenYears+"')");
 
 
                 System.out.println();
