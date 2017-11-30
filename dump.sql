@@ -69,13 +69,13 @@ LOCK TABLES `OpenPulls` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `RetrievePullData`
+-- Table structure for table `RetrieveOpenPR`
 --
 
-DROP TABLE IF EXISTS `RetrievePullData`;
+DROP TABLE IF EXISTS `RetrieveOpenPR`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `RetrievePullData` (
+CREATE TABLE `RetrieveOpenPR` (
   `Product` varchar(100) DEFAULT NULL,
   `RepoName` varchar(100) DEFAULT NULL,
   `Repourl` varchar(200) DEFAULT NULL,
@@ -89,12 +89,12 @@ CREATE TABLE `RetrievePullData` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `RetrievePullData`
+-- Dumping data for table `RetrieveOpenPR`
 --
 
-LOCK TABLES `RetrievePullData` WRITE;
-/*!40000 ALTER TABLE `RetrievePullData` DISABLE KEYS */;
-/*!40000 ALTER TABLE `RetrievePullData` ENABLE KEYS */;
+LOCK TABLES `RetrieveOpenPR` WRITE;
+/*!40000 ALTER TABLE `RetrieveOpenPR` DISABLE KEYS */;
+/*!40000 ALTER TABLE `RetrieveOpenPR` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
