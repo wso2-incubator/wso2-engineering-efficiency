@@ -16,4 +16,4 @@
            
            String psw= “Mysql workbench password”
 
- 5.  Then required results will be in your local database in the table 'RetrieveOpenPR'.
+ 5.  Then required results will be in your local database TaskOpenPulls in the table 'RetrieveOpenPR'.
