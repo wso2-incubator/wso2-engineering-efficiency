@@ -26,9 +26,10 @@
 
 # Dashboard Implementation
 
-1. First you have to add the OpenPRAnalysis folder into your your php server directory. (/opt/lampp/htdocs)
+1.  First you have to add the OpenPRAnalysis folder into your your php server directory. (/opt/lampp/htdocs)
 	*** Ensure your pc have xampp
+	
 
-2. Then you have to add database url, username and password in db.php file.
+2.  Then you have to add database url, username and password in db.php file.
 
-3.In your browser redirect to OpenPRAnalysis folder by localhost/OpenPRAnalysis , There your dashboard display.
+3.  In your browser redirect to OpenPRAnalysis folder by localhost/OpenPRAnalysis , There your dashboard display.
