@@ -26,7 +26,7 @@
 
 # Dashboard Implementation
 
-1.  First you have to add the OpenPRAnalysis folder into your your php server directory. (/opt/lampp/htdocs)
+1.  First you have to add the OpenPRAnalysis folder into your php server directory. (/opt/lampp/htdocs)
 	*** Ensure your pc have xampp
 	
 
