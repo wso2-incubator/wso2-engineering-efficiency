@@ -167,7 +167,7 @@ public class Milestone {
         ArrayList<Issues> issuesList = new ArrayList<>();
         String apiBaseUrl = "https://api.github.com/repos/"+this.org+"/"+this.repoName+"/issues?milestone="+
                 this.milestoneId+"&state=all";
-        GitHandler gitHandler = new GitHandler(MilestoneProcessor.GIT_TOKEN);
+        GitHandler gitHandler = new GitHandler(MilestoneProcessor.gitAccessToken);
         JsonArray issueArray = gitHandler.getJSONArrayFromGit(apiBaseUrl);
         String issueId,status,issueUrl,title;
         String productVersionUpdate = null;

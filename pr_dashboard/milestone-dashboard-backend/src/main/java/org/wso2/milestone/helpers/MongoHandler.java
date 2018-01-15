@@ -76,10 +76,6 @@ public class MongoHandler {
         return jsonArray.toString();
     }
 
-    public static void main(String [] args){
-        MongoHandler mongoHandler = new MongoHandler("localhost",27017,"product_milestone");
-        System.out.println(getAllTableData("milestones"));
-    }
 
 }
 

@@ -38,7 +38,7 @@ import java.util.Map;
 
 
 public class MilestoneProcessor {
-    public static String GIT_TOKEN = null;
+    public static String gitAccessToken = null;
     private Map<String,String> productRepoData;
     private String databaseUrl=null;
     private String databaseUser=null;
@@ -59,7 +59,7 @@ public class MilestoneProcessor {
         this.databaseUrl = databaseUrl;
         this.databaseUser = databaseUser;
         this.databasePassword = databasePassword;
-        GIT_TOKEN = gitToken;
+        gitAccessToken = gitToken;
     }
 
 
@@ -95,7 +95,7 @@ public class MilestoneProcessor {
         String repoBaseURL = "https://api.github.com/orgs/";
         this.buildProductRepoData();
         ArrayList<Repository> repositoryList = new ArrayList<>();
-        GitHandler gitHandler = new GitHandler(MilestoneProcessor.GIT_TOKEN);
+        GitHandler gitHandler = new GitHandler(MilestoneProcessor.gitAccessToken);
         String repoName,productName,repoUrl;
 
         for(String org:this.organizations){

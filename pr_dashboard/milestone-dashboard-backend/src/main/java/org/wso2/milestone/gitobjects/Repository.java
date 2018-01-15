@@ -79,7 +79,7 @@ public class Repository {
         int openIssues,closedIssues;
         String apiBaseUrl = "https://api.github.com/repos/"+this.org+"/"+this.repoName+"/milestones";
         ArrayList<Milestone> milestonesList = new ArrayList<>();
-        GitHandler gitHandler = new GitHandler(MilestoneProcessor.GIT_TOKEN);
+        GitHandler gitHandler = new GitHandler(MilestoneProcessor.gitAccessToken);
         JsonArray milestoneArray = gitHandler.getJSONArrayFromGit(apiBaseUrl);
 
         for(int i=0;i<milestoneArray.size();i++){
