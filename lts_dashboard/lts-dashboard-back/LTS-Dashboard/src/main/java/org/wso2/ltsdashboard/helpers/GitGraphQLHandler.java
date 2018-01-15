@@ -23,11 +23,16 @@ import com.google.gson.JsonArray;
 import org.wso2.ltsdashboard.connectionshandlers.GitHandler;
 
 public class GitGraphQLHandler {
-    public static  String baseURL = "https://api.github.com/graphql";
-    public static String gitToken = "8bca47bae8a4dd1009070791dba5abbc1f453c71";
+    public static  String graphBaseUrl =null;
+    public static String gitAcccessToken = null;
+
+    public GitGraphQLHandler(String gitToken,String graphBaseUrl){
+        graphBaseUrl = graphBaseUrl;
+        gitAcccessToken = gitToken;
+    }
 
     public JsonArray getMilestoneData(String owner,String repository){
-        GitHandler gitHandler = new GitHandler(gitToken);
+        GitHandler gitHandler = new GitHandler(GitGraphQLHandler.gitAcccessToken);
 //        String response = gitHandler.postJSONObjectString();
 
         return  new JsonArray();

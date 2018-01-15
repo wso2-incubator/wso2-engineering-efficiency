@@ -38,11 +38,11 @@ import java.util.Map;
 
 
 public class MilestoneProcessor {
-    public static String GIT_TOKEN = "8bca47bae8a4dd1009070791dba5abbc1f453c71";
+    public static String GIT_TOKEN = null;
     private Map<String,String> productRepoData;
-    private String databaseUrl="jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false";
-    private String databaseUser="root";
-    private String databasePassword = "1234";
+    private String databaseUrl=null;
+    private String databaseUser=null;
+    private String databasePassword = null;
     final static Logger logger = Logger.getLogger(MilestoneProcessor.class);
     private String [] organizations = {
             "wso2",
@@ -55,7 +55,12 @@ public class MilestoneProcessor {
 
 
 
-    public MilestoneProcessor(){}
+    public MilestoneProcessor(String databaseUrl,String databaseUser, String databasePassword,String gitToken){
+        this.databaseUrl = databaseUrl;
+        this.databaseUser = databaseUser;
+        this.databasePassword = databasePassword;
+        GIT_TOKEN = gitToken;
+    }
 
 
     /**
@@ -151,7 +156,11 @@ public class MilestoneProcessor {
 
 
     public static void main(String [] args){
-        MilestoneProcessor milestoneProcessor = new MilestoneProcessor();
+        String databaseUrl="jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false";
+        String databaseUser="root";
+        String databasePassword = "1234";
+        String git_token = "fgfdg";
+        MilestoneProcessor milestoneProcessor = new MilestoneProcessor(databaseUrl,databaseUser,databasePassword,git_token);
         ArrayList<Repository> repoArray = new ArrayList<>();
         Repository repository = new Repository("product-ei","wso2","Enterprise Integrator","https://github.com/wso2-incubator/label-test");
         repoArray.add(repository);
