@@ -167,7 +167,7 @@ public class Milestone {
         ArrayList<Issues> issuesList = new ArrayList<>();
         String apiBaseUrl = "https://api.github.com/repos/"+this.org+"/"+this.repoName+"/issues?milestone="+
                 this.milestoneId+"&state=all";
-        GitHandler gitHandler = new GitHandler(MilestoneProcessor.gitAccessToken);
+        GitHandler gitHandler = new GitHandler(MilestoneProcessor.getGitToken());
         JsonArray issueArray = gitHandler.getJSONArrayFromGit(apiBaseUrl);
         String issueId,status,issueUrl,title;
         String productVersionUpdate = null;
@@ -249,7 +249,7 @@ public class Milestone {
 
     /**
      * create json array of issues
-     * @return
+     * @return json array of issues
      */
     private JsonArray getJsonArrayofIssues(){
         JsonArray jsonArray = new JsonArray();

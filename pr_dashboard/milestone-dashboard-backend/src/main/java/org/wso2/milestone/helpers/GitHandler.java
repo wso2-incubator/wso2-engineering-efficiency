@@ -51,6 +51,8 @@ public class GitHandler {
             element = new JsonParser().parse(responseString);
             JsonArray firstArray = element.getAsJsonArray();
             jsonArray.addAll(firstArray);
+        }catch (NullPointerException e){
+            logger.error("The response with bad request");
         }
         catch (IOException e){
             logger.error("Cannot connect to get receive data");
@@ -97,8 +99,8 @@ public class GitHandler {
      * @return - json array of git objects
      */
     public JsonArray getJSONArrayFromGit(String url){
-        JsonArray jArray = this.getJSONArrayBasic(url,"application/json");
-        return jArray;
+        return  this.getJSONArrayBasic(url,"application/json");
+
     }
 
     /**

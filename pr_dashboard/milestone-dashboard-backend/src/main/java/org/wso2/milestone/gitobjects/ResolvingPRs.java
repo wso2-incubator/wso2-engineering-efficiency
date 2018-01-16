@@ -95,7 +95,7 @@ public class ResolvingPRs {
 
     /**
      * create josn object of current pr instance
-     * @return
+     * @return json object of PRs
      */
     public JsonObject getJsonObject(){
         JsonObject jsonObject = new JsonObject();
@@ -108,6 +108,10 @@ public class ResolvingPRs {
         return jsonObject;
     }
 
+    /**
+     * get json string of PR
+     * @return json string
+     */
     public String getJsonString(){
         return this.getJsonObject().toString();
     }
@@ -115,7 +119,7 @@ public class ResolvingPRs {
 
     /**
      * check whether the pr is a doc pr or code pr
-     * @return
+     * @return True or False if the code is PR
      */
     private boolean isCodePR(){
         boolean type = true;
@@ -131,7 +135,7 @@ public class ResolvingPRs {
 
     /**
      * create json array of lables
-     * @return
+     * @return json array of labels
      */
     private JsonArray generateLabelJsonArray(){
         JsonArray jsonArray = new JsonArray();

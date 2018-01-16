@@ -140,7 +140,7 @@ public class Issues {
         ArrayList<String> labels = null;
 
         String apiBaseUrl = "https://api.github.com/repos/"+this.org+"/"+this.resolvingRepoName+"/issues/"+issueId+"/timeline";
-        GitHandler gitHandler = new GitHandler(MilestoneProcessor.gitAccessToken);
+        GitHandler gitHandler = new GitHandler(MilestoneProcessor.getGitToken());
         JsonArray events = gitHandler.getJSONArrayFromGit(apiBaseUrl,
                 "application/vnd.github.mockingbird-preview");
 
