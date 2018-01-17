@@ -30,7 +30,7 @@ public class GitHandler {
      *
      * @param url       - rest endpoint with queries
      * @param mediaType - Accept media type for the request header
-     * @return json array of git objects
+     * @return json array of Git objects
      */
     private JsonArray getJSONArrayBasic(String url, String mediaType) {
         String responseString;
@@ -127,8 +127,9 @@ public class GitHandler {
     private Map<String, String> splitLinkHeader(String header) {
         String[] parts = header.split(",");
         Map<String, String> map = new HashMap<String, String>();
-        for (int i = 0; i < parts.length; i++) {
-            String[] sections = parts[i].split(";");
+
+        for (String part : parts) {
+            String[] sections = part.split(";");
             String PaginationUrl = sections[0].replaceFirst("<(.*)>", "$1");
             String urlPagChange = PaginationUrl.trim();
             String name = sections[1].substring(6, sections[1].length() - 1);
