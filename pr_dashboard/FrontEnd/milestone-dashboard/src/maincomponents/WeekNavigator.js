@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import ListSubheader from 'material-ui/List/ListSubheader';
 import List from 'material-ui/List';
 import CalendarYear from '../navigatorcomponenets/CalendarYear'
@@ -45,42 +45,42 @@ const styles = theme => ({
 });
 
 class WeekNavigator extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
-            calendarDates : {}
+            calendarDates: {}
         };
         this.setCalendarDates(this.props.pureData);
         this.setCheckDate = this.setCheckDate.bind(this);
     }
 
 
-    setCalendarDates(data){
-        this.setState (
+    setCalendarDates(data) {
+        this.setState(
             {
-                calendarDates : getAllDates(data)
+                calendarDates: getAllDates(data)
             }
         );
     }
 
 
-    componentWillUpdate(nextProps,nextState){
-        if(nextProps.pureData!==undefined) {
-            if(this.props != nextProps) {
+    componentWillUpdate(nextProps, nextState) {
+        if (nextProps.pureData !== undefined) {
+            if (this.props != nextProps) {
                 this.setCalendarDates(nextProps.pureData);
             }
         }
 
     }
 
-    setCheckDate(sDate,eDate){
-        this.props.setDate(sDate,eDate);
+    setCheckDate(sDate, eDate) {
+        this.props.setDate(sDate, eDate);
     }
 
 
-    renderButtons(){
-        if(Object.keys(this.state.calendarDates).length>0) {
-            return Object.keys(this.state.calendarDates).map((years,index) => (
+    renderButtons() {
+        if (Object.keys(this.state.calendarDates).length > 0) {
+            return Object.keys(this.state.calendarDates).map((years, index) => (
                 <CalendarYear
                     key={index}
                     year={years}
@@ -92,7 +92,7 @@ class WeekNavigator extends React.Component {
     }
 
     render() {
-        const { classes } = this.props;
+        const {classes} = this.props;
 
         return (
             <Paper className={classes.root} elevation={5}>

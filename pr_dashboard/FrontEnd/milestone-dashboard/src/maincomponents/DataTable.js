@@ -18,13 +18,12 @@
  */
 
 import React from "react";
-import { Milestone } from "../support/Utils";
+import {Milestone} from "../support/Utils";
 import matchSorter from 'match-sorter'
-
 // Import React Table
 import ReactTable from "react-table";
 import MilestoneModal from "./MilestoneModal";
-import {getDate,getWeekDates} from  "../support/datepickers";
+import {getDate} from "../support/datepickers";
 
 class DataTable extends React.Component {
     constructor(props) {
@@ -32,11 +31,11 @@ class DataTable extends React.Component {
         this.state = {
             data: [],
             pure_data: this.props.pureData,
-            modal_data:[],
+            modal_data: [],
             start_date: this.props.changeDate.startDate,
             end_date: this.props.changeDate.endDate
         };
-        this.hideModal= this.hideModal.bind(this);
+        this.hideModal = this.hideModal.bind(this);
         this.setFilterDates = this.setFilterDates.bind(this);
 
 
@@ -52,12 +51,11 @@ class DataTable extends React.Component {
     }
 
 
-
-    setMilestone(){
+    setMilestone() {
 
         this.setState(
             {
-                data : this.makeData(this.state.pure_data)
+                data: this.makeData(this.state.pure_data)
             }
         );
         this.setFilterDates(this.props.changeDate);
@@ -66,17 +64,16 @@ class DataTable extends React.Component {
     }
 
 
-
     getInitialState() {
-        return { show: false };
+        return {show: false};
     }
 
     showModal() {
-        this.setState({ show: true });
+        this.setState({show: true});
     }
 
     hideModal() {
-        this.setState({ show: false });
+        this.setState({show: false});
     }
 
     componentDidMount() {
@@ -84,24 +81,22 @@ class DataTable extends React.Component {
     }
 
 
-    componentWillUpdate(nextProps,nextState){
-        if(nextProps.pureData!=this.state.pure_data) {
+    componentWillUpdate(nextProps, nextState) {
+        if (nextProps.pureData != this.state.pure_data) {
             this.state.pure_data = nextProps.pureData;
             this.setMilestone();
         }
-        if(nextProps.changeDate!=this.props.changeDate){
+        if (nextProps.changeDate != this.props.changeDate) {
             this.setFilterDates(nextProps.changeDate);
         }
     }
 
 
-
-
-    setFilterDates(check_date){
+    setFilterDates(check_date) {
         this.setState(
             {
-                start_date : check_date.startDate,
-                end_date : check_date.endDate
+                start_date: check_date.startDate,
+                end_date: check_date.endDate
             },
             () => (
                 this.createFilteredMilestones()
@@ -111,27 +106,26 @@ class DataTable extends React.Component {
     }
 
 
-    findSingleMilestoneData(product,milestone){
+    findSingleMilestoneData(product, milestone) {
         let ite = this.state.pure_data.length;
         let pureFile = this.state.pure_data;
-        for(let i=0 ;i<ite;i++){
-            if(pureFile[i]["product-name"]===product && pureFile[i]["name"]===milestone){
-                this.setState({modal_data:pureFile[i] });
+        for (let i = 0; i < ite; i++) {
+            if (pureFile[i]["product-name"] === product && pureFile[i]["name"] === milestone) {
+                this.setState({modal_data: pureFile[i]});
             }
         }
     }
 
 
-
-    createFilteredMilestones(){
+    createFilteredMilestones() {
         let ite = this.state.pure_data.length;
         let pureFile = this.state.pure_data;
         let changeData = [];
         let count = 0;
-        for(let i=0;i<ite;i++){
+        for (let i = 0; i < ite; i++) {
             let due_date = getDate(pureFile[i]["due-date"]);
-            due_date.setHours(0,0,0,0);
-            if(due_date>=this.state.start_date && due_date<=this.state.end_date){
+            due_date.setHours(0, 0, 0, 0);
+            if (due_date >= this.state.start_date && due_date <= this.state.end_date) {
                 changeData[count] = pureFile[i];
                 count++;
             }
@@ -139,21 +133,20 @@ class DataTable extends React.Component {
 
         this.setState(
             {
-                data : this.makeData(changeData)
+                data: this.makeData(changeData)
             }
         )
     }
 
 
-
     render() {
-        const { data } = this.state;
+        const {data} = this.state;
         return (
             <div className="Table-m">
                 <ReactTable
                     getTrProps={(state, rowInfo, column, instance) => ({
                         onClick: e => {
-                            this.findSingleMilestoneData(rowInfo["original"]["product_name"],rowInfo["original"]["milestone"]);
+                            this.findSingleMilestoneData(rowInfo["original"]["product_name"], rowInfo["original"]["milestone"]);
                             this.showModal();
                         }
                     })}
@@ -167,7 +160,7 @@ class DataTable extends React.Component {
                         {
                             Header: "Due Date",
                             maxWidth: 150,
-                            id:"due_date",
+                            id: "due_date",
                             accessor: d => d.due_date,
                             filterMethod: (filter, row) => {
                                 let cellDate = getDate(row[filter.id]);
@@ -176,18 +169,18 @@ class DataTable extends React.Component {
                         },
                         {
                             Header: "Milestone name",
-                            id : "milestone",
-                            accessor : d => d.milestone,
+                            id: "milestone",
+                            accessor: d => d.milestone,
                             filterMethod: (filter, rows) =>
-                                matchSorter(rows, filter.value, { keys: ["milestone"] }),
+                                matchSorter(rows, filter.value, {keys: ["milestone"]}),
                             filterAll: true
                         },
                         {
                             Header: "Product",
-                            id : "product_name",
+                            id: "product_name",
                             accessor: d => d.product_name,
                             filterMethod: (filter, rows) =>
-                                matchSorter(rows, filter.value, { keys: ["product_name"] }),
+                                matchSorter(rows, filter.value, {keys: ["product_name"]}),
                             filterAll: true
                         },
                         {
@@ -196,18 +189,18 @@ class DataTable extends React.Component {
                             maxWidth: 150,
                             accessor: d => d.version,
                             filterMethod: (filter, rows) =>
-                                matchSorter(rows, filter.value, { keys: ["version"] }),
+                                matchSorter(rows, filter.value, {keys: ["version"]}),
                             filterAll: true
                         },
                         {
                             Header: "Completion",
                             accessor: "completion",
-                            id : "completion",
+                            id: "completion",
                             sortMethod: (a, b) => {
                                 if (a.props.percentage === b.props.percentage) {
                                     return 0;
                                 }
-                                else if(a.props.percentage > b.props.percentage) {
+                                else if (a.props.percentage > b.props.percentage) {
                                     return 1;
                                 }
                                 else {
@@ -223,7 +216,7 @@ class DataTable extends React.Component {
                         {
                             Header: "Number of Features",
                             accessor: "feature_count",
-                            id:"feature_count",
+                            id: "feature_count",
                             maxWidth: 150,
                             filterMethod: (filter, row) => {
                                 if (filter.value <= row[filter.id]) {
@@ -243,7 +236,7 @@ class DataTable extends React.Component {
                             }
                         },
                         {
-                            Header : "Doc Open PRs",
+                            Header: "Doc Open PRs",
                             accessor: "doc_pr_count",
                             id: "doc_pr_count",
                             maxWidth: 120,

@@ -20,23 +20,23 @@
 import React from "react";
 import {Label} from 'react-bootstrap'
 
-class CloseLabel extends React.Component{
-    constructor(props){
+class CloseLabel extends React.Component {
+    constructor(props) {
         super(props)
     }
 
     checkColor(state) {
         let color = null;
-        if(state==="open"){
+        if (state === "open") {
             color = "success";
         }
-        else if (state === "closed"){
+        else if (state === "closed") {
             color = "danger";
         }
         return color;
     }
 
-    render(){
+    render() {
         let color = this.checkColor(this.props.data);
         return (
             <Label bsStyle={color}>

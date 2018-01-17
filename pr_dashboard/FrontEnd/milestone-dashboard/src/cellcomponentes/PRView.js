@@ -18,27 +18,27 @@
  */
 
 import React from 'react';
-import {Label,Col,Row} from 'react-bootstrap'
+import {Col, Label, Row} from 'react-bootstrap'
 
-class PRView extends React.Component{
-    constructor(props){
+class PRView extends React.Component {
+    constructor(props) {
         super(props)
 
     }
 
     checkColor(state) {
         let color = null;
-        if(state==="closed"){
+        if (state === "closed") {
             color = "danger";
         }
-        else if (state === "open"){
+        else if (state === "open") {
             color = 'success';
         }
         return color;
     }
 
 
-    render(){
+    render() {
         let color = this.checkColor(this.props.data["status"]);
         return (
             <div className="pr-view">
@@ -46,15 +46,15 @@ class PRView extends React.Component{
                     <Col xs={12} md={8}>
                         <a href={this.props.data["pr-link"]}>
                             <div className="over">
-                            {this.props.data["title"]}
+                                {this.props.data["title"]}
                             </div>
                         </a>
                     </Col>
                     <Col xs={6} md={4}>
                         <div className="get_right">
-                        <Label bsStyle={color}>
-                            {this.props.data["status"]}
-                        </Label>
+                            <Label bsStyle={color}>
+                                {this.props.data["status"]}
+                            </Label>
                         </div>
                     </Col>
                 </Row>

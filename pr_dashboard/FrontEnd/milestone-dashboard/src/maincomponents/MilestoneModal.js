@@ -19,12 +19,11 @@
 
 import React from 'react';
 import MilestoneTable from './MilestoneTable.js'
-import { Button ,Modal,} from 'react-bootstrap';
+import {Button, Modal,} from 'react-bootstrap';
 import MilestoneHeader from '../cellcomponentes/MilestoneHeader.js'
 
 
-
-class MilestoneModal extends React.Component{
+class MilestoneModal extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -38,7 +37,7 @@ class MilestoneModal extends React.Component{
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <MilestoneTable  array={this.props.milestone["issues"]}/>
+                    <MilestoneTable array={this.props.milestone["issues"]}/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={this.props.onHide}>Close</Button>

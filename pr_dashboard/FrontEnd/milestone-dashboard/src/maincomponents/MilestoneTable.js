@@ -24,7 +24,6 @@ import matchSorter from "match-sorter";
 import CloseLabel from "../cellcomponentes/CloseLabel";
 
 
-
 class MilestoneTable extends React.Component {
     constructor(props) {
         super(props);
@@ -44,16 +43,15 @@ class MilestoneTable extends React.Component {
     }
 
 
-
     componentDidMount() {
         this.setState({
-            data : this.makeData(this.props.array)
+            data: this.makeData(this.props.array)
         })
     }
 
 
     render() {
-        const { data } = this.state;
+        const {data} = this.state;
         return (
             <div className="Table-m">
                 <ReactTable
@@ -65,38 +63,38 @@ class MilestoneTable extends React.Component {
                         {
                             Header: "Feature Name",
                             accessor: "feature_name",
-                            Cell : row => (
+                            Cell: row => (
                                 <a href={row["original"]["feature_name"]["url"]}>
                                     {row["original"]["feature_name"]["title"]}
                                 </a>
                             ),
                             filterMethod: (filter, rows) =>
-                                matchSorter(rows, filter.value, { keys: ["feature_name.title"] }),
+                                matchSorter(rows, filter.value, {keys: ["feature_name.title"]}),
                             filterAll: true
                         },
                         {
                             Header: "State",
-                            id : "state",
-                            accessor : "state",
-                            maxWidth : 100,
-                            Cell : row => (
+                            id: "state",
+                            accessor: "state",
+                            maxWidth: 100,
+                            Cell: row => (
                                 <CloseLabel data={row["original"]["state"]}/>
                             ),
-                            filterMethod: (filter,rows) =>{
-                                if(filter.value==="all"){
+                            filterMethod: (filter, rows) => {
+                                if (filter.value === "all") {
                                     return true;
                                 }
-                                if(filter.value==="open"){
-                                    return rows[filter.id]==="open";
+                                if (filter.value === "open") {
+                                    return rows[filter.id] === "open";
                                 }
-                                else if (filter.value === "closed"){
-                                    return rows[filter.id]==="closed";
+                                else if (filter.value === "closed") {
+                                    return rows[filter.id] === "closed";
                                 }
                             },
-                            Filter: ({ filter, onChange }) =>
+                            Filter: ({filter, onChange}) =>
                                 <select
                                     onChange={event => onChange(event.target.value)}
-                                    style={{ width: "100%" }}
+                                    style={{width: "100%"}}
                                     value={filter ? filter.value : "all"}
                                 >
                                     <option value="all">all</option>
@@ -106,13 +104,13 @@ class MilestoneTable extends React.Component {
                         },
                         {
                             Header: "Source code related PRs",
-                            accessor : "code_pr",
+                            accessor: "code_pr",
                             filterable: false
                         },
                         {
                             Header: "Doc related PRs",
-                            accessor : "doc_pr",
-                            filterable : false
+                            accessor: "doc_pr",
+                            filterable: false
                         }
                     ]}
                     defaultPageSize={20}

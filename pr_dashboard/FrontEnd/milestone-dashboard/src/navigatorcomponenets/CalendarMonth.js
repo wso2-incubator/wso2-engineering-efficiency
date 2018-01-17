@@ -19,8 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import {withStyles} from 'material-ui/styles';
+import List, {ListItem, ListItemText} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Collapse from 'material-ui/transitions/Collapse';
 import ExpandLess from 'material-ui-icons/ExpandLess';
@@ -29,15 +29,15 @@ import WeekButtons from './WeekButtons';
 import {generateMonthName} from "../support/datepickers";
 import Chip from 'material-ui/Chip';
 
-const styles=theme => ( {
+const styles = theme => ({
     nestedWeeks: {
         paddingLeft: theme.spacing.unit * 5,
     },
-    listBackColorNormal:{
+    listBackColorNormal: {
         paddingLeft: theme.spacing.unit * 4,
         backgroundColor: "#EAF5CD",
     },
-    listBackColorSelected:{
+    listBackColorSelected: {
         paddingLeft: theme.spacing.unit * 4,
         backgroundColor: "#D7F1AB"
     },
@@ -48,24 +48,20 @@ const styles=theme => ( {
 
 
 class CalendarMonth extends React.Component {
-    constructor(props){
+    handleClick = () => {
+        this.setState({open: !this.state.open});
+    };
+
+    constructor(props) {
         super(props);
         this.state = {
             open: false,
-            weeks : this.props.monthData,
+            weeks: this.props.monthData,
         };
         this.setCheckDate = this.setCheckDate.bind(this);
     }
 
-    handleClick = () => {
-        this.setState({ open: !this.state.open });
-    };
-
-
-
-
-
-    renderWeek(){
+    renderWeek() {
 
 
         let weeks = this.state.weeks.filter(function (a) {
@@ -73,37 +69,37 @@ class CalendarMonth extends React.Component {
         }, Object.create(null));
 
 
-        weeks.sort(function(a, b){
+        weeks.sort(function (a, b) {
             var keyA = new Date(a.weekNumber),
                 keyB = new Date(b.weekNumber);
             // Compare the 2 dates
-            if(keyA < keyB) return -1;
-            if(keyA > keyB) return 1;
+            if (keyA < keyB) return -1;
+            if (keyA > keyB) return 1;
             return 0;
         });
 
-        return weeks.map((week,index)=>(
+        return weeks.map((week, index) => (
             <WeekButtons
                 weekNumber={week["weekNumber"]}
                 key={index}
-                startDate ={week["startDate"]}
-                endDate = {week["endDate"]}
-                setDate = {this.setCheckDate}
-                danger = {week["danger"]}
+                startDate={week["startDate"]}
+                endDate={week["endDate"]}
+                setDate={this.setCheckDate}
+                danger={week["danger"]}
             />
         ))
     }
 
 
-    setCheckDate(sDate,eDate){
-        this.props.setDate(sDate,eDate);
+    setCheckDate(sDate, eDate) {
+        this.props.setDate(sDate, eDate);
     }
 
 
-    checkDanger(){
+    checkDanger() {
         let test = false;
-        for(let i=0;i<this.state.weeks.length;i++){
-            if(this.state.weeks[i]["danger"]){
+        for (let i = 0; i < this.state.weeks.length; i++) {
+            if (this.state.weeks[i]["danger"]) {
                 test = true;
                 return test;
             }
@@ -117,7 +113,7 @@ class CalendarMonth extends React.Component {
             <div>
                 <ListItem button onClick={this.handleClick} className={classes.listBackColorNormal}>
                     <ListItemText inset primary={generateMonthName(this.props.month)}/>
-                    {this.checkDanger()?<div><Chip label="In Progress" className={classes.chip}/></div>:<div></div>}
+                    {this.checkDanger() ? <div><Chip label="In Progress" className={classes.chip}/></div> : <div></div>}
                     {this.state.open ? <ExpandLess/> : <ExpandMore/>}
 
                 </ListItem>
@@ -125,10 +121,10 @@ class CalendarMonth extends React.Component {
                 <Collapse component="li" in={this.state.open} timeout="auto" unmountOnExit>
                     <List disablePadding>
                         <ListItem className={classes.nestedWeeks}>
-                        {
+                            {
 
-                            this.renderWeek()
-                        }
+                                this.renderWeek()
+                            }
                         </ListItem>
                         <Divider/>
                     </List>
