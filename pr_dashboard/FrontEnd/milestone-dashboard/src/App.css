@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    animation: App-logo-spin infinite 20s linear;
+    height: 80px;
+}
+
+.custom-modal {
+    width: 80%;
+}
+
+.App-header {
+    background-color: #0c0043;
+    height: 150px;
+    padding: 20px;
+    color: white;
+    text-align: left;
+}
+
+.App-title {
+    font-size: 1.5em;
+}
+
+.Table-m {
+    width: 80%;
+    margin: auto;
+}
+
+.start-space {
+    height: 20px;
+}
+
+.center-text {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.get_right {
+    float: right;
+}
+
+.over {
+    overflow: fragments;
+}
+
+.pr-view {
+    width: 100%;
+    border-radius: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
