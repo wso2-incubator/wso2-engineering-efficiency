@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
@@ -37,14 +37,12 @@ const styles = theme => ({
         paddingTop: 16,
         paddingBottom: 16,
         marginTop: theme.spacing.unit * 3,
-        width : 1200
+        width: 1200
     }),
-    appBar : {
-        paddingBottom:20
+    appBar: {
+        paddingBottom: 20
     }
 });
-
-
 
 
 class MilestoneList extends React.Component {
@@ -53,28 +51,28 @@ class MilestoneList extends React.Component {
     };
 
 
-    testData = [1,2,3,4,5];
+    testData = [1, 2, 3, 4, 5];
 
     render() {
-        const { classes } = this.props;
+        const {classes} = this.props;
 
         return (
             <div>
                 <Paper className={classes.paper} elevation={4}>
                     <div className={classes.appBar}>
                         <AppBar position="static" color="default">
-                            <Toolbar >
+                            <Toolbar>
                                 <Typography type="headline" component="h2">
                                     2.0.1
                                 </Typography>
                             </Toolbar>
                         </AppBar>
                     </div>
-                    <Divider light />
+                    <Divider light/>
                     <div className={classes.root}>
-                        {this.testData.map((value,index)=>(
-                                <MilestoneExpansion key={index}/>
-                            ))
+                        {this.testData.map((value, index) => (
+                            <MilestoneExpansion key={index}/>
+                        ))
                         }
                     </div>
                 </Paper>

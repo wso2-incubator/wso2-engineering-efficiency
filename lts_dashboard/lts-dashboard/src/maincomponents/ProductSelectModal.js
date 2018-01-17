@@ -24,7 +24,6 @@ import ModalBar from './productlist/ModalBar';
 import ProductList from './productlist/ProductList';
 
 
-
 function getModalStyle() {
 
     return {
@@ -40,23 +39,20 @@ function getModalStyle() {
 
 
 class SimpleModal extends React.Component {
-    constructor(props){
-        super(props);
-        this.handleOpen = this.handleOpen.bind(this);
-    }
     state = {
         open: false,
     };
-
     handleOpen = () => {
-        this.setState({ open: true });
+        this.setState({open: true});
     };
-
     handleClose = () => {
-        this.setState({ open: false });
+        this.setState({open: false});
     };
 
-
+    constructor(props) {
+        super(props);
+        this.handleOpen = this.handleOpen.bind(this);
+    }
 
     render() {
         return (
@@ -73,7 +69,7 @@ class SimpleModal extends React.Component {
                 >
                     <div style={getModalStyle()}>
                         <ModalBar/>
-                        <div style={{height:15}}></div>
+                        <div style={{height: 15}}></div>
                         <ProductList/>
                     </div>
                 </Modal>

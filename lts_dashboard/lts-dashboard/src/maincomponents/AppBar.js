@@ -19,12 +19,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import SimpleModal from './ProductSelectModal';
-import {Row,Col} from 'react-bootstrap'
+import {Col, Row} from 'react-bootstrap'
 
 
 const styles = {
@@ -32,13 +32,13 @@ const styles = {
         width: '100%',
     },
     header: {
-        paddingRight:20
+        paddingRight: 20
     }
 };
 
 
 function HeaderAppBar(props) {
-    const { classes } = props;
+    const {classes} = props;
     return (
         <div className={classes.root}>
             <AppBar position="static" color="default">
