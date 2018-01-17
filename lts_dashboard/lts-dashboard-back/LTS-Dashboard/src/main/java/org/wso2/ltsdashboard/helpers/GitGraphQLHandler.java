@@ -23,47 +23,47 @@ import com.google.gson.JsonArray;
 import org.wso2.ltsdashboard.connectionshandlers.GitHandler;
 
 public class GitGraphQLHandler {
-    public static  String graphBaseUrl =null;
-    public static String gitAcccessToken = null;
+    public static String graphBaseUrl = null;
+    private static String gitAcccessToken = null;
 
-    public GitGraphQLHandler(String gitToken,String graphBaseUrl){
+    public GitGraphQLHandler(String gitToken, String graphBaseUrl) {
         graphBaseUrl = graphBaseUrl;
         gitAcccessToken = gitToken;
     }
 
-    public JsonArray getMilestoneData(String owner,String repository){
+    public JsonArray getMilestoneData(String owner, String repository) {
         GitHandler gitHandler = new GitHandler(GitGraphQLHandler.gitAcccessToken);
 //        String response = gitHandler.postJSONObjectString();
 
-        return  new JsonArray();
+        return new JsonArray();
 
     }
 
 
-    private String getGraphQLQuery(String owner,String repository, int count){
+    private String getGraphQLQuery(String owner, String repository, int count) {
         String qeury = "query {\n  " +
-                            "repository(owner:\"wso2\", name:\"product-ei\") {\n " +
-                                "milestones(first:2) {\n " +
-                                    "edges {\n" +
-                                        "node {\n " +
-                                            "title\n " +
-                                            "url\n  " +
-                                            "issues(first:100){\n" +
-                                                "edges{\n" +
-                                                    "node{\n" +
-                                                        "title\n" +
-                                                        "\n " +
-                                                    "}\n            " +
-                                                "}\n          " +
-                                            "}\n        " +
-                                        "}\n      " +
-                                    "}\n\t\t\t" +
-                                    "pageInfo {\n" +
-                                        "hasNextPage\n" +
-                                    "}\n    " +
-                                "}\n  " +
-                            "}\n" +
-                        "}";
+                "repository(owner:\"wso2\", name:\"product-ei\") {\n " +
+                "milestones(first:2) {\n " +
+                "edges {\n" +
+                "node {\n " +
+                "title\n " +
+                "url\n  " +
+                "issues(first:100){\n" +
+                "edges{\n" +
+                "node{\n" +
+                "title\n" +
+                "\n " +
+                "}\n            " +
+                "}\n          " +
+                "}\n        " +
+                "}\n      " +
+                "}\n\t\t\t" +
+                "pageInfo {\n" +
+                "hasNextPage\n" +
+                "}\n    " +
+                "}\n  " +
+                "}\n" +
+                "}";
         return qeury;
     }
 
