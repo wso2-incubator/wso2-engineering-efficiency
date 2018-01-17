@@ -41,139 +41,133 @@ public class Milestone {
     private String org;
     private String productName;
 
-    public Milestone(String milestoneName,String repoName) {
+    Milestone(String milestoneName, String repoName) {
         this.milestoneName = milestoneName;
         this.repoName = repoName;
-        this.productVersion=null;
+        this.productVersion = null;
     }
 
+    public static void main(String[] args) {
+        ArrayList<String> li = new ArrayList<>();
+        li.add("5.x.x");
+        li.add("Test");
+        Milestone milestone = new Milestone("op", "dsf");
+        String version = milestone.getProductVersion(li);
+        System.out.println(version);
 
-    public void setIssues(ArrayList<Issues> issues) {
-        this.issues = issues;
-    }
-
-    public void setMilestoneUrl(String milestoneUrl) {
-        this.milestoneUrl = milestoneUrl;
-    }
-
-    public void setClosedIssues(int closedIssues) {
-        this.closedIssues = closedIssues;
-    }
-
-    public void setOpenIssues(int openIssues) {
-        this.openIssues = openIssues;
-    }
-
-    public void setMilestoneId(String milestoneId) {
-        this.milestoneId = milestoneId;
-    }
-
-    public void setDueDate(String dueDate) {
-        this.dueDate = dueDate;
     }
 
     public void setOrg(String org) {
         this.org = org;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    private String getMilestoneName() {
+        return milestoneName.replace("\"", "");
     }
 
-    public String getMilestoneName() {
-        return milestoneName.replace("\"","");
-    }
-
-    public String getRepoName() {
-        return repoName;
-    }
-
-    public String getProductVersion() {
+    private String getProductVersion() {
         if (this.productVersion != null) {
             this.productVersion = this.productVersion.replace("\"", "");
         }
         return this.productVersion;
     }
 
-    public ArrayList<Issues> getIssues() {
-        if(issues==null){
+    private void setProductVersion(String productVersion) {
+        this.productVersion = productVersion;
+    }
+
+    private ArrayList<Issues> getIssues() {
+        if (issues == null) {
             issues = this.getIssueList();
         }
 
         return issues;
     }
 
-    public String getMilestoneUrl() {
-        return milestoneUrl.replace("\"","");
+    private String getMilestoneUrl() {
+        return milestoneUrl.replace("\"", "");
     }
 
-    public int getClosedIssues() {
+    void setMilestoneUrl(String milestoneUrl) {
+        this.milestoneUrl = milestoneUrl;
+    }
+
+    private int getClosedIssues() {
         return closedIssues;
     }
 
-    public int getOpenIssues() {
+    void setClosedIssues(int closedIssues) {
+        this.closedIssues = closedIssues;
+    }
+
+    private int getOpenIssues() {
         return openIssues;
     }
 
-    public String getMilestoneId() {
+    void setOpenIssues(int openIssues) {
+        this.openIssues = openIssues;
+    }
+
+    private String getMilestoneId() {
         return milestoneId;
     }
 
-    public String getDueDate() {
-        return dueDate.replace("\"","").split("T")[0];
+    void setMilestoneId(String milestoneId) {
+        this.milestoneId = milestoneId;
     }
 
-    public String getProductName() {
+    private String getDueDate() {
+        return dueDate.replace("\"", "").split("T")[0];
+    }
+
+    void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    private String getProductName() {
         return productName;
     }
 
-    public void setProductVersion(String productVersion) {
-        this.productVersion = productVersion;
+    void setProductName(String productName) {
+        this.productName = productName;
     }
 
     /**
      * create json object from instance data
+     *
      * @return json object
      */
-    public JsonObject getJsonObject(){
+    public JsonObject getJsonObject() {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("name",this.getMilestoneName());
-        jsonObject.addProperty("closed-issues",this.getClosedIssues());
-        jsonObject.addProperty("open-issues",this.getOpenIssues());
-        jsonObject.addProperty("milestone-id",this.getMilestoneId());
-        jsonObject.addProperty("url",this.getMilestoneUrl());
-        jsonObject.addProperty("due-date",this.getDueDate());
-        jsonObject.add("issues",this.getJsonArrayofIssues());
-        jsonObject.addProperty("version",this.getProductVersion());
-        jsonObject.addProperty("product-name",this.getProductName());
+        jsonObject.addProperty("name", this.getMilestoneName());
+        jsonObject.addProperty("closed-issues", this.getClosedIssues());
+        jsonObject.addProperty("open-issues", this.getOpenIssues());
+        jsonObject.addProperty("milestone-id", this.getMilestoneId());
+        jsonObject.addProperty("url", this.getMilestoneUrl());
+        jsonObject.addProperty("due-date", this.getDueDate());
+        jsonObject.add("issues", this.getJsonArrayofIssues());
+        jsonObject.addProperty("version", this.getProductVersion());
+        jsonObject.addProperty("product-name", this.getProductName());
 
         return jsonObject;
     }
 
     /**
-     * generate json string of instance data
-     * @return json string
-     */
-    public String getJsonString(){
-        return this.getJsonObject().toString();
-    }
-
-
-    /**
      * returns the issues related to the milestone
+     *
      * @return list of issues
      */
-    private ArrayList<Issues> getIssueList(){
+    private ArrayList<Issues> getIssueList() {
         ArrayList<Issues> issuesList = new ArrayList<>();
-        String apiBaseUrl = "https://api.github.com/repos/"+this.org+"/"+this.repoName+"/issues?milestone="+
-                this.milestoneId+"&state=all";
+        String apiBaseUrl = "https://api.github.com/repos/" + this.org + "/" + this.repoName + "/issues?milestone=" +
+                this.milestoneId + "&state=all";
         GitHandler gitHandler = new GitHandler(MilestoneProcessor.getGitToken());
         JsonArray issueArray = gitHandler.getJSONArrayFromGit(apiBaseUrl);
-        String issueId,status,issueUrl,title;
-        String productVersionUpdate = null;
+        String issueId, status, issueUrl, title;
+        String productVersionUpdate;
 
 
-        for(int i=0;i<issueArray.size();i++){
+        for (int i = 0; i < issueArray.size(); i++) {
             JsonObject issueJson = (JsonObject) issueArray.get(i);
             issueId = issueJson.get("number").toString();
             status = issueJson.get("state").toString();
@@ -185,7 +179,6 @@ public class Milestone {
             Issues issue = new Issues(issueId);
             issue.setIssueUrl(issueUrl);
             issue.setStatus(status);
-            issue.setLabels(labelList);
             issue.setOrg(this.org);
             issue.setIssueTitle(title);
             issue.setResolvingRepoName(this.repoName);
@@ -193,9 +186,9 @@ public class Milestone {
             issuesList.add(issue);
 
             //get the product version
-            if(this.productVersion==null){
+            if (this.productVersion == null) {
                 productVersionUpdate = this.getProductVersion(labelList);
-                if(productVersionUpdate!=null){
+                if (productVersionUpdate != null) {
                     this.setProductVersion(productVersionUpdate);
                 }
             }
@@ -203,15 +196,15 @@ public class Milestone {
         return issuesList;
     }
 
-
     /**
      * Create list of label names which is extracted from json array
+     *
      * @param jsonArray - json array containing label data
      * @return arraylist of label names
      */
-    private ArrayList<String> generateLabels(JsonArray jsonArray){
+    private ArrayList<String> generateLabels(JsonArray jsonArray) {
         ArrayList<String> labelArray = new ArrayList<>();
-        for(int i=0;i<jsonArray.size();i++){
+        for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject obj = (JsonObject) jsonArray.get(i);
             String name = obj.get("name").toString();
             labelArray.add(name);
@@ -220,25 +213,25 @@ public class Milestone {
         return labelArray;
     }
 
-
     /**
      * resolves the product name from the lables of the issues
+     *
      * @param labels - labels of a issue
      * @return - the product version
      */
-    private String getProductVersion(ArrayList<String> labels){
+    private String getProductVersion(ArrayList<String> labels) {
         String productVersion = null;
         String pattern = "[0-9]+\\.[0-9x]+\\.[0-9x]+(.*)";
         Pattern r = Pattern.compile(pattern);
 
-        for(String label:labels){
-            if(label.toLowerCase().contains("affected")){
+        for (String label : labels) {
+            if (label.toLowerCase().contains("affected")) {
                 productVersion = label.split("/")[1];
                 break;
             }
             //check regex
             Matcher m = r.matcher(label);
-            if(m.find()){
+            if (m.find()) {
                 productVersion = label;
                 break;
             }
@@ -249,28 +242,18 @@ public class Milestone {
 
     /**
      * create json array of issues
+     *
      * @return json array of issues
      */
-    private JsonArray getJsonArrayofIssues(){
+    private JsonArray getJsonArrayofIssues() {
         JsonArray jsonArray = new JsonArray();
         ArrayList<Issues> issues = this.getIssues();
 
-        for(Issues issue:issues){
+        for (Issues issue : issues) {
             jsonArray.add(issue.getJsonObject());
         }
 
         return jsonArray;
-    }
-
-
-    public static void main(String [] args){
-        ArrayList<String> li = new ArrayList<>();
-        li.add("5.x.x");
-        li.add("Test");
-        Milestone milestone = new Milestone("op","dsf");
-        String version = milestone.getProductVersion(li);
-        System.out.println(version);
-
     }
 
 

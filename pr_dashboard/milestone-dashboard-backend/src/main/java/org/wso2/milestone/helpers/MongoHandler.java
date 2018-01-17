@@ -33,33 +33,54 @@ public class MongoHandler {
     private static DB mongoDatabase = null;
 
 
-    public MongoHandler(String databaseUrl,int databasePort,String databaseName){
+    public MongoHandler(String databaseUrl, int databasePort, String databaseName) {
         try {
             MongoClient mongoClient = new MongoClient(databaseUrl, databasePort);
-            mongoDatabase = mongoClient.getDB(databaseName);
-        }catch (UnknownHostException e){
+            if (mongoDatabase == null) {
+                mongoDatabase = mongoClient.getDB(databaseName);
+            }
+        } catch (UnknownHostException e) {
             logger.error("Unknown Host : Can't connect to the db");
         }
     }
 
     /**
-     * insert a single document to mongodb database collection
-     * @param tableName - database collection name
-     * @param object - json object which need to store as a document
+     * return all the collection data
+     *
+     * @param tabelName - collection name
+     * @return json string of data from mongo collection
      */
-    public void insertToTable(String tableName, JsonObject object){
+    public static String getAllTableData(String tabelName) {
+        DBCollection table = mongoDatabase.getCollection(tabelName);
+        DBCursor cursor = table.find();
+        JsonArray jsonArray = new JsonArray();
+        JsonParser jsonParser = new JsonParser();
+        while (cursor.hasNext()) {
+            JsonObject jsonObject = jsonParser.parse(cursor.next().toString()).getAsJsonObject();
+            jsonArray.add(jsonObject);
+        }
+
+        return jsonArray.toString();
+    }
+
+    /**
+     * insert a single document to mongodb database collection
+     *
+     * @param tableName - database collection name
+     * @param object    - json object which need to store as a document
+     */
+    private void insertToTable(String tableName, JsonObject object) {
         DBCollection table = mongoDatabase.getCollection(tableName);
         BasicDBObject searchQuery = new BasicDBObject();
-        searchQuery.put("url",object.get("url").toString().replace("\"",""));
+        searchQuery.put("url", object.get("url").toString().replace("\"", ""));
         DBCursor cursor = table.find(searchQuery);
         BasicDBObject dbObject = (BasicDBObject) JSON.parse(object.toString());
 
-        if(cursor.count()>0){
+        if (cursor.count() > 0) {
             BasicDBObject updateObject = new BasicDBObject();
-            updateObject.put("$set",dbObject);
-            table.update(searchQuery,updateObject);
-        }
-        else {
+            updateObject.put("$set", dbObject);
+            table.update(searchQuery, updateObject);
+        } else {
             table.insert(dbObject);
         }
 
@@ -67,32 +88,14 @@ public class MongoHandler {
 
     /**
      * insert array of documnets to mongodb database collection
+     *
      * @param tableName - database collection name
      * @param jsonArray - json array having json objects to store
      */
-    public void insertToTable(String tableName, JsonArray jsonArray){
-        for(int i=0;i<jsonArray.size();i++){
-            this.insertToTable(tableName,jsonArray.get(i).getAsJsonObject());
+    public void insertToTable(String tableName, JsonArray jsonArray) {
+        for (int i = 0; i < jsonArray.size(); i++) {
+            this.insertToTable(tableName, jsonArray.get(i).getAsJsonObject());
         }
-    }
-
-
-    /**
-     * return all the collection data
-     * @param tabelName - collection name
-     * @return json string of data from mongo collection
-     */
-    public static String getAllTableData(String tabelName){
-        DBCollection table = mongoDatabase.getCollection(tabelName);
-        DBCursor cursor = table.find();
-        JsonArray jsonArray = new JsonArray();
-        JsonParser jsonParser = new JsonParser();
-        while (cursor.hasNext()){
-            JsonObject jsonObject = jsonParser.parse(cursor.next().toString()).getAsJsonObject();
-            jsonArray.add(jsonObject);
-        }
-
-        return jsonArray.toString();
     }
 
 

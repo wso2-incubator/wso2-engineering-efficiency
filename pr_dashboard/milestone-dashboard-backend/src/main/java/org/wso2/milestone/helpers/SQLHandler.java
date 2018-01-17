@@ -19,38 +19,48 @@
 
 package org.wso2.milestone.helpers;
 
-import java.sql.*;
 import org.apache.log4j.Logger;
 
+import java.sql.*;
+
 public class SQLHandler {
-    private static Connection con ;
-    final static Logger logger = Logger.getLogger(SQLHandler.class);
+    private final static Logger logger = Logger.getLogger(SQLHandler.class);
+    private static Connection con;
+    private String databaseUrl, databaseUser, databasePassword;
 
 
-    public SQLHandler(String databaseUrl,String databaseUser,String databasePassword) {
+    public SQLHandler(String databaseUrl, String databaseUser, String databasePassword) {
+        this.databaseUser = databaseUser;
+        this.databaseUrl = databaseUrl;
+        this.databasePassword = databasePassword;
+    }
+
+
+    private Connection getCon(String databaseUrl, String databaseUser, String databasePassword) {
         try {
-            if(con==null) {
+            if (con == null) {
                 con = DriverManager.getConnection(databaseUrl, databaseUser, databasePassword);
                 logger.info("Connected to the MySQL database");
             }
         } catch (SQLException e) {
             logger.error("SQL Exception while connecting to the MySQL database");
         }
-
+        return con;
     }
 
     /**
      * Execute sql query and get result set
+     *
      * @param query - sql query
-     * @return
+     * @return - query result
      */
-    public ResultSet executeQuery(String query ){
+    public ResultSet executeQuery(String query) {
         ResultSet resultSet = null;
         try {
+            con = this.getCon(this.databaseUrl, this.databaseUser, this.databasePassword);
             Statement statement = con.createStatement();
             resultSet = statement.executeQuery(query);
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
         }
         return resultSet;

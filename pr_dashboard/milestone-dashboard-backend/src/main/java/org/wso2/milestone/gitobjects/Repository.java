@@ -30,15 +30,12 @@ public class Repository {
     private String repoName;
     private String productName;
     private ArrayList<Milestone> milestones;
-    private String repoUrl;
     private String org;
 
 
-
-    public Repository(String repoName, String org, String productName, String repoUrl) {
+    public Repository(String repoName, String org, String productName) {
         this.repoName = repoName;
         this.productName = productName;
-        this.repoUrl = repoUrl;
         this.org = org;
 
     }
@@ -47,42 +44,32 @@ public class Repository {
         return org;
     }
 
-    public String getRepoName() {
-        return repoName;
-    }
-
-
-    public String getProductName() {
+    private String getProductName() {
         return productName;
     }
 
 
     public ArrayList<Milestone> getMilestones() {
-        if(milestones==null){
+        if (milestones == null) {
             milestones = this.getMilestoneList();
         }
         return milestones;
     }
 
-
-    public String getRepoUrl() {
-        return repoUrl.replace("\"","");
-    }
-
-
     /**
      * generate milestone list related to the repository
+     *
      * @return milestone list
      */
-    private ArrayList<Milestone> getMilestoneList(){
-        String milestoneName,milestoneUrl,milestoneId,date;
-        int openIssues,closedIssues;
-        String apiBaseUrl = "https://api.github.com/repos/"+this.org+"/"+this.repoName+"/milestones";
+    private ArrayList<Milestone> getMilestoneList() {
+        String milestoneName, milestoneUrl, milestoneId, date;
+        int openIssues, closedIssues;
+        String apiBaseUrl = "https://api.github.com/repos/" + this.org + "/" + this.repoName + "/milestones";
         ArrayList<Milestone> milestonesList = new ArrayList<>();
         GitHandler gitHandler = new GitHandler(MilestoneProcessor.getGitToken());
         JsonArray milestoneArray = gitHandler.getJSONArrayFromGit(apiBaseUrl);
 
-        for(int i=0;i<milestoneArray.size();i++){
+        for (int i = 0; i < milestoneArray.size(); i++) {
             JsonObject milestoneJson = (JsonObject) milestoneArray.get(i);
             milestoneId = milestoneJson.get("number").toString();
             milestoneName = milestoneJson.get("title").toString();
@@ -92,7 +79,7 @@ public class Repository {
             date = milestoneJson.get("due_on").toString();
             // do a print and check
 
-            Milestone milestone = new Milestone(milestoneName,this.repoName);
+            Milestone milestone = new Milestone(milestoneName, this.repoName);
             milestone.setMilestoneId(milestoneId);
             milestone.setMilestoneUrl(milestoneUrl);
             milestone.setClosedIssues(closedIssues);
@@ -104,19 +91,6 @@ public class Repository {
             milestonesList.add(milestone);
         }
         return milestonesList;
-    }
-
-    /**
-     * create json array of milestones
-     * @return
-     */
-    public JsonArray getJsonArrayofMilestones(){
-        ArrayList<Milestone> milestones = this.getMilestones();
-        JsonArray jsonArray = new JsonArray();
-        for(Milestone milestone:milestones){
-            jsonArray.add(milestone.getJsonObject());
-        }
-        return jsonArray;
     }
 
 }
