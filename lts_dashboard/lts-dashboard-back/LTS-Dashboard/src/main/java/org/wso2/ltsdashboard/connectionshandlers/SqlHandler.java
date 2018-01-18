@@ -21,24 +21,15 @@ package org.wso2.ltsdashboard.connectionshandlers;/*
  * TODO - comment class work
  */
 
-import com.google.gson.JsonArray;
+import java.sql.ResultSet;
 
-public interface GitHandler {
-    /**
-     * retrive json array of objects from git with default mediatype application/json
-     *
-     * @param url - rest enpoint with queries
-     * @return - json array of git objects
-     */
-    public JsonArray getJSONArrayFromGit(String url);
-
+public interface SqlHandler {
 
     /**
-     * retrieve json array of objects from git with custom mediatypes
+     * Execute sql query and get result set
      *
-     * @param url       - rest endpint with queries
-     * @param mediaType - custome mediatype
-     * @return - json array of git objects
+     * @param query - sql query
+     * @return - query result
      */
-    public JsonArray getJSONArrayFromGit(String url, String mediaType);
+    public ResultSet executeQuery(String query);
 }

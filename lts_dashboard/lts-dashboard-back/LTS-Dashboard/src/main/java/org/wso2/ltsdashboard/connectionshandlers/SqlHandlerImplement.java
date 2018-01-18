@@ -21,15 +21,20 @@ package org.wso2.ltsdashboard.connectionshandlers;
 
 import org.apache.log4j.Logger;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-public class SQLHandler {
-    private final static Logger logger = Logger.getLogger(SQLHandler.class);
+
+public class SqlHandlerImplement implements SqlHandler{
+    private final static Logger logger = Logger.getLogger(SqlHandlerImplement.class);
     private static Connection con;
     private String databaseUrl, databaseUser, databasePassword;
 
 
-    public SQLHandler(String databaseUrl, String databaseUser, String databasePassword) {
+    public SqlHandlerImplement(String databaseUrl, String databaseUser, String databasePassword) {
         this.databaseUser = databaseUser;
         this.databaseUrl = databaseUrl;
         this.databasePassword = databasePassword;
@@ -43,7 +48,8 @@ public class SQLHandler {
                 logger.info("Connected to the MySQL database");
             }
         } catch (SQLException e) {
-            logger.error("SQL Exception while connecting to the MySQL database");
+            e.printStackTrace();
+            logger.info("SQL Exception while connecting to the MySQL database");
         }
         return con;
     }
@@ -54,6 +60,7 @@ public class SQLHandler {
      * @param query - sql query
      * @return - query result
      */
+    @Override
     public ResultSet executeQuery(String query) {
         ResultSet resultSet = null;
         try {
@@ -63,7 +70,9 @@ public class SQLHandler {
         } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
         }
+
         return resultSet;
+
     }
 
 }

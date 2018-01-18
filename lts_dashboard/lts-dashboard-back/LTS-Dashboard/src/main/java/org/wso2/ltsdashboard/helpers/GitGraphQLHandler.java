@@ -20,7 +20,7 @@
 package org.wso2.ltsdashboard.helpers;
 
 import com.google.gson.JsonArray;
-import org.wso2.ltsdashboard.connectionshandlers.GitHandler;
+import org.wso2.ltsdashboard.connectionshandlers.GitHandlerImplement;
 
 public class GitGraphQLHandler {
     public static String graphBaseUrl = null;
@@ -32,8 +32,8 @@ public class GitGraphQLHandler {
     }
 
     public JsonArray getMilestoneData(String owner, String repository) {
-        GitHandler gitHandler = new GitHandler(GitGraphQLHandler.gitAcccessToken);
-//        String response = gitHandler.postJSONObjectString();
+        GitHandlerImplement gitHandlerImplement = new GitHandlerImplement(GitGraphQLHandler.gitAcccessToken);
+//        String response = gitHandlerImplement.postJSONObjectString();
 
         return new JsonArray();
 
@@ -41,7 +41,7 @@ public class GitGraphQLHandler {
 
 
     private String getGraphQLQuery(String owner, String repository, int count) {
-        String qeury = "query {\n  " +
+        String query = "query {\n  " +
                 "repository(owner:\"wso2\", name:\"product-ei\") {\n " +
                 "milestones(first:2) {\n " +
                 "edges {\n" +
@@ -64,7 +64,7 @@ public class GitGraphQLHandler {
                 "}\n  " +
                 "}\n" +
                 "}";
-        return qeury;
+        return query;
     }
 
 //    private String getGraphQLQuery(String owner,String repository, int count, String lastNode){
