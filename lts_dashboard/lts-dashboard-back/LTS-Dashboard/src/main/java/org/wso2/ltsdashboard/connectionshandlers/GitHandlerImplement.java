@@ -56,7 +56,7 @@ public class GitHandlerImplement implements GitHandler {
         HttpGet request = new HttpGet(url);
         request.addHeader("Accept", mediaType);
         request.addHeader("Authorization", "Bearer " + gitToken);
-        HttpResponse response = null;
+        HttpResponse response;
         JsonArray jsonArray = new JsonArray();
         HashMap<String, String> linkState = null;
         boolean containsNext = false;

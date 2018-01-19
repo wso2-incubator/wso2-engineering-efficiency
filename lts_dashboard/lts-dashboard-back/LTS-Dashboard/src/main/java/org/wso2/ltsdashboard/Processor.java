@@ -22,66 +22,10 @@ package org.wso2.ltsdashboard;/*
  */
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import org.apache.log4j.Logger;
-import org.wso2.ltsdashboard.connectionshandlers.GitHandlerImplement;
-import org.wso2.ltsdashboard.connectionshandlers.SqlHandlerImplement;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-
-public class Processor {
-    final static Logger logger = Logger.getLogger(Processor.class);
-    private HashMap<String, ArrayList<String>> productRepoMap;
-    private String baseUrl = "https://api.github.com/";
-    private GitHandlerImplement gitHandlerImplement;
-    private String gitToken = "a3a0df4543b9d2751e9c060e78532cb6ac06d81b";
-
-    public Processor() {
-        this.productRepoMap = new HashMap<>();
-        this.gitHandlerImplement = new GitHandlerImplement(gitToken);
-    }
-
-    public static void main(String[] args) {
-        Processor processor = new Processor();
-        ArrayList<String> arrayList = processor.getProductList();
-
-        JsonArray jsonArray = processor.getIssues("Integration", "6.2.0");
-        System.out.printf("f");
-
-    }
-
-    /**
-     * Create Product repository map
-     */
-    private void getProductsAndRepos() {
-
-        SqlHandlerImplement sqlHandlerImplement = new SqlHandlerImplement("jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false", "root", "1234");
-        ResultSet resultSet = sqlHandlerImplement.executeQuery("SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT;");
-        try {
-            while (resultSet.next()) {
-                String product = resultSet.getString(1);
-                String repo = resultSet.getString(2);
-
-                ArrayList<String> repoList = this.productRepoMap.get(product);
-                if (repoList == null) {
-                    repoList = new ArrayList<>();
-                    repoList.add(repo);
-                    this.productRepoMap.put(product, repoList);
-                } else {
-                    repoList.add(repo);
-                }
-            }
-            logger.info("The map between product and repos created");
-        } catch (SQLException e) {
-            logger.error("Iterating through DB RequestSet failed");
-        }
-
-    }
+public interface Processor {
 
     /**
      * Get the product list
@@ -89,16 +33,7 @@ public class Processor {
      * @return ArrayList of Product names
      */
 
-    ArrayList<String> getProductList() {
-        ArrayList<String> productList = new ArrayList<>();
-        if (this.productRepoMap.isEmpty()) {
-            this.getProductsAndRepos();
-        }
-        for (Map.Entry<String, ArrayList<String>> map : this.productRepoMap.entrySet()) {
-            productList.add(map.getKey());
-        }
-        return productList;
-    }
+    public ArrayList<String> getProductList();
 
     /**
      * Get the labels for particular product
@@ -106,20 +41,7 @@ public class Processor {
      * @param repos - repo name
      * @return - ArrayList of Label names
      */
-    ArrayList<String> getLabels(ArrayList<String> repos) {
-        ArrayList<String> labels = new ArrayList<>();
-        for (String repo : repos) {
-            String url = this.baseUrl + "repos/wso2/" + repo + "/labels";
-            JsonArray labelArray = gitHandlerImplement.getJSONArrayFromGit(url);
-            for (JsonElement object : labelArray) {
-                String label = object.getAsJsonObject().get("name").toString();
-                // TODO : Filter Labels
-                labels.add(label);
-            }
-        }
-        return labels;
-
-    }
+    public ArrayList<String> getLabels(ArrayList<String> repos);
 
     /**
      * Get issues to give product name and label
@@ -128,31 +50,13 @@ public class Processor {
      * @param label       - label extracted
      * @return a json array of issue details
      */
-    JsonArray getIssues(String productName, String label) {
-        ArrayList<String> repos = this.productRepoMap.get(productName);
-        JsonArray issueArray = new JsonArray();
-        for (String repo : repos) {
-            logger.info("Repository " + repo);
-            String url = this.baseUrl + "search/issues?q=label:" + label + "+repo:wso2/" + repo;
-            JsonArray issues = gitHandlerImplement.getJSONArrayFromGit(url);
-            issueArray.addAll(issues);
-        }
-
-        // TODO : process issues
-
-        return issueArray;
-    }
+    public JsonArray getIssues(String productName, String label);
 
     /**
      * Get Milestone features extracted from git
      *
-     * @param milestoneId - Milestone Id
+     * @param issueUrlList - issue Url list from front end
      * @return Feature Set as a json array
      */
-    JsonArray getMilestoneFeatures(String milestoneId) {
-        JsonArray jsonArray = new JsonArray();
-        return jsonArray;
-    }
-
-
+    public JsonArray getMilestoneFeatures(JsonArray issueUrlList);
 }
