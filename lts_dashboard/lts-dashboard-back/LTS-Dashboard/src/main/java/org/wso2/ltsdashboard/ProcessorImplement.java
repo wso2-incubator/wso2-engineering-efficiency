@@ -54,10 +54,10 @@ public class ProcessorImplement implements Processor {
     ProcessorImplement(String gitToken, String databaseUrl, String databaseUser, String databasePassword) {
         this.productRepoMap = new HashMap<>();
         this.gitHandlerImplement = new GitHandlerImplement(gitToken);
-        this.getProductsAndRepos();
         this.databaseUrl = databaseUrl;
         this.databasePassword = databasePassword;
         this.databaseUser = databaseUser;
+        this.getProductsAndRepos();
     }
 
 
@@ -66,12 +66,14 @@ public class ProcessorImplement implements Processor {
                 "e2a81b45343434925d123e35bce98081f96f6f13",
                 "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
                 "root", "1234");
+
+        processorImplement.getVersions("Integration Test");
 //        processorImplement.getIssues("Integration","6.2.0");
 //        JsonArray arrayList = processorImplement.getProductList();
 //        JsonArray jsonArray = processorImplement.getIssues("Integration", "6.2.0");
-        JsonArray jsonArray = new JsonArray();
-        jsonArray.add("https://api.github.com/repos/wso2/product-ei/issues/1764");
-        processorImplement.getMilestoneFeatures(jsonArray);
+//        JsonArray jsonArray = new JsonArray();
+//        jsonArray.add("https://api.github.com/repos/wso2/product-ei/issues/1764");
+//        processorImplement.getMilestoneFeatures(jsonArray);
 //        System.out.printf("f");
 
     }
@@ -149,7 +151,7 @@ public class ProcessorImplement implements Processor {
      */
     @Override
     public JsonArray getIssues(String productName, String label) {
-        // TODO - change label as Affected/$version
+
         ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
         String finalLabel = label.replace("\"", "");
         JsonArray issueArray = new JsonArray();
@@ -191,12 +193,12 @@ public class ProcessorImplement implements Processor {
         for (JsonElement event : eventList) {
             if (this.checkCrossReferenced(event)) {
                 PullRequest featureComponent = new PullRequest(event.getAsJsonObject());
-                featureList.addAll(featureComponent.getTitle());
+                // change features / title
+                featureList.addAll(featureComponent.getFeatures());
             } //end if
         }
 
         // get cross referenced PR urls
-        // TODO : need to send milestone data with feature list
         return featureList;
     }
 
@@ -211,8 +213,11 @@ public class ProcessorImplement implements Processor {
         String productVersion = null;
 
         if (labelName.toLowerCase().contains("affected")) {
-            productVersion = labelName.split("/")[1];
+            productVersion = labelName.split("/")[1]
+                    .replace("\"", "")
+                    .replace("\\", "");
         }
+
 
         return productVersion;
 
@@ -225,7 +230,7 @@ public class ProcessorImplement implements Processor {
     private void getProductsAndRepos() {
 
         SqlHandlerImplement sqlHandlerImplement =
-                new SqlHandlerImplement(this.databaseUrl, this.databaseUser, this.databasePassword);
+                SqlHandlerImplement.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
         ResultSet resultSet = sqlHandlerImplement.
                 executeQuery("SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT;");
         try {
@@ -246,7 +251,18 @@ public class ProcessorImplement implements Processor {
         } catch (SQLException e) {
             logger.info("Iterating through DB RequestSet failed");
         }
+        // add test repo
+        this.getLabelTestRepo();
 
+    }
+
+    /**
+     * Make product list from incubator test repo
+     */
+    private void getLabelTestRepo() {
+        ArrayList<String> repoList = new ArrayList<>();
+        repoList.add("label-test");
+        this.productRepoMap.put("Integration Test", repoList);
     }
 
 

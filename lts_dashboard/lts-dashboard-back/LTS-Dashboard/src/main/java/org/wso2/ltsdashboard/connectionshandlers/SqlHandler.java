@@ -18,7 +18,7 @@
  */
 
 package org.wso2.ltsdashboard.connectionshandlers;/*
- * TODO - comment class work
+ * The interface for sql handler
  */
 
 import java.sql.ResultSet;
@@ -31,5 +31,6 @@ public interface SqlHandler {
      * @param query - sql query
      * @return - query result
      */
-    public ResultSet executeQuery(String query);
+    ResultSet executeQuery(String query);
 }
+

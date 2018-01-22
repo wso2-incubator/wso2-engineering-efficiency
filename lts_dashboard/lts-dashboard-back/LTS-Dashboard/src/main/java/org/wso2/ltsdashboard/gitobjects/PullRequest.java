@@ -82,7 +82,7 @@ public class PullRequest {
         JsonArray featureArray = new JsonArray();
         for (String feature : features) {
             if (feature.length() > 0) {
-                featureArray.add(feature);
+                featureArray.add(feature.replace("\\r\\n",""));
             }
         }
 

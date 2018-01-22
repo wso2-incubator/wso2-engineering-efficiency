@@ -30,29 +30,29 @@ import java.sql.Statement;
 
 public class SqlHandlerImplement implements SqlHandler {
     private final static Logger logger = Logger.getLogger(SqlHandlerImplement.class);
-    private Connection con;
-    private String databaseUrl, databaseUser, databasePassword;
+    private static SqlHandlerImplement sqlHandler = null;
+    private Connection con = null;
 
 
-    public SqlHandlerImplement(String databaseUrl, String databaseUser, String databasePassword) {
-        this.databaseUser = databaseUser;
-        this.databaseUrl = databaseUrl;
-        this.databasePassword = databasePassword;
-    }
-
-
-    private Connection getCon(String databaseUrl, String databaseUser, String databasePassword) {
+    private SqlHandlerImplement(String databaseUrl, String databaseUser, String databasePassword) {
         try {
-            if (con == null) {
+            if (this.con == null) {
                 con = DriverManager.getConnection(databaseUrl, databaseUser, databasePassword);
                 logger.info("Connected to the MySQL database");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             logger.info("SQL Exception while connecting to the MySQL database");
         }
-        return con;
     }
+
+
+    public static SqlHandlerImplement getHandler(String databaseUrl, String databaseUser, String databasePassword) {
+        if (sqlHandler == null) {
+            sqlHandler = new SqlHandlerImplement(databaseUrl, databaseUser, databasePassword);
+        }
+        return sqlHandler;
+    }
+
 
     /**
      * Execute sql query and get result set
@@ -64,10 +64,8 @@ public class SqlHandlerImplement implements SqlHandler {
     public ResultSet executeQuery(String query) {
         ResultSet resultSet = null;
         try {
-            con = this.getCon(this.databaseUrl, this.databaseUser, this.databasePassword);
-            Statement statement = con.createStatement();
+            Statement statement = this.con.createStatement();
             resultSet = statement.executeQuery(query);
-            con.close();
         } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
         }

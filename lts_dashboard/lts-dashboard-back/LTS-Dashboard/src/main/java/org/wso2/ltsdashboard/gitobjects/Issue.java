@@ -20,7 +20,7 @@
 package org.wso2.ltsdashboard.gitobjects;
 
 /*
- * TODO - comment class work
+ * The behaviours of git issue
  */
 
 import com.google.gson.JsonArray;

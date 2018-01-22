@@ -17,8 +17,9 @@
  *
  */
 
-package org.wso2.ltsdashboard.connectionshandlers;/*
- * TODO - comment class work
+package org.wso2.ltsdashboard.connectionshandlers;
+/*
+ * The interface for Git handler
  */
 
 import com.google.gson.JsonArray;
@@ -30,7 +31,7 @@ public interface GitHandler {
      * @param url - rest enpoint with queries
      * @return - json array of git objects
      */
-    public JsonArray getJSONArrayFromGit(String url);
+    JsonArray getJSONArrayFromGit(String url);
 
 
     /**
@@ -40,5 +41,5 @@ public interface GitHandler {
      * @param mediaType - custome mediatype
      * @return - json array of git objects
      */
-    public JsonArray getJSONArrayFromGit(String url, String mediaType);
+    JsonArray getJSONArrayFromGit(String url, String mediaType);
 }

@@ -17,13 +17,12 @@
  *
  */
 
-package org.wso2.ltsdashboard;/*
- * TODO - comment class work
+package org.wso2.ltsdashboard;
+/*
+ * Interface of processor class
  */
 
 import com.google.gson.JsonArray;
-
-import java.util.ArrayList;
 
 public interface Processor {
 
@@ -33,7 +32,7 @@ public interface Processor {
      * @return ArrayList of Product names
      */
 
-    public JsonArray getProductList();
+    JsonArray getProductList();
 
     /**
      * Get the labels for particular product
@@ -41,7 +40,7 @@ public interface Processor {
      * @param productName -product name
      * @return - json array of Label names
      */
-    public JsonArray getVersions(String productName);
+    JsonArray getVersions(String productName);
 
     /**
      * Get issues to give product name and label
@@ -50,7 +49,7 @@ public interface Processor {
      * @param label       - label extracted
      * @return a json array of issue details
      */
-    public JsonArray getIssues(String productName, String label);
+    JsonArray getIssues(String productName, String label);
 
     /**
      * Get Milestone features extracted from git
@@ -58,5 +57,5 @@ public interface Processor {
      * @param issueUrlList - issue Url list from front end
      * @return Feature Set as a json array
      */
-    public JsonArray getMilestoneFeatures(JsonArray issueUrlList);
+    JsonArray getMilestoneFeatures(JsonArray issueUrlList);
 }
