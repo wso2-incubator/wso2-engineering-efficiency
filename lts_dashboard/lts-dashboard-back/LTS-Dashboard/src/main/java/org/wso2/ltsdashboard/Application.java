@@ -26,7 +26,7 @@ import org.wso2.msf4j.MicroservicesRunner;
 public class Application {
     public static void main(String[] args) {
         new MicroservicesRunner()
-                .deploy(new LtsDashboard("e2a81b45343434925d123e35bce98081f96f6f13",
+                .deploy(new LtsDashboard("11155996576967a57c6e11e11e78d5569e0fb3f0_",
                         "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
                         "root", "1234"))
                 .start();
