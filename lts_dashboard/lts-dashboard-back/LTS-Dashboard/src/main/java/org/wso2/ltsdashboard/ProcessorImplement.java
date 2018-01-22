@@ -45,7 +45,7 @@ public class ProcessorImplement implements Processor {
     private HashMap<String, ArrayList<String>> productRepoMap;
     private String baseUrl = "https://api.github.com/";
     private GitHandlerImplement gitHandlerImplement;
-    private String org = "wso2-incubator";
+    private String org = "wso2";
     private String databaseUrl;
     private String databaseUser;
     private String databasePassword;
@@ -58,24 +58,6 @@ public class ProcessorImplement implements Processor {
         this.databasePassword = databasePassword;
         this.databaseUser = databaseUser;
         this.getProductsAndRepos();
-    }
-
-
-    public static void main(String[] args) {
-        ProcessorImplement processorImplement = new ProcessorImplement(
-                "e2a81b45343434925d123e35bce98081f96f6f13",
-                "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
-                "root", "1234");
-
-        processorImplement.getVersions("Integration Test");
-//        processorImplement.getIssues("Integration","6.2.0");
-//        JsonArray arrayList = processorImplement.getProductList();
-//        JsonArray jsonArray = processorImplement.getIssues("Integration", "6.2.0");
-//        JsonArray jsonArray = new JsonArray();
-//        jsonArray.add("https://api.github.com/repos/wso2/product-ei/issues/1764");
-//        processorImplement.getMilestoneFeatures(jsonArray);
-//        System.out.printf("f");
-
     }
 
 
@@ -251,19 +233,9 @@ public class ProcessorImplement implements Processor {
         } catch (SQLException e) {
             logger.info("Iterating through DB RequestSet failed");
         }
-        // add test repo
-        this.getLabelTestRepo();
 
     }
 
-    /**
-     * Make product list from incubator test repo
-     */
-    private void getLabelTestRepo() {
-        ArrayList<String> repoList = new ArrayList<>();
-        repoList.add("label-test");
-        this.productRepoMap.put("Integration Test", repoList);
-    }
 
 
     /**
