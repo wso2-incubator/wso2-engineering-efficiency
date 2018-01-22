@@ -17,36 +17,43 @@
  *
  */
 
-package org.wso2.ltsdashboard.gitobjects;/*
- * TODO - comment class work
+package org.wso2.ltsdashboard.gitobjects;
+/*
+ * The data about a PR
  */
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class PullRequest {
-    private JsonArray feautures;
+    private JsonArray features;
     private String title;
 
     public PullRequest(JsonObject event) {
         JsonObject pr = this.getPr(event);
-        this.feautures = extractFeatures(pr.get("body").toString());
+        this.features = extractFeatures(pr.get("body").toString());
         this.title = pr.get("title").toString();
     }
 
-    public JsonArray getFeautures() {
-        return feautures;
+    /**
+     * Get the marketing features
+     *
+     * @return - features as array
+     */
+    public JsonArray getFeatures() {
+        return features;
     }
 
     /**
      * Get the title of the pr
+     *
      * @return - title as a array
      */
     public JsonArray getTitle() {
         JsonArray testJsonArray = new JsonArray();
         testJsonArray.add(this.title
-                .replace("\"","")
-                .replace("\\","")
+                .replace("\"", "")
+                .replace("\\", "")
         );
 
         return testJsonArray;
@@ -60,6 +67,7 @@ public class PullRequest {
 
     /**
      * Extract features from PR body
+     *
      * @param prBody - the PR body as a string
      * @return - feature list as json array
      */

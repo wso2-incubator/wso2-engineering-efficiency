@@ -17,13 +17,14 @@
  *
  */
 
-package org.wso2.ltsdashboard.gitobjects;/*
- * TODO - comment class work
+package org.wso2.ltsdashboard.gitobjects;
+/*
+ * The data about a milestone
  */
 
 import com.google.gson.JsonObject;
 
-public class Milestone {
+class Milestone {
     private String url;
     private String htmlUrl;
     private String closedIssues;
@@ -32,7 +33,7 @@ public class Milestone {
     private String version;
     private String title;
 
-    public Milestone(JsonObject milestoneObject, String version) {
+    Milestone(JsonObject milestoneObject, String version) {
         this.url = milestoneObject.get("url").toString();
         this.htmlUrl = milestoneObject.get("html_url").toString();
         this.releaseDate = this.splitDate(milestoneObject.get("due_on").toString());
@@ -57,7 +58,7 @@ public class Milestone {
         milestoneObject.addProperty("closed_issues", this.closedIssues);
         milestoneObject.addProperty("open_issues", this.openIssues);
         milestoneObject.addProperty("version", this.trimString(this.version));
-        milestoneObject.addProperty("title",this.trimString(this.title));
+        milestoneObject.addProperty("title", this.trimString(this.title));
 
         return milestoneObject;
     }
@@ -75,12 +76,13 @@ public class Milestone {
 
     /**
      * Format the string
+     *
      * @param stringValue - string to be formatted
      * @return - return
      */
-    private String trimString(String stringValue){
-        return stringValue.replace("\"","" )
-                .replace("\\","");
+    private String trimString(String stringValue) {
+        return stringValue.replace("\"", "")
+                .replace("\\", "");
     }
 
 

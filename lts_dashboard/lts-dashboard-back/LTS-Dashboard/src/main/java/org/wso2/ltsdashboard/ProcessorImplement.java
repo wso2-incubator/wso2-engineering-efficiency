@@ -17,6 +17,7 @@
  *
  */
 
+
 package org.wso2.ltsdashboard;
 
 /*
@@ -37,25 +38,34 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class ProcessorImplement implements Processor {
-    final static Logger logger = Logger.getLogger(ProcessorImplement.class);
+    private final static Logger logger = Logger.getLogger(ProcessorImplement.class);
     private HashMap<String, ArrayList<String>> productRepoMap;
     private String baseUrl = "https://api.github.com/";
     private GitHandlerImplement gitHandlerImplement;
-    private String gitToken = "0fbe5df6e925b4454e32a2f3befcc1b4ab864c5c";
+    private String org = "wso2-incubator";
+    private String databaseUrl;
+    private String databaseUser;
+    private String databasePassword;
 
-    public ProcessorImplement() {
+
+    ProcessorImplement(String gitToken, String databaseUrl, String databaseUser, String databasePassword) {
         this.productRepoMap = new HashMap<>();
         this.gitHandlerImplement = new GitHandlerImplement(gitToken);
         this.getProductsAndRepos();
+        this.databaseUrl = databaseUrl;
+        this.databasePassword = databasePassword;
+        this.databaseUser = databaseUser;
     }
 
+
     public static void main(String[] args) {
-        ProcessorImplement processorImplement = new ProcessorImplement();
+        ProcessorImplement processorImplement = new ProcessorImplement(
+                "e2a81b45343434925d123e35bce98081f96f6f13",
+                "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
+                "root", "1234");
 //        processorImplement.getIssues("Integration","6.2.0");
 //        JsonArray arrayList = processorImplement.getProductList();
 //        JsonArray jsonArray = processorImplement.getIssues("Integration", "6.2.0");
@@ -65,6 +75,7 @@ public class ProcessorImplement implements Processor {
 //        System.out.printf("f");
 
     }
+
 
     /**
      * Get the product list
@@ -88,6 +99,7 @@ public class ProcessorImplement implements Processor {
         return productJsonArray;
     }
 
+
     /**
      * Get the versions for particular product
      *
@@ -103,7 +115,7 @@ public class ProcessorImplement implements Processor {
         ArrayList<String> labels = new ArrayList<>();
 
         for (String repo : repos) {
-            String url = this.baseUrl + "repos/wso2/" + repo + "/labels";
+            String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/labels";
             JsonArray labelArray = gitHandlerImplement.getJSONArrayFromGit(url);
 
             for (JsonElement object : labelArray) {
@@ -141,9 +153,10 @@ public class ProcessorImplement implements Processor {
         ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
         String finalLabel = label.replace("\"", "");
         JsonArray issueArray = new JsonArray();
+
         for (String repo : repos) {
             logger.info("Repository " + repo);
-            String url = this.baseUrl + "search/issues?q=label:" + finalLabel + "+repo:wso2/" + repo;
+            String url = this.baseUrl + "search/issues?q=label:Affected/" + finalLabel + "+repo:" + this.org + "/" + repo;
             JsonArray issues = gitHandlerImplement.getJSONArrayFromGit(url);
 
             for (JsonElement issue : issues) {
@@ -155,6 +168,7 @@ public class ProcessorImplement implements Processor {
         return issueArray;
     }
 
+
     /**
      * Get Milestone features extracted from git
      *
@@ -165,6 +179,7 @@ public class ProcessorImplement implements Processor {
     public JsonArray getMilestoneFeatures(JsonArray issueUrlList) {
         JsonArray eventList = new JsonArray();
         JsonArray featureList = new JsonArray();
+
         // getting event lists from issue list
         for (JsonElement url : issueUrlList) {
             String issueUrl = url.getAsString() + "/timeline";
@@ -194,32 +209,23 @@ public class ProcessorImplement implements Processor {
      */
     private String getProductVersionFromIssue(String labelName) {
         String productVersion = null;
-        String pattern = "[0-9]+\\.[0-9]+\\.[0-9]+(.*)";
-        Pattern r = Pattern.compile(pattern);
 
         if (labelName.toLowerCase().contains("affected")) {
             productVersion = labelName.split("/")[1];
-        }
-        //check regex
-        Matcher m = r.matcher(labelName);
-        if (m.find()) {
-            productVersion = labelName;
-        }
-
-        if (productVersion != null) {
-            productVersion = productVersion.replace("\"", "").replace("\\", "");
         }
 
         return productVersion;
 
     }
 
+
     /**
      * Create Product repository map
      */
     private void getProductsAndRepos() {
 
-        SqlHandlerImplement sqlHandlerImplement = new SqlHandlerImplement("jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false", "root", "1234");
+        SqlHandlerImplement sqlHandlerImplement =
+                new SqlHandlerImplement(this.databaseUrl, this.databaseUser, this.databasePassword);
         ResultSet resultSet = sqlHandlerImplement.
                 executeQuery("SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT;");
         try {
@@ -238,10 +244,11 @@ public class ProcessorImplement implements Processor {
             }
             logger.info("The map between product and repos created");
         } catch (SQLException e) {
-            logger.error("Iterating through DB RequestSet failed");
+            logger.info("Iterating through DB RequestSet failed");
         }
 
     }
+
 
     /**
      * Check whether the event is cross referenced

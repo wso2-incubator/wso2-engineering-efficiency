@@ -28,9 +28,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 
-public class SqlHandlerImplement implements SqlHandler{
+public class SqlHandlerImplement implements SqlHandler {
     private final static Logger logger = Logger.getLogger(SqlHandlerImplement.class);
-    private static Connection con;
+    private Connection con;
     private String databaseUrl, databaseUser, databasePassword;
 
 
@@ -67,12 +67,12 @@ public class SqlHandlerImplement implements SqlHandler{
             con = this.getCon(this.databaseUrl, this.databaseUser, this.databasePassword);
             Statement statement = con.createStatement();
             resultSet = statement.executeQuery(query);
+            con.close();
         } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
         }
 
         return resultSet;
-
     }
 
 }
