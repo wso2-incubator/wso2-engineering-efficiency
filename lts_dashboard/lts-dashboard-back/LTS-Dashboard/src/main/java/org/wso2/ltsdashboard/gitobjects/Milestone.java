@@ -30,6 +30,7 @@ public class Milestone {
     private String openIssues;
     private String releaseDate;
     private String version;
+    private String title;
 
     public Milestone(JsonObject milestoneObject, String version) {
         this.url = milestoneObject.get("url").toString();
@@ -38,6 +39,7 @@ public class Milestone {
         this.openIssues = milestoneObject.get("open_issues").toString();
         this.closedIssues = milestoneObject.get("closed_issues").toString();
         this.version = version;
+        this.title = milestoneObject.get("title").toString();
 
 
     }
@@ -49,12 +51,13 @@ public class Milestone {
      */
     JsonObject createJsonObject() {
         JsonObject milestoneObject = new JsonObject();
-        milestoneObject.addProperty("url", this.url);
-        milestoneObject.addProperty("html_url", this.htmlUrl);
-        milestoneObject.addProperty("due_on", this.releaseDate);
+        milestoneObject.addProperty("url", this.trimString(this.url));
+        milestoneObject.addProperty("html_url", this.trimString(this.htmlUrl));
+        milestoneObject.addProperty("due_on", this.trimString(this.releaseDate));
         milestoneObject.addProperty("closed_issues", this.closedIssues);
         milestoneObject.addProperty("open_issues", this.openIssues);
-        milestoneObject.addProperty("version", this.version);
+        milestoneObject.addProperty("version", this.trimString(this.version));
+        milestoneObject.addProperty("title",this.trimString(this.title));
 
         return milestoneObject;
     }
@@ -67,6 +70,17 @@ public class Milestone {
      */
     private String splitDate(String originalDateString) {
         return originalDateString.split("T")[0];
+    }
+
+
+    /**
+     * Format the string
+     * @param stringValue - string to be formatted
+     * @return - return
+     */
+    private String trimString(String stringValue){
+        return stringValue.replace("\"","" )
+                .replace("\\","");
     }
 
 

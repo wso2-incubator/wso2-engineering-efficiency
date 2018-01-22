@@ -21,6 +21,65 @@ package org.wso2.ltsdashboard.gitobjects;/*
  * TODO - comment class work
  */
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class PullRequest {
+    private JsonArray feautures;
+    private String title;
+
+    public PullRequest(JsonObject event) {
+        JsonObject pr = this.getPr(event);
+        this.feautures = extractFeatures(pr.get("body").toString());
+        this.title = pr.get("title").toString();
+    }
+
+    public JsonArray getFeautures() {
+        return feautures;
+    }
+
+    /**
+     * Get the title of the pr
+     * @return - title as a array
+     */
+    public JsonArray getTitle() {
+        JsonArray testJsonArray = new JsonArray();
+        testJsonArray.add(this.title
+                .replace("\"","")
+                .replace("\\","")
+        );
+
+        return testJsonArray;
+    }
+
+
+    private JsonObject getPr(JsonObject event) {
+        return event.get("source").getAsJsonObject().get("issue").getAsJsonObject();
+    }
+
+
+    /**
+     * Extract features from PR body
+     * @param prBody - the PR body as a string
+     * @return - feature list as json array
+     */
+    private JsonArray extractFeatures(String prBody) {
+        String[] marketStringPart = prBody.split("## Marketing");
+        if (marketStringPart.length > 1) {
+            marketStringPart = marketStringPart[1].split("## Automation tests");
+        }
+        String marketingString = marketStringPart[0];
+        String[] features = marketingString.split("\r\n");
+
+        JsonArray featureArray = new JsonArray();
+        for (String feature : features) {
+            if (feature.length() > 0) {
+                featureArray.add(feature);
+            }
+        }
+
+        return featureArray;
+    }
+
 
 }

@@ -33,15 +33,15 @@ public interface Processor {
      * @return ArrayList of Product names
      */
 
-    public ArrayList<String> getProductList();
+    public JsonArray getProductList();
 
     /**
      * Get the labels for particular product
      *
-     * @param repos - repo name
-     * @return - ArrayList of Label names
+     * @param productName -product name
+     * @return - json array of Label names
      */
-    public ArrayList<String> getLabels(ArrayList<String> repos);
+    public JsonArray getVersions(String productName);
 
     /**
      * Get issues to give product name and label

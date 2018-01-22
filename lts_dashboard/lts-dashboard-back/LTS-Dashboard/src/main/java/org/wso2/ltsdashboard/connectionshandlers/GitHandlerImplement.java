@@ -69,7 +69,6 @@ public class GitHandlerImplement implements GitHandler {
             element = new JsonParser().parse(responseString);
             if (element.isJsonArray()) {
                 firstArray = element.getAsJsonArray();
-                jsonArray.addAll(firstArray);
             } else {
                 firstArray = element.getAsJsonObject().get("items").getAsJsonArray();
             }

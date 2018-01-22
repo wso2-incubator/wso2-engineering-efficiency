@@ -45,7 +45,8 @@ public class Issue {
         this.issueTitle = issueData.get("title").toString();
         ArrayList<String> labels = createLabelList(issueData.get("labels").getAsJsonArray());
         this.version = this.getProductVersion(labels);
-        if (issueData.get("milestone").equals("null")) {
+        if (issueData.get("milestone") != null &&
+                !issueData.get("milestone").toString().equals("null")) {
             this.milestone = new Milestone(issueData.get("milestone").getAsJsonObject(), this.version);
         }
     }
@@ -57,12 +58,15 @@ public class Issue {
      */
     public JsonObject createJsonObject() {
         JsonObject issueObject = new JsonObject();
-        issueObject.addProperty("url", this.issueUrl);
-        issueObject.addProperty("html_url", this.htmlUrl);
-        issueObject.addProperty("issue_title", this.issueTitle);
-        issueObject.addProperty("version", this.version);
-        if (this.milestone!=null) {
+        issueObject.addProperty("url", this.trimString(this.issueUrl));
+        issueObject.addProperty("html_url", this.trimString(this.htmlUrl));
+        issueObject.addProperty("issue_title", this.trimString(this.issueTitle));
+        issueObject.addProperty("version", this.trimString(this.version));
+        if (this.milestone != null) {
             issueObject.add("milestone", this.milestone.createJsonObject());
+        } else {
+            issueObject.add("milestone", null);
+
         }
 
         return issueObject;
@@ -109,5 +113,16 @@ public class Issue {
 
         }
         return productVersion;
+    }
+
+    /**
+     * Format the string
+     *
+     * @param stringValue - string to be formatted
+     * @return - return
+     */
+    private String trimString(String stringValue) {
+        return stringValue.replace("\"", "")
+                .replace("\\", "");
     }
 }

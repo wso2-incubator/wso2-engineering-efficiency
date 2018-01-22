@@ -17,8 +17,10 @@
  *
  */
 
-package org.wso2.ltsdashboard;/*
- * TODO - comment class work
+package org.wso2.ltsdashboard;
+
+/*
+ * Handle basic exposing methods for the API
  */
 
 import com.google.gson.JsonArray;
@@ -28,6 +30,7 @@ import org.apache.log4j.Logger;
 import org.wso2.ltsdashboard.connectionshandlers.GitHandlerImplement;
 import org.wso2.ltsdashboard.connectionshandlers.SqlHandlerImplement;
 import org.wso2.ltsdashboard.gitobjects.Issue;
+import org.wso2.ltsdashboard.gitobjects.PullRequest;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,22 +46,23 @@ public class ProcessorImplement implements Processor {
     private HashMap<String, ArrayList<String>> productRepoMap;
     private String baseUrl = "https://api.github.com/";
     private GitHandlerImplement gitHandlerImplement;
-    private String gitToken = "5f6a6a361d4a253a18178148167dd92f8b588130";
+    private String gitToken = "0fbe5df6e925b4454e32a2f3befcc1b4ab864c5c";
 
     public ProcessorImplement() {
         this.productRepoMap = new HashMap<>();
         this.gitHandlerImplement = new GitHandlerImplement(gitToken);
+        this.getProductsAndRepos();
     }
 
     public static void main(String[] args) {
         ProcessorImplement processorImplement = new ProcessorImplement();
-        ArrayList<String> arrayList = processorImplement.getProductList();
-
+//        processorImplement.getIssues("Integration","6.2.0");
+//        JsonArray arrayList = processorImplement.getProductList();
 //        JsonArray jsonArray = processorImplement.getIssues("Integration", "6.2.0");
         JsonArray jsonArray = new JsonArray();
         jsonArray.add("https://api.github.com/repos/wso2/product-ei/issues/1764");
         processorImplement.getMilestoneFeatures(jsonArray);
-        System.out.printf("f");
+//        System.out.printf("f");
 
     }
 
@@ -68,7 +72,7 @@ public class ProcessorImplement implements Processor {
      * @return ArrayList of Product names
      */
     @Override
-    public ArrayList<String> getProductList() {
+    public JsonArray getProductList() {
         ArrayList<String> productList = new ArrayList<>();
         if (this.productRepoMap.isEmpty()) {
             this.getProductsAndRepos();
@@ -76,35 +80,53 @@ public class ProcessorImplement implements Processor {
         for (Map.Entry<String, ArrayList<String>> map : this.productRepoMap.entrySet()) {
             productList.add(map.getKey());
         }
-        return productList;
+
+        JsonArray productJsonArray = new JsonArray();
+        for (String product : productList) {
+            productJsonArray.add(product);
+        }
+        return productJsonArray;
     }
 
     /**
-     * Get the labels for particular product
+     * Get the versions for particular product
      *
-     * @param repos - repo name
-     * @return - ArrayList of Label names
+     * @param productName - repo name
+     * @return - json array of Label names
      */
-    @Override
-    public ArrayList<String> getLabels(ArrayList<String> repos) {
+    public JsonArray getVersions(String productName) {
+        if (this.productRepoMap.isEmpty()) {
+            this.getProductsAndRepos();
+        }
+
+        ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
         ArrayList<String> labels = new ArrayList<>();
+
         for (String repo : repos) {
             String url = this.baseUrl + "repos/wso2/" + repo + "/labels";
             JsonArray labelArray = gitHandlerImplement.getJSONArrayFromGit(url);
+
             for (JsonElement object : labelArray) {
                 String label = object.getAsJsonObject().get("name").toString();
                 // check product version label
                 String productVersion = this.getProductVersionFromIssue(label);
                 if (productVersion != null) {
-                    if (!label.contains(productVersion)) {
+                    if (!labels.contains(productVersion)) {
                         labels.add(productVersion);
-                    }
-                }
+                    } //end if
+                }// end if
             }
         }
-        return labels;
+
+        JsonArray versionJsonArray = new JsonArray();
+        for (String versionName : labels) {
+            versionJsonArray.add(versionName);
+        }
+
+        return versionJsonArray;
 
     }
+
 
     /**
      * Get issues to give product name and label
@@ -115,11 +137,13 @@ public class ProcessorImplement implements Processor {
      */
     @Override
     public JsonArray getIssues(String productName, String label) {
-        ArrayList<String> repos = this.productRepoMap.get(productName);
+        // TODO - change label as Affected/$version
+        ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
+        String finalLabel = label.replace("\"", "");
         JsonArray issueArray = new JsonArray();
         for (String repo : repos) {
             logger.info("Repository " + repo);
-            String url = this.baseUrl + "search/issues?q=label:" + label + "+repo:wso2/" + repo;
+            String url = this.baseUrl + "search/issues?q=label:" + finalLabel + "+repo:wso2/" + repo;
             JsonArray issues = gitHandlerImplement.getJSONArrayFromGit(url);
 
             for (JsonElement issue : issues) {
@@ -140,7 +164,7 @@ public class ProcessorImplement implements Processor {
     @Override
     public JsonArray getMilestoneFeatures(JsonArray issueUrlList) {
         JsonArray eventList = new JsonArray();
-
+        JsonArray featureList = new JsonArray();
         // getting event lists from issue list
         for (JsonElement url : issueUrlList) {
             String issueUrl = url.getAsString() + "/timeline";
@@ -151,13 +175,14 @@ public class ProcessorImplement implements Processor {
 
         for (JsonElement event : eventList) {
             if (this.checkCrossReferenced(event)) {
-                System.out.println("dsf");
-            }
+                PullRequest featureComponent = new PullRequest(event.getAsJsonObject());
+                featureList.addAll(featureComponent.getTitle());
+            } //end if
         }
 
         // get cross referenced PR urls
         // TODO : need to send milestone data with feature list
-        return eventList;
+        return featureList;
     }
 
 
@@ -179,6 +204,10 @@ public class ProcessorImplement implements Processor {
         Matcher m = r.matcher(labelName);
         if (m.find()) {
             productVersion = labelName;
+        }
+
+        if (productVersion != null) {
+            productVersion = productVersion.replace("\"", "").replace("\\", "");
         }
 
         return productVersion;
