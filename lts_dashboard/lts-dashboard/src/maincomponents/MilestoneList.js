@@ -20,24 +20,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import MilestoneExpansion from './milestones/MilestoneExpansion.js'
+import {
+    FilteringState,
+    IntegratedFiltering,
+    IntegratedSorting,
+    IntegratedPaging,
+    PagingState,
+    SortingState,
+} from "@devexpress/dx-react-grid";
+import {Grid, PagingPanel, Table, TableFilterRow, TableHeaderRow} from '@devexpress/dx-react-grid-material-ui'
+import MilestoneCheckButton from "./milestones/MilestoneButton.js"
 
 const styles = theme => ({
     root: {
         width: '100%',
     },
 
-
     paper: theme.mixins.gutters({
         paddingTop: 16,
         paddingBottom: 16,
         marginTop: theme.spacing.unit * 3,
-        width: 1200
+        width: `97%`,
+        marginRight: `5%`
     }),
     appBar: {
         paddingBottom: 20
@@ -46,37 +52,122 @@ const styles = theme => ({
 
 
 class MilestoneList extends React.Component {
-    state = {
-        expanded: null,
+    constructor(props) {
+        super(props);
+        this.state = {
+            currentPage: 0,
+            pageSize: 10,
+            pageSizes: [10, 20, 50],
+            issueList: [],
+            displayIssueList: []
+        };
+
+        this.changeCurrentPage = currentPage => this.setState({currentPage});
+        this.changePageSize = pageSize => this.setState({pageSize});
+        this.modalOpen = this.modalOpen.bind(this);
+    }
+
+
+    componentWillUpdate(nextProps, nextState) {
+        if (nextProps.issueList !== this.props.issueList) {
+            this.setState({
+                issueList : nextProps.issueList,
+                displayIssueList: this.processIssueList(nextProps.issueList)
+            })
+        }
+    }
+
+
+    modalOpen(data){
+        this.props.modalLauch(data);
     };
 
+    processIssueList(issueList){
+        let displayArray = [];
+        let modalOpendup = this.modalOpen
+        issueList.forEach(function (element) {
+            let issueTitle = <a href={element["html_url"]}>{element["issue_title"]}</a>;
+            let milestoneDueOn = " N/A";
+            let milestoneTitle = " N/A";
+            let checkForward = "";
+            if(element["milestone"]!=null) {
+                milestoneTitle =  element["milestone"]["title"];
+                if(element["milestone"]["due_on"]!=null) {
+                    milestoneDueOn = element["milestone"]["due_on"];
+                }
 
-    testData = [1, 2, 3, 4, 5];
+                checkForward = <MilestoneCheckButton
+                                    data={element["milestone"]}
+                                    modalLauch={modalOpendup}
+                                />
+            }
+
+            let issue = {
+                title : issueTitle,
+                due_on : milestoneDueOn,
+                milestone: milestoneTitle,
+                forward : checkForward
+
+            };
+            displayArray.push(issue);
+        }
+        );
+
+        return displayArray;
+
+    }
+
+    openInNewTab(url) {
+        var win = window.open(url, '_blank');
+        win.focus();
+    }
+
 
     render() {
         const {classes} = this.props;
+        const {
+            pageSize, pageSizes, currentPage,
+        } = this.state;
 
         return (
-            <div>
-                <Paper className={classes.paper} elevation={4}>
-                    <div className={classes.appBar}>
-                        <AppBar position="static" color="default">
-                            <Toolbar>
-                                <Typography type="headline" component="h2">
-                                    2.0.1
-                                </Typography>
-                            </Toolbar>
-                        </AppBar>
-                    </div>
-                    <Divider light/>
-                    <div className={classes.root}>
-                        {this.testData.map((value, index) => (
-                            <MilestoneExpansion key={index}/>
-                        ))
-                        }
-                    </div>
-                </Paper>
-            </div>
+            <Paper className={classes.paper} elevation={4}>
+                <Divider light/>
+                <div className={classes.root}>
+                    <Grid
+                        rows={this.state.displayIssueList}
+
+                        columns={[
+                            {name: 'title', title: 'Feature'},
+                            {name: 'due_on', title: 'Release Date'},
+                            {name: 'milestone', title: 'Milestone'},
+                            {name: 'forward', title: '>>'},
+                        ]}>
+
+                        <FilteringState defaultFilters={[]}/>
+                        <IntegratedFiltering/>
+                        <PagingState
+                            currentPage={currentPage}
+                            onCurrentPageChange={this.changeCurrentPage}
+                            pageSize={pageSize}
+                            onPageSizeChange={this.changePageSize}
+                        />
+                        <IntegratedPaging/>
+                        <SortingState
+                            defaultSorting={[{columnName: 'milestone', direction: 'desc'}]}
+                        />
+                        <IntegratedSorting/>
+
+                        <Table/>
+                        <TableHeaderRow showSortingControls/>
+                        <TableFilterRow/>
+                        <PagingPanel
+                            pageSizes={pageSizes}
+                        />
+
+                    </Grid>
+                </div>
+            </Paper>
+
         );
     }
 }

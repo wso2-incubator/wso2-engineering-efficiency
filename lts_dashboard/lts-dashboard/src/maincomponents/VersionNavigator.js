@@ -20,127 +20,111 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
-import List, {ListItem, ListItemText} from 'material-ui/List';
-import Paper from 'material-ui/Paper';
-import Typography from 'material-ui/Typography';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import VersionItem from './version/VersionItem.js';
-
+import Input, {InputLabel} from 'material-ui/Input';
+import {MenuItem} from 'material-ui/Menu';
+import {FormControl} from 'material-ui/Form';
+import Select from 'material-ui/Select';
+import axios from "axios/index";
+import CircularProgress from "material-ui/es/Progress/CircularProgress";
 
 const styles = theme => ({
-    root: {
-        width: '100%',
-        textAlign: 'left',
-        background: theme.palette.background.paper,
+    container: {
+        display: 'flex',
+        flexWrap: 'wrap',
     },
-
-    title: {
-        marginBottom: 16,
-        fontSize: 14,
-        color: theme.palette.text.secondary,
+    formControl: {
+        margin: theme.spacing.unit,
+        minWidth: 400,
     },
-    paper: theme.mixins.gutters({
-        paddingTop: 16,
-        paddingBottom: 16,
-        marginTop: theme.spacing.unit * 3,
-        width: 400
-    }),
-    appBar: {
-        paddingBottom: 20
-    }
+    selectEmpty: {
+        marginTop: theme.spacing.unit * 2,
+    },
+    progress: {
+        margin: `0 ${theme.spacing.unit * 2}px`,
+        paddingTop: 10
+    },
 });
 
-
 class VersionNavigator extends React.Component {
-    testdata = [
-        {
-            main_version: "1.0.0",
-            main_key: "APIM-100",
-            sub_versions: [
-                "1.0.1", "1.0.2"
-            ]
-        },
-        {
-            main_version: "2.0.0",
-            main_key: "APIM-200",
-            sub_versions: [
-                "2.0.1", "2.0.2"
-            ]
-        },
-        {
-            main_version: "3.0.0",
-            main_key: "APIM-300",
-            sub_versions: [
-                "3.0.1", "3.0.2"
-            ]
-        },
-        {
-            main_version: "4.0.0",
-            main_key: "APIM-400",
-            sub_versions: [
-                "4.0.1", "4.0.2"
-            ]
-        }
-    ]
-    handleClick = (version) => {
-        let versionState = this.state[version.toString()];
-        let obj = {};
-        obj[version] = !versionState;
-        // this.setState(obj);
-    };
-    makeStateForClick = (version) => {
-        this.setState({
-                [version]: false
-            }
-        );
+
+    handleChange = event => {
+        this.setState({[event.target.name]: event.target.value},
+            () => {
+                this.props.setVersion(this.state.version);
+            });
+
+
     };
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
-            'APIM-100': false,
-            'APIM-200': false,
-            'APIM-300': false,
-            'APIM-400': false
-
+            version: '',
+            versionList: [],
+            issueLoading: false
         };
+    }
+
+    fetchVersions(productName) {
+        let productObject = {};
+        productObject["product"] = productName;
+        if (productName !== '') {
+            this.setState({
+                issueLoading:true
+            },()=>(
+                axios.post('http://localhost:8080/lts/versions',
+                    productObject
+                ).then(
+                    (response) => {
+                        let datat = response.data;
+                        this.setState(
+                            {
+                                versionList: datat,
+                                issueLoading:false
+                            }
+                        );
+                    }
+                )
+            ));
+        }
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        if (nextProps.product !== this.props.product) {
+            this.fetchVersions(nextProps.product);
+        }
     }
 
     render() {
         const {classes} = this.props;
+
         return (
             <div>
-                <Paper className={classes.paper} elevation={4}>
-                    <div className={classes.appBar}>
-                        <AppBar position="static" color="default">
-                            <Toolbar>
-                                <Typography type="headline" component="h2">
-                                    Versions
-                                </Typography>
-                            </Toolbar>
-                        </AppBar>
-                    </div>
+                <form className={classes.container} autoComplete="off">
+                    <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="version-simple">Version</InputLabel>
+                        <Select
+                            value={this.state.version}
+                            onChange={this.handleChange}
+                            input={<Input name="version" id="version-simple"/>}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {
+                                this.state.versionList.map((versionName, index) => (
+                                    <MenuItem key={index} value={versionName}>{versionName}</MenuItem>
+                                ))
+                            }
+                        </Select>
+                    </FormControl>
+                    {this.state.issueLoading && <CircularProgress className={classes.progress} />}
+                </form>
 
-
-                    <List className={classes.root}>
-                        <ListItem button>
-                            <ListItemText inset primary="To be released"/>
-                        </ListItem>
-
-                        {
-                            this.testdata.map((version) => (
-                                <VersionItem key={version["main_key"]} versionData={version}/>
-                            ))
-                        }
-
-                    </List>
-                </Paper>
             </div>
         );
     }
 }
-
 
 VersionNavigator.propTypes = {
     classes: PropTypes.object.isRequired,
