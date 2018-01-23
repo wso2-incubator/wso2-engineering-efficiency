@@ -26,9 +26,7 @@ import org.wso2.msf4j.MicroservicesRunner;
 public class Application {
     public static void main(String[] args) {
         new MicroservicesRunner()
-                .deploy(new LtsDashboard("GIT_TOKEN_ADD",
-                        "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
-                        "root", "1234"))
+                .deploy(new LtsDashboard(args[0],args[1],args[2],args[3]))
                 .start();
     }
 }
