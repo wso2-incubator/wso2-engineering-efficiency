@@ -203,7 +203,7 @@ class MilestoneModal extends React.Component {
                             <AppBar position="static" color="default">
                                 <Toolbar>
                                     <Typography type="title" color="inherit">
-                                        {this.props.data["title"]}
+                                        <a href={this.props.data["html_url"]}> {this.props.data["title"]}</a>
                                     </Typography>
                                     {this.state.progressState && <CircularProgress className={classes.progress} />}
                                 </Toolbar>
