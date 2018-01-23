@@ -21,7 +21,6 @@ package org.wso2.ltsdashboard.connectionshandlers;
 
 import org.apache.log4j.Logger;
 
-import javax.swing.plaf.nimbus.State;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -68,7 +67,6 @@ public class SqlHandlerImplement implements SqlHandler {
         try {
             statement = this.con.createStatement();
             resultSet = statement.executeQuery(query);
-            statement.close();
         } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
         } finally {

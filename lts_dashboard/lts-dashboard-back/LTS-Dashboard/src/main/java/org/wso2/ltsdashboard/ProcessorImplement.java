@@ -61,24 +61,6 @@ public class ProcessorImplement implements Processor {
     }
 
 
-    public static void main(String[] args) {
-        ProcessorImplement processorImplement = new ProcessorImplement(
-                "e2a81b45343434925d123e35bce98081f96f6f13",
-                "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
-                "root", "1234");
-
-        processorImplement.getVersions("Integration Test");
-//        processorImplement.getIssues("Integration","6.2.0");
-//        JsonArray arrayList = processorImplement.getProductList();
-//        JsonArray jsonArray = processorImplement.getIssues("Integration", "6.2.0");
-//        JsonArray jsonArray = new JsonArray();
-//        jsonArray.add("https://api.github.com/repos/wso2/product-ei/issues/1764");
-//        processorImplement.getMilestoneFeatures(jsonArray);
-//        System.out.printf("f");
-
-    }
-
-
     /**
      * Get the product list
      *
@@ -158,7 +140,8 @@ public class ProcessorImplement implements Processor {
 
         for (String repo : repos) {
             logger.info("Repository " + repo);
-            String url = this.baseUrl + "search/issues?q=label:Affected/" + finalLabel + "+repo:" + this.org + "/" + repo;
+            String url = this.baseUrl + "search/issues?q=label:Affected/" +
+                    finalLabel + "+repo:" + this.org + "/" + repo;
             JsonArray issues = gitHandlerImplement.getJSONArrayFromGit(url);
 
             for (JsonElement issue : issues) {
