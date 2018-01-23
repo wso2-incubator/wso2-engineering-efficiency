@@ -82,7 +82,6 @@ public class PullRequest {
         JsonArray featureArray = new JsonArray();
         for (String feature : features) {
             if (feature.length() > 0) {
-                System.out.println(feature);
                 featureArray.add(feature);
             }
         }
