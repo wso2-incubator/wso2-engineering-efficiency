@@ -27,12 +27,12 @@ import com.google.gson.JsonObject;
 
 public class PullRequest {
     private JsonArray features;
-    private String title;
+//    private String title;
 
     public PullRequest(JsonObject event) {
         JsonObject pr = this.getPr(event);
         this.features = extractFeatures(pr.get("body").toString());
-        this.title = pr.get("title").toString();
+//        this.title = pr.get("title").toString();
     }
 
     /**
@@ -49,15 +49,15 @@ public class PullRequest {
      *
      * @return - title as a array
      */
-    public JsonArray getTitle() {
-        JsonArray testJsonArray = new JsonArray();
-        testJsonArray.add(this.title
-                .replace("\"", "")
-                .replace("\\", "")
-        );
-
-        return testJsonArray;
-    }
+//    public JsonArray getTitle() {
+//        JsonArray testJsonArray = new JsonArray();
+//        testJsonArray.add(this.title
+//                .replace("\"", "")
+//                .replace("\\", "")
+//        );
+//
+//        return testJsonArray;
+//    }
 
 
     private JsonObject getPr(JsonObject event) {
