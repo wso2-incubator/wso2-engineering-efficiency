@@ -76,13 +76,13 @@ public class PullRequest {
         if (marketStringPart.length > 1) {
             marketStringPart = marketStringPart[1].split("## Automation tests");
         }
-        String marketingString = marketStringPart[0];
-        String[] features = marketingString.split("\r\n");
+        String marketingString = marketStringPart[0].replace("\\r\\n", "%%%%");
+        String[] features = marketingString.split("%%%%");
 
         JsonArray featureArray = new JsonArray();
         for (String feature : features) {
             if (feature.length() > 0) {
-                featureArray.add(feature.replace("\\r\\n",""));
+                featureArray.add(feature);
             }
         }
 
