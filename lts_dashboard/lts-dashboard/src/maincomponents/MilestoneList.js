@@ -26,12 +26,14 @@ import {
     FilteringState,
     IntegratedFiltering,
     IntegratedSorting,
-    IntegratedPaging,
-    PagingState,
     SortingState,
 } from "@devexpress/dx-react-grid";
-import {Grid, PagingPanel, Table, TableFilterRow, TableHeaderRow} from '@devexpress/dx-react-grid-material-ui'
+import {Grid, TableFilterRow, TableHeaderRow} from '@devexpress/dx-react-grid-material-ui'
 import MilestoneCheckButton from "./milestones/MilestoneButton.js"
+import {
+    TableColumnResizing,
+    VirtualTable
+} from "@devexpress/dx-react-grid-material-ui/dist/dx-react-grid-material-ui.cjs";
 
 const styles = theme => ({
     root: {
@@ -43,7 +45,8 @@ const styles = theme => ({
         paddingBottom: 16,
         marginTop: theme.spacing.unit * 3,
         width: `97%`,
-        marginRight: `5%`
+        marginRight: `5%`,
+        height: 700
     }),
     appBar: {
         paddingBottom: 20
@@ -55,15 +58,10 @@ class MilestoneList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentPage: 0,
-            pageSize: 10,
-            pageSizes: [10, 20, 50],
             issueList: [],
             displayIssueList: []
         };
 
-        this.changeCurrentPage = currentPage => this.setState({currentPage});
-        this.changePageSize = pageSize => this.setState({pageSize});
         this.modalOpen = this.modalOpen.bind(this);
     }
 
@@ -72,7 +70,7 @@ class MilestoneList extends React.Component {
         if (nextProps.issueList !== this.props.issueList) {
             this.setState({
                 issueList : nextProps.issueList,
-                displayIssueList: this.processIssueList(nextProps.issueList)
+                displayIssueList: this.processIssueList(nextProps.issueList),
             })
         }
     }
@@ -92,7 +90,7 @@ class MilestoneList extends React.Component {
             let checkForward = "";
             if(element["milestone"]!=null) {
                 milestoneTitle =  element["milestone"]["title"];
-                if(element["milestone"]["due_on"]!=null) {
+                if(element["milestone"]["due_on"]!=="null") {
                     milestoneDueOn = element["milestone"]["due_on"];
                 }
 
@@ -117,17 +115,8 @@ class MilestoneList extends React.Component {
 
     }
 
-    openInNewTab(url) {
-        var win = window.open(url, '_blank');
-        win.focus();
-    }
-
-
     render() {
         const {classes} = this.props;
-        const {
-            pageSize, pageSizes, currentPage,
-        } = this.state;
 
         return (
             <Paper className={classes.paper} elevation={4}>
@@ -145,24 +134,20 @@ class MilestoneList extends React.Component {
 
                         <FilteringState defaultFilters={[]}/>
                         <IntegratedFiltering/>
-                        <PagingState
-                            currentPage={currentPage}
-                            onCurrentPageChange={this.changeCurrentPage}
-                            pageSize={pageSize}
-                            onPageSizeChange={this.changePageSize}
-                        />
-                        <IntegratedPaging/>
+
                         <SortingState
                             defaultSorting={[{columnName: 'milestone', direction: 'desc'}]}
                         />
                         <IntegratedSorting/>
-
-                        <Table/>
+                        <VirtualTable height={700}/>
+                        {/*<TableColumnResizing defaultColumnWidths={[*/}
+                            {/*{ columnName: 'title', width: '' },*/}
+                            {/*{ columnName: 'due_on', width: '' },*/}
+                            {/*{ columnName: 'milestone', width:''  },*/}
+                            {/*{ columnName: 'forward', width: '' },*/}
+                        {/*]} />*/}
                         <TableHeaderRow showSortingControls/>
                         <TableFilterRow/>
-                        <PagingPanel
-                            pageSizes={pageSizes}
-                        />
 
                     </Grid>
                 </div>

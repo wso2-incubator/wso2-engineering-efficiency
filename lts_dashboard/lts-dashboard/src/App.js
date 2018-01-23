@@ -72,6 +72,8 @@ class App extends Component {
             if (productName !== '') {
                 this.setState({
                     loadIssue: true,
+                    openModal: false,
+                    issueList: []
                 }, () => (
                     axios.post('http://localhost:8080/lts/issues',
                         productObject
@@ -81,7 +83,8 @@ class App extends Component {
                             this.setState(
                                 {
                                     issueList: datat,
-                                    loadIssue: false
+                                    loadIssue: false,
+                                    openModal: false,
                                 }
                             );
                         }

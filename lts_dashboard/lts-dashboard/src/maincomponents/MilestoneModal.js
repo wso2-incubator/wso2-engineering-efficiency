@@ -175,13 +175,12 @@ class MilestoneModal extends React.Component {
 
     generate(array) {
         return array.map((value, index) =>
-            <ListItem>
+            <ListItem  key={index}>
                 <ListItemIcon>
                     <StarIcon />
                 </ListItemIcon>
                 <ListItemText
                     primary={value}
-                    key={index}
                 />
             </ListItem>
         );

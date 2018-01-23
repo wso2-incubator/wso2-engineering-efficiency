@@ -233,6 +233,7 @@ public class ProcessorImplement implements Processor {
                 SqlHandlerImplement.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
         ResultSet resultSet = sqlHandlerImplement.
                 executeQuery("SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT;");
+
         try {
             while (resultSet.next()) {
                 String product = resultSet.getString(1);

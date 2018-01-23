@@ -46,7 +46,7 @@ public class GitHandler {
 
 
     /**
-     * Retrive json array of objects from github
+     * Retrieve json array of objects from github
      *
      * @param url       - rest endpoint with queries
      * @param mediaType - Accept media type for the request header
@@ -56,15 +56,15 @@ public class GitHandler {
         String responseString;
         JsonElement element;
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        HttpGet requset = new HttpGet(url);
-        requset.addHeader("Accept", mediaType);
-        requset.addHeader("Authorization", "Bearer " + gitToken);
+        HttpGet request = new HttpGet(url);
+        request.addHeader("Accept", mediaType);
+        request.addHeader("Authorization", "Bearer " + gitToken);
         HttpResponse response = null;
         JsonArray jsonArray = new JsonArray();
         boolean containsNext = true;
 
         try {
-            response = httpClient.execute(requset);
+            response = httpClient.execute(request);
             logger.info("Request successful for " + url);
             responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
             element = new JsonParser().parse(responseString);
@@ -77,6 +77,13 @@ public class GitHandler {
         }
 
         // handle pagination
+        handlePagination(url, mediaType, httpClient, response, jsonArray, containsNext);
+
+        return jsonArray;
+    }
+
+    private void handlePagination(String url, String mediaType, CloseableHttpClient httpClient, HttpResponse response,
+                                  JsonArray jsonArray, boolean containsNext) {
         while (containsNext) {
             try {
                 if (response.containsHeader("Link")) {
@@ -109,8 +116,6 @@ public class GitHandler {
                 logger.info("The response header may not contain the Link header");
             }
         }
-
-        return jsonArray;
     }
 
 

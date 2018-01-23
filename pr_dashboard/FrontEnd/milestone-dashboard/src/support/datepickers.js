@@ -141,8 +141,8 @@ export function getWeekDates(checkDate) {
 
 export function generateMonthName(monthNumber) {
     let months = {
-        1: "Janurary",
-        2: "Febbruary",
+        1: "January",
+        2: "February",
         3: "March",
         4: "April",
         5: "May",
