@@ -67,7 +67,6 @@ public class SqlHandlerImplement implements SqlHandler {
         try {
             statement = this.con.createStatement();
             resultSet = statement.executeQuery(query);
-            statement.close();
         } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
         } finally {
