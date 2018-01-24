@@ -26,6 +26,10 @@ import org.wso2.msf4j.MicroservicesRunner;
 public class Application {
     public static void main(String[] args) {
         new MicroservicesRunner()
+                // arg[0] - gitToken
+                // arg[1] - jdbc url
+                // arg[2] - db user
+                // arg[3] - db password
                 .deploy(new LtsDashboard(args[0], args[1], args[2], args[3]))
                 .start();
     }
