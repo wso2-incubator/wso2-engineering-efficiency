@@ -106,7 +106,7 @@ public class GitHandlerImplement implements GitHandler {
                 } else {
                     jarNext = jElementNext.getAsJsonObject().get("items").getAsJsonArray();
                 }
-                jsonArray.addAll(jarNext);
+                jsonArray.addAll(jarNext); // TODO - check null
                 linkState = this.checkNextHeader(response.getHeaders("Link")[0].getValue());
                 containsNext = linkState.containsKey("next");
                 logger.info("The request successful for " + nextLink);

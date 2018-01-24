@@ -181,7 +181,6 @@ public class ProcessorImplement implements Processor {
             } //end if
         }
 
-        // get cross referenced PR urls
         return featureList;
     }
 
@@ -211,7 +210,7 @@ public class ProcessorImplement implements Processor {
      * Create Product repository map
      */
     private void getProductsAndRepos() {
-
+        // TODO - change rmethod name
         SqlHandlerImplement sqlHandlerImplement =
                 SqlHandlerImplement.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
         ResultSet resultSet = sqlHandlerImplement.

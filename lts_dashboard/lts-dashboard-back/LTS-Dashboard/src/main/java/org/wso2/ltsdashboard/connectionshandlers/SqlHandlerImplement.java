@@ -41,7 +41,7 @@ public class SqlHandlerImplement implements SqlHandler {
                 logger.info("Connected to the MySQL database");
             }
         } catch (SQLException e) {
-            logger.info("SQL Exception while connecting to the MySQL database");
+            logger.error("SQL Exception while connecting to the MySQL database");
         }
     }
 
@@ -69,16 +69,7 @@ public class SqlHandlerImplement implements SqlHandler {
             resultSet = statement.executeQuery(query);
         } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
-        } finally {
-            try {
-                if(statement!=null) {
-                    statement.close();
-                }
-            }catch (SQLException e){
-                logger.error("SQL Exception while closing the statement");
-            }
         }
-
         return resultSet;
     }
 
