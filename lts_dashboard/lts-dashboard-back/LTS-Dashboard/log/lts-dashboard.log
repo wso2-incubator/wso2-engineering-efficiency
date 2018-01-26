@@ -1,0 +1,6 @@
+2018-01-26 22:34:02 INFO  SqlHandler:50 - Connected to the MySQL database
+2018-01-26 22:34:55 INFO  ProcessorImplement:230 - Product vs Repository List created
+2018-01-26 22:34:55 INFO  ProcessorImplement:235 - Test product added
+2018-01-26 22:35:18 INFO  SqlHandler:49 - Connected to the MySQL database
+2018-01-26 22:35:32 INFO  ProcessorImplement:230 - Product vs Repository List created
+2018-01-26 22:35:32 INFO  ProcessorImplement:235 - Test product added

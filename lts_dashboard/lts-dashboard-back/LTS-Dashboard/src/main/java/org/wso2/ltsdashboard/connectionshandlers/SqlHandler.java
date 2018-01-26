@@ -19,10 +19,10 @@
 
 package org.wso2.ltsdashboard.connectionshandlers;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.log4j.Logger;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -35,18 +35,20 @@ public class SqlHandler {
     // queries
     private final static String GET_REPOS = "SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT";
     private static SqlHandler sqlHandler = null;
-    private Connection con = null;
+    private static BasicDataSource connectionPool = null;
 
 
     private SqlHandler(String databaseUrl, String databaseUser, String databasePassword) {
-        try {
-            if (this.con == null) {
-                con = DriverManager.getConnection(databaseUrl, databaseUser, databasePassword);
-                logger.info("Connected to the MySQL database");
-            }
-        } catch (SQLException e) {
-            logger.error("SQL Exception while connecting to the MySQL database");
+        if (connectionPool == null) {
+            connectionPool = new BasicDataSource();
+            connectionPool.setUsername(databaseUser);
+            connectionPool.setPassword(databasePassword);
+            connectionPool.setUrl(databaseUrl);
+            connectionPool.setInitialSize(4);
+
+            logger.info("Connected to the MySQL database");
         }
+
     }
 
 
@@ -65,10 +67,11 @@ public class SqlHandler {
      */
     public HashMap<String, ArrayList<String>> getProductVsRepos() {
         ResultSet resultSet;
-        Statement statement;
+        Statement statement = null;
         HashMap<String, ArrayList<String>> productRepoMap = new HashMap<>();
         try {
-            statement = this.con.createStatement();
+            Connection con = connectionPool.getConnection();
+            statement = con.createStatement();
             resultSet = statement.executeQuery(GET_REPOS);
 
             while (resultSet.next()) {
