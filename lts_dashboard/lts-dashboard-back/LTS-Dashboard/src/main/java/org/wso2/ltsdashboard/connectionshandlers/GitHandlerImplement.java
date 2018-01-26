@@ -64,7 +64,7 @@ public class GitHandlerImplement implements GitHandler {
         try {
             JsonArray firstArray;
             response = httpClient.execute(request);
-            logger.info("Request successful for " + url);
+            logger.debug("Request successful for " + url);
             responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
             element = new JsonParser().parse(responseString);
             if (element.isJsonArray()) {
@@ -74,17 +74,19 @@ public class GitHandlerImplement implements GitHandler {
             }
             jsonArray.addAll(firstArray);
 
-            if (response.getHeaders("Link").length > 0) {
-                linkState = this.checkNextHeader(response.getHeaders("Link")[0].getValue());
-                containsNext = linkState.containsKey("next");
+            if (response.containsHeader("Link")) {
+                if (response.getHeaders("Link").length > 0) {
+                    linkState = this.checkNextHeader(response.getHeaders("Link")[0].getValue());
+                    containsNext = linkState.containsKey("next");
+                }
             }
 
         } catch (IllegalStateException e) {
-            logger.info("The response is empty");
+            logger.error("The response is empty ");
         } catch (NullPointerException e) {
-            logger.info("The response with bad request");
+            logger.error("The response with bad request");
         } catch (IOException e) {
-            logger.info("Cannot connect to get receive data");
+            logger.error("Cannot connect to get receive data");
         }
 
 
@@ -106,12 +108,14 @@ public class GitHandlerImplement implements GitHandler {
                 } else {
                     jarNext = jElementNext.getAsJsonObject().get("items").getAsJsonArray();
                 }
-                jsonArray.addAll(jarNext); // TODO - check null
+                if (jarNext != null) {
+                    jsonArray.addAll(jarNext);
+                }
                 linkState = this.checkNextHeader(response.getHeaders("Link")[0].getValue());
                 containsNext = linkState.containsKey("next");
-                logger.info("The request successful for " + nextLink);
+                logger.debug("The request successful for " + nextLink);
             } catch (IOException e) {
-                logger.info("The response failed");
+                logger.error("The response failed for link " + nextLink);
             }
         }
 

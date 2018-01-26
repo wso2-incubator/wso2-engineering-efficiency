@@ -36,17 +36,17 @@ import javax.ws.rs.core.Response;
 
 @Path("/lts")
 public class LtsDashboard {
-    private String databaseUrl;
-    private String databaseUser;
-    private String databasePassword;
-    private String gitToken;
+    private static String databaseUrl;
+    private static String databaseUser;
+    private static String databasePassword;
+    private static String gitToken;
 
 
-    LtsDashboard(String gitToken, String databaseUrl, String databaseUser, String databasePassword) {
-        this.gitToken = gitToken;
-        this.databaseUrl = databaseUrl;
-        this.databaseUser = databaseUser;
-        this.databasePassword = databasePassword;
+    LtsDashboard(String gitTokenPam, String databaseUrlPam, String databaseUserPam, String databasePasswordPam) {
+        gitToken = gitTokenPam;
+        databaseUrl = databaseUrlPam;
+        databaseUser = databaseUserPam;
+        databasePassword = databasePasswordPam;
 
     }
 
@@ -54,7 +54,7 @@ public class LtsDashboard {
     @Path("/products")
     public Response getProducts() {
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         JsonArray productList = processorImplement.getProductList();
 
         return makeResponseWithBody(productList);
@@ -65,7 +65,7 @@ public class LtsDashboard {
     @Path("/versions")
     public Response getLabels(JsonObject product) {
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         String productName = product.get("product").toString();
         JsonArray productList = processorImplement.getVersions(productName);
 
@@ -78,7 +78,7 @@ public class LtsDashboard {
     @Consumes("application/json")
     public Response postIssues(JsonObject versionData) {
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         String productName = versionData.get("product").toString();
         String version = versionData.get("version").toString();
         JsonArray issueList = processorImplement.getIssues(productName, version);
@@ -92,7 +92,7 @@ public class LtsDashboard {
     @Consumes("application/json")
     public Response postMilestone(JsonArray issueList) {
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         JsonArray featureList = processorImplement.getMilestoneFeatures(issueList);
 
         return makeResponseWithBody(featureList);

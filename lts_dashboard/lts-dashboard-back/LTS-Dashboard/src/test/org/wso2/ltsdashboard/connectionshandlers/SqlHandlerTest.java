@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 /*
  * TODO - comment class work
- */public class SqlHandlerImplementTest extends TestCase {
+ */public class SqlHandlerTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
     }

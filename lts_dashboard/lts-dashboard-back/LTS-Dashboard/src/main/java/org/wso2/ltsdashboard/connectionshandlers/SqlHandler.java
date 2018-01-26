@@ -17,20 +17,78 @@
  *
  */
 
-package org.wso2.ltsdashboard.connectionshandlers;/*
- * The interface for sql handler
- */
+package org.wso2.ltsdashboard.connectionshandlers;
 
+import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-public interface SqlHandler {
+
+public class SqlHandler {
+    private final static Logger logger = Logger.getLogger(SqlHandler.class);
+    // queries
+    private final static String GET_REPOS = "SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT";
+    private static SqlHandler sqlHandler = null;
+    private Connection con = null;
+
+
+    private SqlHandler(String databaseUrl, String databaseUser, String databasePassword) {
+        try {
+            if (this.con == null) {
+                con = DriverManager.getConnection(databaseUrl, databaseUser, databasePassword);
+                logger.info("Connected to the MySQL database");
+            }
+        } catch (SQLException e) {
+            logger.error("SQL Exception while connecting to the MySQL database");
+        }
+    }
+
+
+    public static SqlHandler getHandler(String databaseUrl, String databaseUser, String databasePassword) {
+        if (sqlHandler == null) {
+            sqlHandler = new SqlHandler(databaseUrl, databaseUser, databasePassword);
+        }
+        return sqlHandler;
+    }
+
 
     /**
      * Execute sql query and get result set
      *
-     * @param query - sql query
      * @return - query result
      */
-    ResultSet executeQuery(String query);
-}
+    public HashMap<String, ArrayList<String>> getProductVsRepos() {
+        ResultSet resultSet;
+        Statement statement;
+        HashMap<String, ArrayList<String>> productRepoMap = new HashMap<>();
+        try {
+            statement = this.con.createStatement();
+            resultSet = statement.executeQuery(GET_REPOS);
 
+            while (resultSet.next()) {
+                String product = resultSet.getString(1);
+                String repo = resultSet.getString(2);
+
+                ArrayList<String> repoList = productRepoMap.get(product);
+                if (repoList == null) {
+                    repoList = new ArrayList<>();
+                    repoList.add(repo);
+                    productRepoMap.put(product, repoList);
+                } else {
+                    repoList.add(repo);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("SQL Exception while executing the query");
+        }
+        return productRepoMap;
+    }
+
+
+}

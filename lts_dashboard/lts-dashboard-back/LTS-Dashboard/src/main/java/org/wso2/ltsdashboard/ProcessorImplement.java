@@ -29,12 +29,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.log4j.Logger;
 import org.wso2.ltsdashboard.connectionshandlers.GitHandlerImplement;
-import org.wso2.ltsdashboard.connectionshandlers.SqlHandlerImplement;
+import org.wso2.ltsdashboard.connectionshandlers.SqlHandler;
 import org.wso2.ltsdashboard.gitobjects.Issue;
 import org.wso2.ltsdashboard.gitobjects.PullRequest;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +55,14 @@ public class ProcessorImplement implements Processor {
         this.databaseUrl = databaseUrl;
         this.databasePassword = databasePassword;
         this.databaseUser = databaseUser;
-        this.getProductsAndRepos();
+        this.createProductAndRepos();
+    }
+
+    public static void main(String[] args) {
+        ProcessorImplement processorImplement = new ProcessorImplement("772ea7b15c0e1faf3e932666d658226d8d02184a",
+                "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
+                "root", "1234");
+        processorImplement.getLabelTestRepo();
     }
 
 
@@ -70,7 +75,7 @@ public class ProcessorImplement implements Processor {
     public JsonArray getProductList() {
         ArrayList<String> productList = new ArrayList<>();
         if (this.productRepoMap.isEmpty()) {
-            this.getProductsAndRepos();
+            this.createProductAndRepos();
         }
         for (Map.Entry<String, ArrayList<String>> map : this.productRepoMap.entrySet()) {
             productList.add(map.getKey());
@@ -92,7 +97,7 @@ public class ProcessorImplement implements Processor {
      */
     public JsonArray getVersions(String productName) {
         if (this.productRepoMap.isEmpty()) {
-            this.getProductsAndRepos();
+            this.createProductAndRepos();
         }
 
         ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
@@ -118,6 +123,8 @@ public class ProcessorImplement implements Processor {
         for (String versionName : labels) {
             versionJsonArray.add(versionName);
         }
+
+        logger.info("Version List created for product :" + productName);
 
         return versionJsonArray;
 
@@ -150,6 +157,8 @@ public class ProcessorImplement implements Processor {
             }
         }
 
+        logger.info(productName + ":" + label + " issues extracted");
+
         return issueArray;
     }
 
@@ -181,6 +190,7 @@ public class ProcessorImplement implements Processor {
             } //end if
         }
 
+
         return featureList;
     }
 
@@ -209,33 +219,20 @@ public class ProcessorImplement implements Processor {
     /**
      * Create Product repository map
      */
-    private void getProductsAndRepos() {
-        // TODO - change rmethod name
-        SqlHandlerImplement sqlHandlerImplement =
-                SqlHandlerImplement.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
-        ResultSet resultSet = sqlHandlerImplement.
-                executeQuery("SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT;");
+    private void createProductAndRepos() {
+        SqlHandler sqlHandler =
+                SqlHandler.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
+        this.productRepoMap = sqlHandler.getProductVsRepos();
 
-        try {
-            while (resultSet.next()) {
-                String product = resultSet.getString(1);
-                String repo = resultSet.getString(2);
-
-                ArrayList<String> repoList = this.productRepoMap.get(product);
-                if (repoList == null) {
-                    repoList = new ArrayList<>();
-                    repoList.add(repo);
-                    this.productRepoMap.put(product, repoList);
-                } else {
-                    repoList.add(repo);
-                }
-            }
-            logger.info("The map between product and repos created");
-        } catch (SQLException e) {
-            logger.info("Iterating through DB RequestSet failed");
+        if (this.productRepoMap.isEmpty()) {
+            logger.error("Product vs Repository List is empty");
+        } else {
+            logger.info("Product vs Repository List created");
         }
+
         // add test repo
         this.getLabelTestRepo();
+        logger.info("Test product added");
 
     }
 
