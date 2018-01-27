@@ -89,6 +89,14 @@ public class SqlHandler {
             }
         } catch (SQLException e) {
             logger.error("SQL Exception while executing the query");
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException ex) {
+                logger.error("The statement is not closed properly");
+            }
         }
         return productRepoMap;
     }

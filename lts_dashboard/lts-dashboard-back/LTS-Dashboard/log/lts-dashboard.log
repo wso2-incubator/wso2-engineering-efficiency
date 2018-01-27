@@ -4,3 +4,23 @@
 2018-01-26 22:35:18 INFO  SqlHandler:49 - Connected to the MySQL database
 2018-01-26 22:35:32 INFO  ProcessorImplement:230 - Product vs Repository List created
 2018-01-26 22:35:32 INFO  ProcessorImplement:235 - Test product added
+2018-01-27 13:52:58 ERROR LtsDashboard:69 - The configuration file is not found
+2018-01-27 13:52:58 INFO  MicroservicesRegistryImpl:81 - Added microservice: org.wso2.ltsdashboard.LtsDashboard@3ffc5af1
+2018-01-27 13:52:58 INFO  MicroservicesRunner:258 - Microservices server started in 393ms
+2018-01-27 13:52:58 INFO  ServerConnectorBootstrap$HTTPServerConnector:177 - HTTP(S) Interface starting on host 0.0.0.0 and port 8080
+2018-01-27 13:53:17 ERROR LtsDashboard:69 - The configuration file is not found
+2018-01-27 13:53:17 INFO  MicroservicesRegistryImpl:81 - Added microservice: org.wso2.ltsdashboard.LtsDashboard@3ffc5af1
+2018-01-27 13:53:17 INFO  MicroservicesRunner:258 - Microservices server started in 262ms
+2018-01-27 13:53:17 INFO  ServerConnectorBootstrap$HTTPServerConnector:177 - HTTP(S) Interface starting on host 0.0.0.0 and port 8080
+2018-01-27 13:58:47 ERROR LtsDashboard:70 - The configuration file is not found
+2018-01-27 13:58:47 INFO  MicroservicesRegistryImpl:81 - Added microservice: org.wso2.ltsdashboard.LtsDashboard@3ffc5af1
+2018-01-27 13:58:47 INFO  MicroservicesRunner:258 - Microservices server started in 269ms
+2018-01-27 13:58:47 INFO  ServerConnectorBootstrap$HTTPServerConnector:177 - HTTP(S) Interface starting on host 0.0.0.0 and port 8080
+2018-01-27 14:01:25 ERROR LtsDashboard:70 - The configuration file is not found
+2018-01-27 14:01:25 INFO  MicroservicesRegistryImpl:81 - Added microservice: org.wso2.ltsdashboard.LtsDashboard@3ffc5af1
+2018-01-27 14:01:25 INFO  MicroservicesRunner:258 - Microservices server started in 244ms
+2018-01-27 14:01:25 INFO  ServerConnectorBootstrap$HTTPServerConnector:177 - HTTP(S) Interface starting on host 0.0.0.0 and port 8080
+2018-01-27 14:07:15 INFO  MicroservicesRegistryImpl:81 - Added microservice: org.wso2.ltsdashboard.LtsDashboard@61832929
+2018-01-27 14:07:15 INFO  MicroservicesRunner:258 - Microservices server started in 251ms
+2018-01-27 14:07:15 INFO  ServerConnectorBootstrap$HTTPServerConnector:177 - HTTP(S) Interface starting on host 0.0.0.0 and port 8080
+2018-01-27 14:08:25 INFO  MicroservicesRegistryImpl:81 - Added microservice: org.wso2.ltsdashboard.LtsDashboard@33afa13b

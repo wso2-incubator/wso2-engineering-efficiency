@@ -71,6 +71,14 @@
 
     </dependencies>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+            </resource>
+        </resources>
+    </build>
+
     <properties>
         <microservice.mainClass>org.wso2.ltsdashboard.Application</microservice.mainClass>
     </properties>

@@ -18,6 +18,7 @@ package org.wso2.ltsdashboard;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,6 +26,10 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * This is the Microservice resource class.
@@ -36,19 +41,50 @@ import javax.ws.rs.core.Response;
 
 @Path("/lts")
 public class LtsDashboard {
+    private final static Logger logger = Logger.getLogger(LtsDashboard.class);
+    private final static String CONFIG_FILE = "config.ini";
     private static String databaseUrl;
     private static String databaseUser;
     private static String databasePassword;
     private static String gitToken;
 
+    LtsDashboard() {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CONFIG_FILE);
+        loadConfigs(inputStream);
+    }
 
-    LtsDashboard(String gitTokenPam, String databaseUrlPam, String databaseUserPam, String databasePasswordPam) {
-        gitToken = gitTokenPam;
-        databaseUrl = databaseUrlPam;
-        databaseUser = databaseUserPam;
-        databasePassword = databasePasswordPam;
+    /**
+     * Load configs from the file
+     *
+     * @param input - input stream of the file
+     */
+    private static void loadConfigs(InputStream input) {
+        Properties prop = new Properties();
+        try {
+            prop.load(input);
+            gitToken = prop.getProperty("git_token");
+            databaseUrl = prop.getProperty("db_url");
+            databaseUser = prop.getProperty("db_user");
+            databasePassword = prop.getProperty("db_password");
+
+
+        } catch (FileNotFoundException e) {
+            logger.error("The configuration file is not found");
+        } catch (IOException e) {
+            logger.error("The File cannot be read");
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    logger.error("The File InputStream is not closed");
+                }
+            }
+        }
+
 
     }
+
 
     @GET
     @Path("/products")
