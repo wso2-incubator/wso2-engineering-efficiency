@@ -27,3 +27,5 @@
 target
 *.iml
 node_modules
+*.log
+log/
