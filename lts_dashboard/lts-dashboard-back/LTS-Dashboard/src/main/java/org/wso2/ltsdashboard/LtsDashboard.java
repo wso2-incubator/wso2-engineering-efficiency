@@ -89,6 +89,7 @@ public class LtsDashboard {
     @GET
     @Path("/products")
     public Response getProducts() {
+        logger.debug("Request to products");
         ProcessorImplement processorImplement = new ProcessorImplement(
                 gitToken, databaseUrl, databaseUser, databasePassword);
         JsonArray productList = processorImplement.getProductList();
@@ -100,6 +101,7 @@ public class LtsDashboard {
     @POST
     @Path("/versions")
     public Response getLabels(JsonObject product) {
+        logger.debug("Request to versions");
         ProcessorImplement processorImplement = new ProcessorImplement(
                 gitToken, databaseUrl, databaseUser, databasePassword);
         String productName = product.get("product").toString();
@@ -113,6 +115,7 @@ public class LtsDashboard {
     @Path("/issues")
     @Consumes("application/json")
     public Response postIssues(JsonObject versionData) {
+        logger.debug("Request to issues");
         ProcessorImplement processorImplement = new ProcessorImplement(
                 gitToken, databaseUrl, databaseUser, databasePassword);
         String productName = versionData.get("product").toString();
@@ -127,6 +130,7 @@ public class LtsDashboard {
     @Path("/milestone")
     @Consumes("application/json")
     public Response postMilestone(JsonArray issueList) {
+        logger.debug("Request to milestone");
         ProcessorImplement processorImplement = new ProcessorImplement(
                 gitToken, databaseUrl, databaseUser, databasePassword);
         JsonArray featureList = processorImplement.getMilestoneFeatures(issueList);
@@ -138,7 +142,6 @@ public class LtsDashboard {
     @OPTIONS
     @Path("/versions")
     public Response versionOptions() {
-
         return makeResponse();
     }
 

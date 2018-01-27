@@ -40,7 +40,7 @@ import java.util.Map;
 
 public class ProcessorImplement implements Processor {
     private final static Logger logger = Logger.getLogger(ProcessorImplement.class);
-    private HashMap<String, ArrayList<String>> productRepoMap;
+    private static HashMap<String, ArrayList<String>> productRepoMap = new HashMap<>();
     private String baseUrl = "https://api.github.com/";
     private GitHandlerImplement gitHandlerImplement;
     private String org = "wso2-incubator";
@@ -50,12 +50,13 @@ public class ProcessorImplement implements Processor {
 
 
     ProcessorImplement(String gitToken, String databaseUrl, String databaseUser, String databasePassword) {
-        this.productRepoMap = new HashMap<>();
         this.gitHandlerImplement = new GitHandlerImplement(gitToken);
         this.databaseUrl = databaseUrl;
         this.databasePassword = databasePassword;
         this.databaseUser = databaseUser;
-        this.createProductAndRepos();
+        if(productRepoMap.isEmpty()) {
+            this.createProductAndRepos();
+        }
     }
 
     public static void main(String[] args) {
@@ -74,10 +75,10 @@ public class ProcessorImplement implements Processor {
     @Override
     public JsonArray getProductList() {
         ArrayList<String> productList = new ArrayList<>();
-        if (this.productRepoMap.isEmpty()) {
+        if (productRepoMap.isEmpty()) {
             this.createProductAndRepos();
         }
-        for (Map.Entry<String, ArrayList<String>> map : this.productRepoMap.entrySet()) {
+        for (Map.Entry<String, ArrayList<String>> map : productRepoMap.entrySet()) {
             productList.add(map.getKey());
         }
 
@@ -96,11 +97,11 @@ public class ProcessorImplement implements Processor {
      * @return - json array of Label names
      */
     public JsonArray getVersions(String productName) {
-        if (this.productRepoMap.isEmpty()) {
+        if (productRepoMap.isEmpty()) {
             this.createProductAndRepos();
         }
 
-        ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
+        ArrayList<String> repos = productRepoMap.get(productName.replace("\"", ""));
         ArrayList<String> labels = new ArrayList<>();
 
         for (String repo : repos) {
@@ -141,7 +142,7 @@ public class ProcessorImplement implements Processor {
     @Override
     public JsonArray getIssues(String productName, String label) {
 
-        ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
+        ArrayList<String> repos = productRepoMap.get(productName.replace("\"", ""));
         String finalLabel = label.replace("\"", "");
         JsonArray issueArray = new JsonArray();
 
@@ -222,9 +223,9 @@ public class ProcessorImplement implements Processor {
     private void createProductAndRepos() {
         SqlHandler sqlHandler =
                 SqlHandler.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
-        this.productRepoMap = sqlHandler.getProductVsRepos();
+        productRepoMap = sqlHandler.getProductVsRepos();
 
-        if (this.productRepoMap.isEmpty()) {
+        if (productRepoMap.isEmpty()) {
             logger.error("Product vs Repository List is empty");
         } else {
             logger.info("Product vs Repository List created");
@@ -242,7 +243,7 @@ public class ProcessorImplement implements Processor {
     private void getLabelTestRepo() {
         ArrayList<String> repoList = new ArrayList<>();
         repoList.add("label-test");
-        this.productRepoMap.put("Integration Test", repoList);
+        productRepoMap.put("Integration Test", repoList);
     }
 
 
