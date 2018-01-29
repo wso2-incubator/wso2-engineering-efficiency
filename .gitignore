@@ -27,3 +27,8 @@
 target
 *.iml
 node_modules
+<<<<<<< HEAD
+=======
+*.log
+log/
+>>>>>>> test-inc

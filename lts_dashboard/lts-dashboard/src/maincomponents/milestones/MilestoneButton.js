@@ -37,7 +37,7 @@ class MilestoneCheckButton extends React.Component {
     render() {
         return (
             <div>
-                <Button color="accent" onClick={this.modalLaunchFromButton}>Check Milestone</Button>
+                <Button color="secondary" onClick={this.modalLaunchFromButton}>{this.props.data["title"]}</Button>
             </div>
         );
     }

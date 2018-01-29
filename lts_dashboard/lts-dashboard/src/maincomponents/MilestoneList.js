@@ -22,16 +22,14 @@ import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
-import {
-    FilteringState,
-    IntegratedFiltering,
-    IntegratedSorting,
-    IntegratedPaging,
-    PagingState,
-    SortingState,
-} from "@devexpress/dx-react-grid";
-import {Grid, PagingPanel, Table, TableFilterRow, TableHeaderRow} from '@devexpress/dx-react-grid-material-ui'
+import {FilteringState, IntegratedFiltering, IntegratedSorting, SortingState,DataTypeProvider}
+from "@devexpress/dx-react-grid";
+import {Grid, TableFilterRow, TableHeaderRow} from '@devexpress/dx-react-grid-material-ui'
 import MilestoneCheckButton from "./milestones/MilestoneButton.js"
+import {
+    TableColumnResizing,
+    VirtualTable
+} from "@devexpress/dx-react-grid-material-ui/dist/dx-react-grid-material-ui.cjs";
 
 const styles = theme => ({
     root: {
@@ -43,27 +41,91 @@ const styles = theme => ({
         paddingBottom: 16,
         marginTop: theme.spacing.unit * 3,
         width: `97%`,
-        marginRight: `5%`
+        marginRight: `5%`,
+        height: 700
     }),
     appBar: {
         paddingBottom: 20
     }
 });
 
+// formatters
+const IssueLinkFormatter = ({ value }) =>
+    <a href={value["html_url"]}>{value["title"]}</a>;
+
+IssueLinkFormatter.propTypes = {
+    value: PropTypes.object.isRequired,
+};
+
+const IssueLinkTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={IssueLinkFormatter}
+        {...props}
+    />
+);
+
+const MilestoneFormatter = ({value}) =>
+    <MilestoneCheckButton
+        data={value["mObject"]}
+        modalLauch={value["method"]}
+    />;
+
+MilestoneFormatter.propTypes = {
+    value: PropTypes.object.isRequired,
+};
+
+const MilestoneTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={MilestoneFormatter}
+        {...props}
+    />
+);
+
+// filters
+const toLowerCase = value => String(value).toLowerCase();
+const milestonePredicate = (value, filter) => toLowerCase(value["mObject"]["title"]).startsWith(toLowerCase(filter.value));
+
+
+
+// sorting function
+const compareText = (a, b) => {
+    a=a["mObject"]["title"];
+    b=b["mObject"]["title"];
+
+    if (toLowerCase(a) > toLowerCase(b)) {
+        return 1;
+    }
+    else if(toLowerCase(a) < toLowerCase(b)){
+        return -1
+    }
+    return 0;
+};
+
+function getColumnWidths() {
+    let screenWidth = window.innerWidth;
+    let divPaperSize = Math.round(screenWidth / 100 * 92);
+    let col1Size = Math.round(divPaperSize / 100 * 60);
+    let col2Size = Math.round(divPaperSize / 100 * 20);
+    let col3Size = Math.round(divPaperSize / 100 * 20);
+    return [col1Size, col2Size, col3Size]
+}
 
 class MilestoneList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentPage: 0,
-            pageSize: 10,
-            pageSizes: [10, 20, 50],
             issueList: [],
-            displayIssueList: []
+            displayIssueList: [],
+            integratedFilteringColumnExtensions: [
+                {columnName: 'milestone', predicate: milestonePredicate},
+            ],
+            integratedSortingColumnExtensions: [
+                { columnName: 'milestone', compare: compareText },
+            ],
+            milestoneColumn : ["milestone"],
+            issueTitleCol : ["title"]
         };
 
-        this.changeCurrentPage = currentPage => this.setState({currentPage});
-        this.changePageSize = pageSize => this.setState({pageSize});
         this.modalOpen = this.modalOpen.bind(this);
     }
 
@@ -71,63 +133,50 @@ class MilestoneList extends React.Component {
     componentWillUpdate(nextProps, nextState) {
         if (nextProps.issueList !== this.props.issueList) {
             this.setState({
-                issueList : nextProps.issueList,
-                displayIssueList: this.processIssueList(nextProps.issueList)
+                issueList: nextProps.issueList,
+                displayIssueList: this.processIssueList(nextProps.issueList),
             })
         }
     }
 
 
-    modalOpen(data){
+    modalOpen(data) {
         this.props.modalLauch(data);
     };
 
-    processIssueList(issueList){
+    processIssueList(issueList) {
         let displayArray = [];
-        let modalOpendup = this.modalOpen
+        let modalOpenUp = this.modalOpen;
         issueList.forEach(function (element) {
-            let issueTitle = <a href={element["html_url"]}>{element["issue_title"]}</a>;
-            let milestoneDueOn = " N/A";
-            let milestoneTitle = " N/A";
-            let checkForward = "";
-            if(element["milestone"]!=null) {
-                milestoneTitle =  element["milestone"]["title"];
-                if(element["milestone"]["due_on"]!=null) {
-                    milestoneDueOn = element["milestone"]["due_on"];
+                let issueTitle = {"html_url": element["html_url"],"title":element["issue_title"]};
+                let milestoneDueOn = " N/A";
+                let milestoneTitle = " N/A";
+                if (element["milestone"] != null) {
+                    if (element["milestone"]["due_on"] !== "null") {
+                        milestoneDueOn = element["milestone"]["due_on"];
+                    }
+                    milestoneTitle = {"mObject":element["milestone"],"method":modalOpenUp};
                 }
 
-                checkForward = <MilestoneCheckButton
-                                    data={element["milestone"]}
-                                    modalLauch={modalOpendup}
-                                />
+                let issue = {
+                    title: issueTitle,
+                    due_on: milestoneDueOn,
+                    milestone: milestoneTitle,
+
+                };
+                displayArray.push(issue);
             }
-
-            let issue = {
-                title : issueTitle,
-                due_on : milestoneDueOn,
-                milestone: milestoneTitle,
-                forward : checkForward
-
-            };
-            displayArray.push(issue);
-        }
         );
 
         return displayArray;
 
     }
 
-    openInNewTab(url) {
-        var win = window.open(url, '_blank');
-        win.focus();
-    }
-
 
     render() {
         const {classes} = this.props;
-        const {
-            pageSize, pageSizes, currentPage,
-        } = this.state;
+        let columnSizes = getColumnWidths();
+        const {integratedSortingColumnExtensions, integratedFilteringColumnExtensions} = this.state;
 
         return (
             <Paper className={classes.paper} elevation={4}>
@@ -139,30 +188,33 @@ class MilestoneList extends React.Component {
                         columns={[
                             {name: 'title', title: 'Feature'},
                             {name: 'due_on', title: 'Release Date'},
-                            {name: 'milestone', title: 'Milestone'},
-                            {name: 'forward', title: '>>'},
+                            {name: 'milestone', title: 'Feature included milestone'}
                         ]}>
 
                         <FilteringState defaultFilters={[]}/>
-                        <IntegratedFiltering/>
-                        <PagingState
-                            currentPage={currentPage}
-                            onCurrentPageChange={this.changeCurrentPage}
-                            pageSize={pageSize}
-                            onPageSizeChange={this.changePageSize}
-                        />
-                        <IntegratedPaging/>
+                        <IntegratedFiltering columnExtensions={integratedFilteringColumnExtensions} />
+
                         <SortingState
                             defaultSorting={[{columnName: 'milestone', direction: 'desc'}]}
                         />
-                        <IntegratedSorting/>
+                        <IntegratedSorting columnExtensions={integratedSortingColumnExtensions}/>
 
-                        <Table/>
+                        <VirtualTable height={700}/>
+                        <TableColumnResizing defaultColumnWidths={[
+                            {columnName: 'title', width: columnSizes[0]},
+                            {columnName: 'due_on', width: columnSizes[1]},
+                            {columnName: 'milestone', width: columnSizes[2]},
+                        ]}/>
+
+                        <IssueLinkTypeProvider
+                            for={this.state.issueTitleCol}
+                        />
+
+                        <MilestoneTypeProvider
+                            for={this.state.milestoneColumn}
+                        />
                         <TableHeaderRow showSortingControls/>
                         <TableFilterRow/>
-                        <PagingPanel
-                            pageSizes={pageSizes}
-                        />
 
                     </Grid>
                 </div>

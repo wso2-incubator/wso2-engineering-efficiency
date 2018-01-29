@@ -18,6 +18,7 @@ package org.wso2.ltsdashboard;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,6 +26,10 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * This is the Microservice resource class.
@@ -36,25 +41,57 @@ import javax.ws.rs.core.Response;
 
 @Path("/lts")
 public class LtsDashboard {
-    private String databaseUrl;
-    private String databaseUser;
-    private String databasePassword;
-    private String gitToken;
+    private final static Logger logger = Logger.getLogger(LtsDashboard.class);
+    private final static String CONFIG_FILE = "config.ini";
+    private static String databaseUrl;
+    private static String databaseUser;
+    private static String databasePassword;
+    private static String gitToken;
+
+    LtsDashboard() {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CONFIG_FILE);
+        loadConfigs(inputStream);
+    }
+
+    /**
+     * Load configs from the file
+     *
+     * @param input - input stream of the file
+     */
+    private static void loadConfigs(InputStream input) {
+        Properties prop = new Properties();
+        try {
+            prop.load(input);
+            gitToken = prop.getProperty("git_token");
+            databaseUrl = prop.getProperty("db_url");
+            databaseUser = prop.getProperty("db_user");
+            databasePassword = prop.getProperty("db_password");
 
 
-    LtsDashboard(String gitToken, String databaseUrl, String databaseUser, String databasePassword) {
-        this.gitToken = gitToken;
-        this.databaseUrl = databaseUrl;
-        this.databaseUser = databaseUser;
-        this.databasePassword = databasePassword;
+        } catch (FileNotFoundException e) {
+            logger.error("The configuration file is not found");
+        } catch (IOException e) {
+            logger.error("The File cannot be read");
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    logger.error("The File InputStream is not closed");
+                }
+            }
+        }
+
 
     }
+
 
     @GET
     @Path("/products")
     public Response getProducts() {
+        logger.debug("Request to products");
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         JsonArray productList = processorImplement.getProductList();
 
         return makeResponseWithBody(productList);
@@ -64,8 +101,9 @@ public class LtsDashboard {
     @POST
     @Path("/versions")
     public Response getLabels(JsonObject product) {
+        logger.debug("Request to versions");
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         String productName = product.get("product").toString();
         JsonArray productList = processorImplement.getVersions(productName);
 
@@ -77,8 +115,9 @@ public class LtsDashboard {
     @Path("/issues")
     @Consumes("application/json")
     public Response postIssues(JsonObject versionData) {
+        logger.debug("Request to issues");
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         String productName = versionData.get("product").toString();
         String version = versionData.get("version").toString();
         JsonArray issueList = processorImplement.getIssues(productName, version);
@@ -91,8 +130,9 @@ public class LtsDashboard {
     @Path("/milestone")
     @Consumes("application/json")
     public Response postMilestone(JsonArray issueList) {
+        logger.debug("Request to milestone");
         ProcessorImplement processorImplement = new ProcessorImplement(
-                this.gitToken, this.databaseUrl, this.databaseUser, this.databasePassword);
+                gitToken, databaseUrl, databaseUser, databasePassword);
         JsonArray featureList = processorImplement.getMilestoneFeatures(issueList);
 
         return makeResponseWithBody(featureList);
@@ -102,7 +142,6 @@ public class LtsDashboard {
     @OPTIONS
     @Path("/versions")
     public Response versionOptions() {
-
         return makeResponse();
     }
 

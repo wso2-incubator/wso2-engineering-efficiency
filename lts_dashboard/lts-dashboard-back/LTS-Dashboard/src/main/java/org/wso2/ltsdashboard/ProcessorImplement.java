@@ -29,12 +29,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.log4j.Logger;
 import org.wso2.ltsdashboard.connectionshandlers.GitHandlerImplement;
-import org.wso2.ltsdashboard.connectionshandlers.SqlHandlerImplement;
+import org.wso2.ltsdashboard.connectionshandlers.SqlHandler;
 import org.wso2.ltsdashboard.gitobjects.Issue;
 import org.wso2.ltsdashboard.gitobjects.PullRequest;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +40,7 @@ import java.util.Map;
 
 public class ProcessorImplement implements Processor {
     private final static Logger logger = Logger.getLogger(ProcessorImplement.class);
-    private HashMap<String, ArrayList<String>> productRepoMap;
+    private static HashMap<String, ArrayList<String>> productRepoMap = new HashMap<>();
     private String baseUrl = "https://api.github.com/";
     private GitHandlerImplement gitHandlerImplement;
     private String org = "wso2";
@@ -52,12 +50,13 @@ public class ProcessorImplement implements Processor {
 
 
     ProcessorImplement(String gitToken, String databaseUrl, String databaseUser, String databasePassword) {
-        this.productRepoMap = new HashMap<>();
         this.gitHandlerImplement = new GitHandlerImplement(gitToken);
         this.databaseUrl = databaseUrl;
         this.databasePassword = databasePassword;
         this.databaseUser = databaseUser;
-        this.getProductsAndRepos();
+        if(productRepoMap.isEmpty()) {
+            this.createProductAndRepos();
+        }
     }
 
 
@@ -69,10 +68,10 @@ public class ProcessorImplement implements Processor {
     @Override
     public JsonArray getProductList() {
         ArrayList<String> productList = new ArrayList<>();
-        if (this.productRepoMap.isEmpty()) {
-            this.getProductsAndRepos();
+        if (productRepoMap.isEmpty()) {
+            this.createProductAndRepos();
         }
-        for (Map.Entry<String, ArrayList<String>> map : this.productRepoMap.entrySet()) {
+        for (Map.Entry<String, ArrayList<String>> map : productRepoMap.entrySet()) {
             productList.add(map.getKey());
         }
 
@@ -91,11 +90,11 @@ public class ProcessorImplement implements Processor {
      * @return - json array of Label names
      */
     public JsonArray getVersions(String productName) {
-        if (this.productRepoMap.isEmpty()) {
-            this.getProductsAndRepos();
+        if (productRepoMap.isEmpty()) {
+            this.createProductAndRepos();
         }
 
-        ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
+        ArrayList<String> repos = productRepoMap.get(productName.replace("\"", ""));
         ArrayList<String> labels = new ArrayList<>();
 
         for (String repo : repos) {
@@ -119,6 +118,8 @@ public class ProcessorImplement implements Processor {
             versionJsonArray.add(versionName);
         }
 
+        logger.info("Version List created for product :" + productName);
+
         return versionJsonArray;
 
     }
@@ -134,13 +135,14 @@ public class ProcessorImplement implements Processor {
     @Override
     public JsonArray getIssues(String productName, String label) {
 
-        ArrayList<String> repos = this.productRepoMap.get(productName.replace("\"", ""));
+        ArrayList<String> repos = productRepoMap.get(productName.replace("\"", ""));
         String finalLabel = label.replace("\"", "");
         JsonArray issueArray = new JsonArray();
 
         for (String repo : repos) {
             logger.info("Repository " + repo);
-            String url = this.baseUrl + "search/issues?q=label:Affected/" + finalLabel + "+repo:" + this.org + "/" + repo;
+            String url = this.baseUrl + "search/issues?q=label:Affected/" +
+                    finalLabel + "+repo:" + this.org + "/" + repo;
             JsonArray issues = gitHandlerImplement.getJSONArrayFromGit(url);
 
             for (JsonElement issue : issues) {
@@ -148,6 +150,8 @@ public class ProcessorImplement implements Processor {
                 issueArray.add(issueObject);
             }
         }
+
+        logger.info(productName + ":" + label + " issues extracted");
 
         return issueArray;
     }
@@ -180,7 +184,7 @@ public class ProcessorImplement implements Processor {
             } //end if
         }
 
-        // get cross referenced PR urls
+
         return featureList;
     }
 
@@ -209,33 +213,31 @@ public class ProcessorImplement implements Processor {
     /**
      * Create Product repository map
      */
-    private void getProductsAndRepos() {
+    private void createProductAndRepos() {
+        SqlHandler sqlHandler =
+                SqlHandler.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
+        productRepoMap = sqlHandler.getProductVsRepos();
 
-        SqlHandlerImplement sqlHandlerImplement =
-                SqlHandlerImplement.getHandler(this.databaseUrl, this.databaseUser, this.databasePassword);
-        ResultSet resultSet = sqlHandlerImplement.
-                executeQuery("SELECT * from UnifiedDashboards.JNKS_COMPONENTPRODUCT;");
-        try {
-            while (resultSet.next()) {
-                String product = resultSet.getString(1);
-                String repo = resultSet.getString(2);
-
-                ArrayList<String> repoList = this.productRepoMap.get(product);
-                if (repoList == null) {
-                    repoList = new ArrayList<>();
-                    repoList.add(repo);
-                    this.productRepoMap.put(product, repoList);
-                } else {
-                    repoList.add(repo);
-                }
-            }
-            logger.info("The map between product and repos created");
-        } catch (SQLException e) {
-            logger.info("Iterating through DB RequestSet failed");
+        if (productRepoMap.isEmpty()) {
+            logger.error("Product vs Repository List is empty");
+        } else {
+            logger.info("Product vs Repository List created");
         }
+
+        // add test repo
+        this.getLabelTestRepo();
+        logger.info("Test product added");
 
     }
 
+    /**
+     * Make product list from incubator test repo
+     */
+    private void getLabelTestRepo() {
+        ArrayList<String> repoList = new ArrayList<>();
+        repoList.add("label-test");
+        productRepoMap.put("Integration Test", repoList);
+    }
 
 
     /**

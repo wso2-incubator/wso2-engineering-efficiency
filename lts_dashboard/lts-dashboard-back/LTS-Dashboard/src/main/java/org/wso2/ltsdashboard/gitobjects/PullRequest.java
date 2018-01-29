@@ -25,14 +25,15 @@ package org.wso2.ltsdashboard.gitobjects;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import javax.ws.rs.HEAD;
+
 public class PullRequest {
     private JsonArray features;
-//    private String title;
+
 
     public PullRequest(JsonObject event) {
         JsonObject pr = this.getPr(event);
         this.features = extractFeatures(pr.get("body").toString());
-//        this.title = pr.get("title").toString();
     }
 
     /**
@@ -43,21 +44,6 @@ public class PullRequest {
     public JsonArray getFeatures() {
         return features;
     }
-
-    /**
-     * Get the title of the pr
-     *
-     * @return - title as a array
-     */
-//    public JsonArray getTitle() {
-//        JsonArray testJsonArray = new JsonArray();
-//        testJsonArray.add(this.title
-//                .replace("\"", "")
-//                .replace("\\", "")
-//        );
-//
-//        return testJsonArray;
-//    }
 
 
     private JsonObject getPr(JsonObject event) {
@@ -73,18 +59,21 @@ public class PullRequest {
      */
     private JsonArray extractFeatures(String prBody) {
         String[] marketStringPart = prBody.split("## Marketing");
-        if (marketStringPart.length > 1) {
-            marketStringPart = marketStringPart[1].split("## Automation tests");
-        }
-        String marketingString = marketStringPart[0].replace("\\r\\n", "%%%%");
-        String[] features = marketingString.split("%%%%");
-
         JsonArray featureArray = new JsonArray();
-        for (String feature : features) {
-            if (feature.length() > 0) {
-                featureArray.add(feature);
+        if (marketStringPart.length > 1) {
+            marketStringPart = marketStringPart[1].split("##");
+
+            String marketingString = marketStringPart[0].replace("\\r\\n", "%%%%");
+            String[] features = marketingString.split("%%%%");
+
+
+            for (String feature : features) {
+                if (feature.length() > 0) {
+                    featureArray.add(feature);
+                }
             }
         }
+
 
         return featureArray;
     }

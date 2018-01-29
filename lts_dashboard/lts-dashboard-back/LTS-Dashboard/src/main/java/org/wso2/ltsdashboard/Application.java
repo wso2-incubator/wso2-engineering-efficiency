@@ -26,7 +26,7 @@ import org.wso2.msf4j.MicroservicesRunner;
 public class Application {
     public static void main(String[] args) {
         new MicroservicesRunner()
-                .deploy(new LtsDashboard(args[0],args[1],args[2],args[3]))
+                .deploy(new LtsDashboard())
                 .start();
     }
 }
