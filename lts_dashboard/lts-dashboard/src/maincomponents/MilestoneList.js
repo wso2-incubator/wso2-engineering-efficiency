@@ -22,7 +22,8 @@ import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
-import {FilteringState, IntegratedFiltering, IntegratedSorting, SortingState,} from "@devexpress/dx-react-grid";
+import {FilteringState, IntegratedFiltering, IntegratedSorting, SortingState,DataTypeProvider}
+from "@devexpress/dx-react-grid";
 import {Grid, TableFilterRow, TableHeaderRow} from '@devexpress/dx-react-grid-material-ui'
 import MilestoneCheckButton from "./milestones/MilestoneButton.js"
 import {
@@ -48,6 +49,41 @@ const styles = theme => ({
     }
 });
 
+// formatters
+const IssueLinkFormatter = ({ value }) =>
+    <a href={value["html_url"]}>{value["title"]}</a>;
+
+IssueLinkFormatter.propTypes = {
+    value: PropTypes.object.isRequired,
+};
+
+const IssueLinkTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={IssueLinkFormatter}
+        {...props}
+    />
+);
+
+const MilestoneFormatter = ({value}) =>
+    <MilestoneCheckButton
+        data={value["mObject"]}
+        modalLauch={value["method"]}
+    />;
+
+MilestoneFormatter.propTypes = {
+    value: PropTypes.object.isRequired,
+};
+
+const MilestoneTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={MilestoneFormatter}
+        {...props}
+    />
+);
+
+// filters
+const toLowerCase = value => String(value).toLowerCase();
+const milestonePredicate = (value, filter) => toLowerCase(value["mObject"]["title"]).startsWith(toLowerCase(filter.value));
 
 
 function getColumnWidths() {
@@ -65,7 +101,11 @@ class MilestoneList extends React.Component {
         this.state = {
             issueList: [],
             displayIssueList: [],
-            milestoneList : {}
+            // integratedFilteringColumnExtensions: [
+            //     {columnName: 'milestone', predicate: milestonePredicate},
+            // ],
+            milestoneColumn : ["milestone"],
+            issueTitleCol : ["title"]
         };
 
         this.modalOpen = this.modalOpen.bind(this);
@@ -90,7 +130,7 @@ class MilestoneList extends React.Component {
         let displayArray = [];
         let modalOpenUp = this.modalOpen;
         issueList.forEach(function (element) {
-                let issueTitle = <a href={element["html_url"]}>{element["issue_title"]}</a>;
+                let issueTitle = {"html_url": element["html_url"],"title":element["issue_title"]};
                 let milestoneDueOn = " N/A";
                 let milestoneTitle = " N/A";
                 if (element["milestone"] != null) {
@@ -98,12 +138,8 @@ class MilestoneList extends React.Component {
                         milestoneDueOn = element["milestone"]["due_on"];
                     }
                     // TODO - make a list of milestones and add that to cell info
-                    // TODO - or pass total object and filter it
-                    // milestoneTitle = element["milestone"]["title"];
-                    milestoneTitle = <MilestoneCheckButton
-                        data={element["milestone"]}
-                        modalLauch={modalOpenUp}
-                    />
+                    // TODO - or pass total object and filter it;
+                    milestoneTitle = {"mObject":element["milestone"],"method":modalOpenUp};
                 }
 
                 let issue = {
@@ -121,10 +157,10 @@ class MilestoneList extends React.Component {
     }
 
 
-
     render() {
         const {classes} = this.props;
         let columnSizes = getColumnWidths();
+        const {rows, columns, integratedFilteringColumnExtensions} = this.state;
 
         return (
             <Paper className={classes.paper} elevation={4}>
@@ -140,7 +176,6 @@ class MilestoneList extends React.Component {
                         ]}>
 
                         <FilteringState defaultFilters={[]}/>
-                        <IntegratedFiltering/>
 
                         <SortingState
                             defaultSorting={[{columnName: 'milestone', direction: 'desc'}]}
@@ -152,6 +187,14 @@ class MilestoneList extends React.Component {
                             {columnName: 'due_on', width: columnSizes[1]},
                             {columnName: 'milestone', width: columnSizes[2]},
                         ]}/>
+
+                        <IssueLinkTypeProvider
+                            for={this.state.issueTitleCol}
+                        />
+
+                        <MilestoneTypeProvider
+                            for={this.state.milestoneColumn}
+                        />
                         <TableHeaderRow showSortingControls/>
                         <TableFilterRow/>
 
