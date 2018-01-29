@@ -84,7 +84,7 @@ public class GitHandlerImplement implements GitHandler {
         } catch (IllegalStateException e) {
             logger.error("The response is empty ");
         } catch (NullPointerException e) {
-            logger.error("The response with bad request");
+            logger.error("The response is empty");
         } catch (IOException e) {
             logger.error("Cannot connect to get receive data");
         }
