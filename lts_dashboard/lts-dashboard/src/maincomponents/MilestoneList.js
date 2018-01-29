@@ -86,6 +86,21 @@ const toLowerCase = value => String(value).toLowerCase();
 const milestonePredicate = (value, filter) => toLowerCase(value["mObject"]["title"]).startsWith(toLowerCase(filter.value));
 
 
+
+// sorting function
+const compareText = (a, b) => {
+    a=a["mObject"]["title"];
+    b=b["mObject"]["title"];
+
+    if (toLowerCase(a) > toLowerCase(b)) {
+        return 1;
+    }
+    else if(toLowerCase(a) < toLowerCase(b)){
+        return -1
+    }
+    return 0;
+};
+
 function getColumnWidths() {
     let screenWidth = window.innerWidth;
     let divPaperSize = Math.round(screenWidth / 100 * 92);
@@ -101,9 +116,12 @@ class MilestoneList extends React.Component {
         this.state = {
             issueList: [],
             displayIssueList: [],
-            // integratedFilteringColumnExtensions: [
-            //     {columnName: 'milestone', predicate: milestonePredicate},
-            // ],
+            integratedFilteringColumnExtensions: [
+                {columnName: 'milestone', predicate: milestonePredicate},
+            ],
+            integratedSortingColumnExtensions: [
+                { columnName: 'milestone', compare: compareText },
+            ],
             milestoneColumn : ["milestone"],
             issueTitleCol : ["title"]
         };
@@ -137,8 +155,6 @@ class MilestoneList extends React.Component {
                     if (element["milestone"]["due_on"] !== "null") {
                         milestoneDueOn = element["milestone"]["due_on"];
                     }
-                    // TODO - make a list of milestones and add that to cell info
-                    // TODO - or pass total object and filter it;
                     milestoneTitle = {"mObject":element["milestone"],"method":modalOpenUp};
                 }
 
@@ -160,7 +176,7 @@ class MilestoneList extends React.Component {
     render() {
         const {classes} = this.props;
         let columnSizes = getColumnWidths();
-        const {rows, columns, integratedFilteringColumnExtensions} = this.state;
+        const {integratedSortingColumnExtensions, integratedFilteringColumnExtensions} = this.state;
 
         return (
             <Paper className={classes.paper} elevation={4}>
@@ -176,11 +192,13 @@ class MilestoneList extends React.Component {
                         ]}>
 
                         <FilteringState defaultFilters={[]}/>
+                        <IntegratedFiltering columnExtensions={integratedFilteringColumnExtensions} />
 
                         <SortingState
                             defaultSorting={[{columnName: 'milestone', direction: 'desc'}]}
                         />
-                        <IntegratedSorting/>
+                        <IntegratedSorting columnExtensions={integratedSortingColumnExtensions}/>
+
                         <VirtualTable height={700}/>
                         <TableColumnResizing defaultColumnWidths={[
                             {columnName: 'title', width: columnSizes[0]},
