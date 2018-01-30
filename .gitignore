@@ -31,4 +31,8 @@ node_modules
 =======
 *.log
 log/
+<<<<<<< HEAD
 >>>>>>> test-inc
+=======
+*.ini
+>>>>>>> test-mil

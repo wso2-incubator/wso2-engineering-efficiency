@@ -58,4 +58,12 @@ public interface Processor {
      * @return Feature Set as a json array
      */
     JsonArray getMilestoneFeatures(JsonArray issueUrlList);
+
+    /**
+     * Get All features for product version
+     *
+     * @param issueUrlList - issue Url list from front end
+     * @return Feature Set as a json array
+     */
+    JsonArray getAllFeatures(JsonArray issueUrlList);
 }

@@ -61,7 +61,7 @@ class ProductNavigator extends React.Component {
     };
 
     fetchVersions() {
-        axios.get('http://localhost:8080/lts/products'
+        axios.get('http://10.100.5.173:8080/lts/products'
         ).then(
             (response) => {
                 let datat = response.data;

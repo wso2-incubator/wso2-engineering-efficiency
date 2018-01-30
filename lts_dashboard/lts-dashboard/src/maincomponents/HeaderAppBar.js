@@ -26,6 +26,7 @@ import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import VersionNavigator from './VersionNavigator.js';
 import ProductNavigator from './ProductNavigator.js';
+import Button from "material-ui/es/Button/Button";
 
 const styles = {
     root: {
@@ -41,7 +42,7 @@ const styles = {
     header: {
         paddingRight: 20,
         paddingLeft: 25
-    }
+    },
 };
 
 class MenuAppBar extends React.Component {
@@ -54,6 +55,7 @@ class MenuAppBar extends React.Component {
 
         this.setProduct = this.setProduct.bind(this);
         this.setVersion = this.setVersion.bind(this);
+        this.openModal = this.openModal.bind(this);
     }
 
     setProduct(productName) {
@@ -62,6 +64,8 @@ class MenuAppBar extends React.Component {
         })
     }
 
+
+
     setVersion(versionName) {
         this.setState({
             version: versionName
@@ -69,6 +73,10 @@ class MenuAppBar extends React.Component {
             ()=>{
                 this.props.setissues(this.state.product,this.state.version);
             });
+    }
+
+    openModal(){
+        this.props.featureModal(this.state.product,this.state.version);
     }
 
     render() {
@@ -100,6 +108,12 @@ class MenuAppBar extends React.Component {
                                 setVersion={this.setVersion}
                             />
                         </div>
+                        <div className={classes.header}>
+                            <Button raised onClick={this.openModal} className={classes.button}>
+                                Marketing Messages
+                            </Button>
+                        </div>
+
                     </Toolbar>
                 </AppBar>
             </div>

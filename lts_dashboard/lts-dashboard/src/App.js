@@ -22,11 +22,12 @@ import logo from './img/WSO2_Software_Logo.png'
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import './App.css';
-import MilestoneList from './maincomponents/MilestoneList';
+import MilestoneList from './maincomponents/IssueList';
 import MenuAppBar from './maincomponents/HeaderAppBar'
 import axios from "axios/index";
 import MilestoneModal from "./maincomponents/MilestoneModal.js"
 import LinearProgress from "material-ui/es/Progress/LinearProgress";
+import FeatureModal from "./maincomponents/FeatureModal.js";
 
 
 const styles = {
@@ -45,8 +46,18 @@ class App extends Component {
     modalOpen = (milestoneData) => {
         this.setState({
             milestoneData: milestoneData,
-            openModal: true
+            openModal: true,
+            openFeatureModal: false
         });
+    };
+
+    featureModalOpen = (product, version) => {
+        this.setState({
+            openFeatureModal: true,
+            openModal: false,
+            product: product,
+            version: version
+        })
     };
 
     constructor(props) {
@@ -55,11 +66,15 @@ class App extends Component {
             issueList: [],
             milestoneData: {},
             openModal: false,
-            loadIssue: false
+            loadIssue: false,
+            openFeatureModal: false,
+            product: "",
+            version: "",
         };
 
         this.setIssues = this.setIssues.bind(this);
         this.modalOpen = this.modalOpen.bind(this);
+        this.featureModalOpen = this.featureModalOpen.bind(this);
 
     }
 
@@ -73,9 +88,10 @@ class App extends Component {
                 this.setState({
                     loadIssue: true,
                     openModal: false,
-                    issueList: []
+                    issueList: [],
+                    openFeatureModal: false
                 }, () => (
-                    axios.post('http://localhost:8080/lts/issues',
+                    axios.post('http://10.100.5.173:8080/lts/issues',
                         productObject
                     ).then(
                         (response) => {
@@ -108,9 +124,10 @@ class App extends Component {
                 <MenuAppBar
                     productUpdate={this.setProduct}
                     setissues={this.setIssues}
+                    featureModal={this.featureModalOpen}
                 />
                 <div style={{height: 15}}>
-                    {this.state.loadIssue && <LinearProgress />}
+                    {this.state.loadIssue && <LinearProgress/>}
                 </div>
 
                 <div className={classes.blocks}>
@@ -124,6 +141,16 @@ class App extends Component {
                     <MilestoneModal
                         data={this.state.milestoneData}
                         open={this.state.openModal}
+                        issueList={this.state.issueList}
+                    />
+                </div>
+                <div>
+                    <FeatureModal
+                        open={this.state.openFeatureModal}
+                        versionData = {{
+                            product: this.state.product,
+                            version: this.state.version
+                        }}
                         issueList={this.state.issueList}
                     />
                 </div>

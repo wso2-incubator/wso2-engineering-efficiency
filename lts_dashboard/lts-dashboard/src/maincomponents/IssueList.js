@@ -22,8 +22,13 @@ import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Divider from 'material-ui/Divider';
-import {FilteringState, IntegratedFiltering, IntegratedSorting, SortingState,DataTypeProvider}
-from "@devexpress/dx-react-grid";
+import {
+    DataTypeProvider,
+    FilteringState,
+    IntegratedFiltering,
+    IntegratedSorting,
+    SortingState
+} from "@devexpress/dx-react-grid";
 import {Grid, TableFilterRow, TableHeaderRow} from '@devexpress/dx-react-grid-material-ui'
 import MilestoneCheckButton from "./milestones/MilestoneButton.js"
 import {
@@ -50,8 +55,8 @@ const styles = theme => ({
 });
 
 // formatters
-const IssueLinkFormatter = ({ value }) =>
-    <a href={value["html_url"]}>{value["title"]}</a>;
+const IssueLinkFormatter = ({value}) =>
+    <a href="#" onClick={() => window.open(value["html_url"], '_blank')}>{value["title"]}</a>;
 
 IssueLinkFormatter.propTypes = {
     value: PropTypes.object.isRequired,
@@ -84,18 +89,18 @@ const MilestoneTypeProvider = props => (
 // filters
 const toLowerCase = value => String(value).toLowerCase();
 const milestonePredicate = (value, filter) => toLowerCase(value["mObject"]["title"]).startsWith(toLowerCase(filter.value));
-
+const issuePredicate = (value, filter) => toLowerCase(value["title"]).startsWith(toLowerCase(filter.value));
 
 
 // sorting function
 const compareText = (a, b) => {
-    a=a["mObject"]["title"];
-    b=b["mObject"]["title"];
+    a = a["mObject"]["title"];
+    b = b["mObject"]["title"];
 
     if (toLowerCase(a) > toLowerCase(b)) {
         return 1;
     }
-    else if(toLowerCase(a) < toLowerCase(b)){
+    else if (toLowerCase(a) < toLowerCase(b)) {
         return -1
     }
     return 0;
@@ -118,12 +123,14 @@ class MilestoneList extends React.Component {
             displayIssueList: [],
             integratedFilteringColumnExtensions: [
                 {columnName: 'milestone', predicate: milestonePredicate},
+                {columnName: 'title', predicate: issuePredicate},
+
             ],
             integratedSortingColumnExtensions: [
-                { columnName: 'milestone', compare: compareText },
+                {columnName: 'milestone', compare: compareText},
             ],
-            milestoneColumn : ["milestone"],
-            issueTitleCol : ["title"]
+            milestoneColumn: ["milestone"],
+            issueTitleCol: ["title"]
         };
 
         this.modalOpen = this.modalOpen.bind(this);
@@ -148,14 +155,14 @@ class MilestoneList extends React.Component {
         let displayArray = [];
         let modalOpenUp = this.modalOpen;
         issueList.forEach(function (element) {
-                let issueTitle = {"html_url": element["html_url"],"title":element["issue_title"]};
+                let issueTitle = {"html_url": element["html_url"], "title": element["issue_title"]};
                 let milestoneDueOn = " N/A";
                 let milestoneTitle = " N/A";
                 if (element["milestone"] != null) {
                     if (element["milestone"]["due_on"] !== "null") {
                         milestoneDueOn = element["milestone"]["due_on"];
                     }
-                    milestoneTitle = {"mObject":element["milestone"],"method":modalOpenUp};
+                    milestoneTitle = {"mObject": element["milestone"], "method": modalOpenUp};
                 }
 
                 let issue = {
@@ -192,7 +199,7 @@ class MilestoneList extends React.Component {
                         ]}>
 
                         <FilteringState defaultFilters={[]}/>
-                        <IntegratedFiltering columnExtensions={integratedFilteringColumnExtensions} />
+                        <IntegratedFiltering columnExtensions={integratedFilteringColumnExtensions}/>
 
                         <SortingState
                             defaultSorting={[{columnName: 'milestone', direction: 'desc'}]}

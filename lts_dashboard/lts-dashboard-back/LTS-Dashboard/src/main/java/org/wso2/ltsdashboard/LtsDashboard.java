@@ -138,6 +138,18 @@ public class LtsDashboard {
         return makeResponseWithBody(featureList);
     }
 
+    @POST
+    @Path("/features")
+    @Consumes("application/json")
+    public Response postIssues(JsonArray issueList) {
+        logger.debug("Request to features");
+        ProcessorImplement processorImplement = new ProcessorImplement(
+                gitToken, databaseUrl, databaseUser, databasePassword);
+        JsonArray featureList = processorImplement.getAllFeatures(issueList);
+
+        return makeResponseWithBody(featureList);
+    }
+
 
     @OPTIONS
     @Path("/versions")
@@ -162,6 +174,12 @@ public class LtsDashboard {
     @OPTIONS
     @Path("/milestone")
     public Response milestoneOptions() {
+        return makeResponse();
+    }
+
+    @OPTIONS
+    @Path("/features")
+    public Response featureOptions() {
         return makeResponse();
     }
 
