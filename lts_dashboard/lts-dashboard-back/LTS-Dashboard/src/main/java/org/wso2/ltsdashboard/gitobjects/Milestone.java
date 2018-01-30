@@ -77,7 +77,9 @@ public class Milestone {
         milestoneObject.addProperty("due_on", this.trimString(this.releaseDate));
         milestoneObject.addProperty("closed_issues", this.closedIssues);
         milestoneObject.addProperty("open_issues", this.openIssues);
-        milestoneObject.addProperty("version", this.trimString(this.version));
+        if(this.version!=null) {
+            milestoneObject.addProperty("version", this.trimString(this.version));
+        }
         milestoneObject.addProperty("title", this.trimString(this.title));
 
         return milestoneObject;

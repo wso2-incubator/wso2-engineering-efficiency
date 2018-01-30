@@ -47,7 +47,7 @@ public class ProcessorImplement implements Processor {
     private static HashMap<String, ArrayList<Milestone>> productMilestoneMap = new HashMap<>();
     private String baseUrl = "https://api.github.com/";
     private GitHandlerImplement gitHandlerImplement;
-    private String org = "wso2-incubator";
+    private String org = "wso2";
     private String databaseUrl;
     private String databaseUser;
     private String databasePassword;
@@ -64,11 +64,11 @@ public class ProcessorImplement implements Processor {
     }
 
     public static void main(String[] args) {
-        ProcessorImplement processorImplement = new ProcessorImplement("9944974b08fb87b3aaa2803e8b2e32fa19012d2d",
+        ProcessorImplement processorImplement = new ProcessorImplement("cd3452d1cbddcd5cefa8130b7a157a9e2ec811c2",
                 "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
                 "root", "1234");
-        processorImplement.getVersions("Integration Test");
-        processorImplement.getIssues("Integration Test", "6.0.0");
+        processorImplement.getVersions("IoT");
+        processorImplement.getIssues("IoT", "3.3.0");
     }
 
 
@@ -111,7 +111,13 @@ public class ProcessorImplement implements Processor {
         for (String repo : repos) {
             // TODO - uncheck revert
             if (checkValidRepo(repo) || repo.equals("label-test")) {
-                String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+                String url;
+                if (repo.equals("label-test")) {
+                    url = this.baseUrl + "repos/wso2-incubator/" + repo + "/milestones";
+                } else {
+                    url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+                }
+
                 JsonArray milestoneArray = gitHandlerImplement.getJSONArrayFromGit(url);
 
                 for (JsonElement object : milestoneArray) {
@@ -149,6 +155,7 @@ public class ProcessorImplement implements Processor {
     public JsonArray getIssues(String productName, String label) {
         String productNameFormatted = productName.replace("\"", "");
         ArrayList<Milestone> milestones;
+
         //check hashmap has version milestone data
         if (!productMilestoneMap.containsKey(productNameFormatted)) {
             milestones = this.getMilestoneForProduct(productNameFormatted);
@@ -209,9 +216,11 @@ public class ProcessorImplement implements Processor {
                         // make new json object
                         JsonObject object = new JsonObject();
                         object.addProperty("feature", this.trimJsonElementString(feature));
-                        object.addProperty("html_url",this.trimJsonElementString(issueObject.get("html_url")));
-                        object.addProperty("title",this.trimJsonElementString(issueObject.get("title")));
-                        featureList.add(object);
+                        object.addProperty("html_url", this.trimJsonElementString(issueObject.get("html_url")));
+                        object.addProperty("title", this.trimJsonElementString(issueObject.get("title")));
+                        if(featureArray.size()>0) {
+                            featureList.add(object);
+                        }
                     }
 
                 } //end if
@@ -249,8 +258,8 @@ public class ProcessorImplement implements Processor {
                     JsonObject issueTempObject = new JsonObject();
                     issueTempObject.addProperty("html_url",
                             this.trimJsonElementString(issueObject.get("html_url")));
-                    issueTempObject.add("features",featureArray);
-                    issueTempObject.addProperty("title",this.trimJsonElementString(issueObject.get("title")));
+                    issueTempObject.add("features", featureArray);
+                    issueTempObject.addProperty("title", this.trimJsonElementString(issueObject.get("title")));
                     issueList.add(issueTempObject);
 
                 } //end if
@@ -261,8 +270,8 @@ public class ProcessorImplement implements Processor {
     }
 
 
-    private String trimJsonElementString(JsonElement  text){
-        return text.toString().replace("\"","");
+    private String trimJsonElementString(JsonElement text) {
+        return text.toString().replace("\"", "");
     }
 
     /**
@@ -279,7 +288,9 @@ public class ProcessorImplement implements Processor {
         //check regex
         Matcher m = r.matcher(labelName);
         if (m.find()) {
-            productVersion = labelName.split(" ")[0].replace("\"", "");
+            productVersion = labelName.split(" ")[0]
+                                        .split("-")[0]
+                                        .replace("\"", "");
         }
 
         return productVersion;
@@ -380,8 +391,14 @@ public class ProcessorImplement implements Processor {
 
         for (String repo : repos) {
             // TODO - uncheck revert
-            if (!checkValidRepo(repo)) {
-                String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+            if (checkValidRepo(repo) || repo.equals("label-test")) {
+                String url;
+                if (repo.equals("label-test")) {
+                    url = this.baseUrl + "repos/wso2-incubator/" + repo + "/milestones";
+                } else {
+                    url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+                }
+
                 JsonArray milestoneArray = gitHandlerImplement.getJSONArrayFromGit(url);
 
                 for (JsonElement object : milestoneArray) {

@@ -33,6 +33,7 @@ import CircularProgress from "material-ui/es/Progress/CircularProgress";
 import ListItemIcon from "material-ui/es/List/ListItemIcon";
 import StarIcon from 'material-ui-icons/Star';
 import ListItem from "material-ui/es/List/ListItem";
+import purple from "material-ui/colors/purple";
 
 
 const styles = theme => ({
@@ -109,18 +110,18 @@ class MilestoneModal extends React.Component {
     // fetch milestone features
     fetchMilestoneFeatures(data) {
         this.setState({
-            progressState: true
-        },()=>(
-            axios.post('http://10.100.5.173:8080/lts/milestone',
-                data
-            ).then(
-                (response) => {
-                    let datat = response.data;
-                    this.makeTwoWayList(datat);
-                }
+                progressState: true
+            }, () => (
+                axios.post('http://10.100.5.173:8080/lts/milestone',
+                    data
+                ).then(
+                    (response) => {
+                        let datat = response.data;
+                        this.makeTwoWayList(datat);
+                    }
+                )
             )
-        )
-    );
+        );
     }
 
 
@@ -152,7 +153,7 @@ class MilestoneModal extends React.Component {
         let total = openIssues + closedIssues;
         let completion = 0;
         if (total > 0) {
-            completion = Math.round(closedIssues / total*100);
+            completion = Math.round(closedIssues / total * 100);
         }
 
         return completion;
@@ -179,24 +180,20 @@ class MilestoneModal extends React.Component {
     }
 
 
-
     generate(array) {
 
         return array.map((value, index) =>
-            <ListItem button key={index} onClick={() => window.open(value["html_url"].replace("\"",""))}>
+            <ListItem button key={index} onClick={() => window.open(value["html_url"].replace("\"", ""))}>
                 <ListItemIcon>
-                    <StarIcon />
+                    <StarIcon/>
                 </ListItemIcon>
                 <ListItemText
                     primary={value["feature"]}
-                    secondary={"From issue :"+value["title"]}
+                    secondary={"From issue :" + value["title"]}
                 />
             </ListItem>
         );
     }
-
-
-
 
 
     render() {
@@ -212,15 +209,19 @@ class MilestoneModal extends React.Component {
                     <div style={getModalStyle()}>
                         <div>
                             {/*top titile bar*/}
-                            <AppBar position="static" color="default">
+                            <AppBar position="static" color="primary">
                                 <Toolbar>
                                     <Typography type="title" color="inherit" className={classes.heading}>
                                         Features of Milestone
                                     </Typography>
                                     <Typography type="title" color="inherit">
-                                        <a href={this.props.data["html_url"]}> {this.props.data["title"]}</a>
+                                        <a onClick={() => window.open(this.props.data["html_url"], '_blank')}>
+                                            {this.props.data["title"]}
+                                        </a>
                                     </Typography>
-                                    {this.state.progressState && <CircularProgress className={classes.progress} />}
+                                    {this.state.progressState && <CircularProgress
+                                        style={{color: purple[500]}}
+                                        className={classes.progress}/>}
                                 </Toolbar>
                             </AppBar>
 
