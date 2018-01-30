@@ -24,7 +24,7 @@ package org.wso2.ltsdashboard.gitobjects;
 
 import com.google.gson.JsonObject;
 
-class Milestone {
+public class Milestone {
     private String url;
     private String htmlUrl;
     private String closedIssues;
@@ -32,8 +32,9 @@ class Milestone {
     private String releaseDate;
     private String version;
     private String title;
+    private String id;
 
-    Milestone(JsonObject milestoneObject, String version) {
+    public Milestone(JsonObject milestoneObject, String version) {
         this.url = milestoneObject.get("url").toString();
         this.htmlUrl = milestoneObject.get("html_url").toString();
         this.releaseDate = this.splitDate(milestoneObject.get("due_on").toString());
@@ -41,9 +42,28 @@ class Milestone {
         this.closedIssues = milestoneObject.get("closed_issues").toString();
         this.version = version;
         this.title = milestoneObject.get("title").toString();
+        this.id = milestoneObject.get("number").toString();
 
 
     }
+
+    public String getTitle() {
+        return title.replace("\"","");
+    }
+
+    public String getId() {
+        return id.replace("\"","");
+    }
+
+    public String getRepo(){
+        String [] urlParts = this.url.split("/");
+        String org = urlParts[4];
+        String repoName = urlParts[5];
+        String fullRepoName = org+"/"+repoName;
+
+        return fullRepoName.replace("\"","");
+    }
+
 
     /**
      * Get Milestone as a json Object
@@ -84,6 +104,9 @@ class Milestone {
         return stringValue.replace("\"", "")
                 .replace("\\", "");
     }
+
+
+
 
 
 }

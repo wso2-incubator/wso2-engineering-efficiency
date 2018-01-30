@@ -138,6 +138,18 @@ public class LtsDashboard {
         return makeResponseWithBody(featureList);
     }
 
+    @POST
+    @Path("/features")
+    @Consumes("application/json")
+    public Response postIssues(JsonArray issueList) {
+        logger.debug("Request to features");
+        ProcessorImplement processorImplement = new ProcessorImplement(
+                gitToken, databaseUrl, databaseUser, databasePassword);
+        JsonArray featureList = processorImplement.getMilestoneFeatures(issueList);
+
+        return makeResponseWithBody(featureList);
+    }
+
 
     @OPTIONS
     @Path("/versions")

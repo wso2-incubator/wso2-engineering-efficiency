@@ -31,16 +31,20 @@ import org.apache.log4j.Logger;
 import org.wso2.ltsdashboard.connectionshandlers.GitHandlerImplement;
 import org.wso2.ltsdashboard.connectionshandlers.SqlHandler;
 import org.wso2.ltsdashboard.gitobjects.Issue;
+import org.wso2.ltsdashboard.gitobjects.Milestone;
 import org.wso2.ltsdashboard.gitobjects.PullRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class ProcessorImplement implements Processor {
     private final static Logger logger = Logger.getLogger(ProcessorImplement.class);
     private static HashMap<String, ArrayList<String>> productRepoMap = new HashMap<>();
+    private static HashMap<String, ArrayList<Milestone>> productMilestoneMap = new HashMap<>();
     private String baseUrl = "https://api.github.com/";
     private GitHandlerImplement gitHandlerImplement;
     private String org = "wso2-incubator";
@@ -54,16 +58,17 @@ public class ProcessorImplement implements Processor {
         this.databaseUrl = databaseUrl;
         this.databasePassword = databasePassword;
         this.databaseUser = databaseUser;
-        if(productRepoMap.isEmpty()) {
+        if (productRepoMap.isEmpty()) {
             this.createProductAndRepos();
         }
     }
 
     public static void main(String[] args) {
-        ProcessorImplement processorImplement = new ProcessorImplement("772ea7b15c0e1faf3e932666d658226d8d02184a",
+        ProcessorImplement processorImplement = new ProcessorImplement("9944974b08fb87b3aaa2803e8b2e32fa19012d2d",
                 "jdbc:mysql://localhost:3306/UnifiedDashboards?useSSL=false",
                 "root", "1234");
-        processorImplement.getLabelTestRepo();
+        processorImplement.getVersions("Integration Test");
+        processorImplement.getIssues("Integration Test", "6.0.0");
     }
 
 
@@ -89,7 +94,6 @@ public class ProcessorImplement implements Processor {
         return productJsonArray;
     }
 
-
     /**
      * Get the versions for particular product
      *
@@ -105,18 +109,21 @@ public class ProcessorImplement implements Processor {
         ArrayList<String> labels = new ArrayList<>();
 
         for (String repo : repos) {
-            String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/labels";
-            JsonArray labelArray = gitHandlerImplement.getJSONArrayFromGit(url);
+            // TODO - uncheck revert
+            if (!checkValidRepo(repo)) {
+                String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+                JsonArray milestoneArray = gitHandlerImplement.getJSONArrayFromGit(url);
 
-            for (JsonElement object : labelArray) {
-                String label = object.getAsJsonObject().get("name").toString();
-                // check product version label
-                String productVersion = this.getProductVersionFromIssue(label);
-                if (productVersion != null) {
-                    if (!labels.contains(productVersion)) {
-                        labels.add(productVersion);
-                    } //end if
-                }// end if
+                for (JsonElement object : milestoneArray) {
+                    String milestoneName = object.getAsJsonObject().get("title").toString();
+                    // check product version label
+                    String productVersion = this.getProductVersionFromIssue(milestoneName);
+                    if (productVersion != null) {
+                        if (!labels.contains(productVersion)) {
+                            labels.add(productVersion);
+                        } //end if
+                    }// end if
+                }
             }
         }
 
@@ -131,7 +138,6 @@ public class ProcessorImplement implements Processor {
 
     }
 
-
     /**
      * Get issues to give product name and label
      *
@@ -141,28 +147,38 @@ public class ProcessorImplement implements Processor {
      */
     @Override
     public JsonArray getIssues(String productName, String label) {
+        String productNameFormatted = productName.replace("\"", "");
+        ArrayList<Milestone> milestones;
+        //check hashmap has version milestone data
+        if (!productMilestoneMap.containsKey(productNameFormatted)) {
+            milestones = this.getMilestoneForProduct(productNameFormatted);
+            productMilestoneMap.put(productNameFormatted, milestones);
+        } else {
+            milestones = productMilestoneMap.get(productNameFormatted);
+        }
 
-        ArrayList<String> repos = productRepoMap.get(productName.replace("\"", ""));
         String finalLabel = label.replace("\"", "");
         JsonArray issueArray = new JsonArray();
 
-        for (String repo : repos) {
-            logger.info("Repository " + repo);
-            String url = this.baseUrl + "search/issues?q=label:Affected/" +
-                    finalLabel + "+repo:" + this.org + "/" + repo;
-            JsonArray issues = gitHandlerImplement.getJSONArrayFromGit(url);
+        for (Milestone milestone : milestones) {
+            logger.debug("Milestone name :: " + milestone.getTitle());
+            if (checkVersion(milestone.getTitle(), finalLabel)) {
+                String url = this.baseUrl + "repos/" + milestone.getRepo() + "/issues?milestone=" + milestone.getId() +
+                        "&state=all";
+                JsonArray issues = gitHandlerImplement.getJSONArrayFromGit(url);
 
-            for (JsonElement issue : issues) {
-                JsonObject issueObject = new Issue(issue.getAsJsonObject()).createJsonObject();
-                issueArray.add(issueObject);
+                for (JsonElement issue : issues) {
+                    JsonObject issueObject = new Issue(issue.getAsJsonObject()).createJsonObject();
+                    issueArray.add(issueObject);
+                }
             }
+
         }
 
         logger.info(productName + ":" + label + " issues extracted");
 
         return issueArray;
     }
-
 
     /**
      * Get Milestone features extracted from git
@@ -172,28 +188,90 @@ public class ProcessorImplement implements Processor {
      */
     @Override
     public JsonArray getMilestoneFeatures(JsonArray issueUrlList) {
-        JsonArray eventList = new JsonArray();
         JsonArray featureList = new JsonArray();
 
+
         // getting event lists from issue list
-        for (JsonElement url : issueUrlList) {
-            String issueUrl = url.getAsString() + "/timeline";
+        for (JsonElement issue : issueUrlList) {
+            JsonObject issueObject = issue.getAsJsonObject();
+
+            String issueUrl = issueObject.get("url").getAsString() + "/timeline";
             JsonArray eventTempList = gitHandlerImplement.getJSONArrayFromGit(issueUrl,
                     "application/vnd.github.mockingbird-preview");
-            eventList.addAll(eventTempList);
-        }
 
-        for (JsonElement event : eventList) {
-            if (this.checkCrossReferenced(event)) {
-                PullRequest featureComponent = new PullRequest(event.getAsJsonObject());
-                // change features / title
-                featureList.addAll(featureComponent.getFeatures());
-            } //end if
-        }
+            for (JsonElement event : eventTempList) {
+                // check event is cross referenced
+                if (this.checkCrossReferenced(event)) {
+                    PullRequest featureComponent = new PullRequest(event.getAsJsonObject());
+                    JsonArray featureArray = featureComponent.getFeatures();
+                    for (JsonElement feature : featureArray) {
 
+                        // make new json object
+                        JsonObject object = new JsonObject();
+                        object.addProperty("url", issueUrl);
+                        object.addProperty("feature", feature
+                                .toString().replace("\"",""));
+                        object.addProperty("html_url",issueObject.get("html_url")
+                                .toString().replace("\"",""));
+                        object.addProperty("title",issueObject.get("title").
+                                toString().replace("\"",""));
+                        featureList.add(object);
+                    }
+
+                } //end if
+            }
+        }
 
         return featureList;
     }
+
+
+    /**
+     * Get All features for product version
+     *
+     * @param issueUrlList - issue Url list from front end
+     * @return Feature Set as a json array
+     */
+    @Override
+    public JsonArray getAllFeatures(JsonArray issueUrlList) {
+        JsonArray featureList = new JsonArray();
+
+
+        // getting event lists from issue list
+        for (JsonElement issue : issueUrlList) {
+            JsonObject issueObject = issue.getAsJsonObject();
+
+            String issueUrl = issueObject.get("url").getAsString() + "/timeline";
+            JsonArray eventTempList = gitHandlerImplement.getJSONArrayFromGit(issueUrl,
+                    "application/vnd.github.mockingbird-preview");
+
+            for (JsonElement event : eventTempList) {
+                // check event is cross referenced
+                if (this.checkCrossReferenced(event)) {
+                    PullRequest featureComponent = new PullRequest(event.getAsJsonObject());
+                    JsonArray featureArray = featureComponent.getFeatures();
+                    for (JsonElement feature : featureArray) {
+
+                        // make new json object
+                        JsonObject object = new JsonObject();
+                        object.addProperty("url", issueUrl);
+                        object.addProperty("feature", feature
+                                .toString().replace("\"",""));
+                        object.addProperty("html_url",issueObject.get("html_url")
+                                .toString().replace("\"",""));
+                        object.addProperty("title",issueObject.get("title").
+                                toString().replace("\"",""));
+                        featureList.add(object);
+                    }
+
+                } //end if
+            }
+        }
+
+        return featureList;
+    }
+
+
 
 
     /**
@@ -204,18 +282,49 @@ public class ProcessorImplement implements Processor {
      */
     private String getProductVersionFromIssue(String labelName) {
         String productVersion = null;
+        String pattern = "[0-9]+\\.[0-9]+\\.[0-9]+(.*)";
+        Pattern r = Pattern.compile(pattern);
 
-        if (labelName.toLowerCase().contains("affected")) {
-            productVersion = labelName.split("/")[1]
-                    .replace("\"", "")
-                    .replace("\\", "");
+        //check regex
+        Matcher m = r.matcher(labelName);
+        if (m.find()) {
+            productVersion = labelName.split(" ")[0].replace("\"", "");
         }
-
 
         return productVersion;
 
     }
 
+    /**
+     * Check whether the milestone name match with version
+     *
+     * @param milestoneName - milestone name as a string
+     * @param version       - version as a string
+     * @return - checked version
+     */
+    private boolean checkVersion(String milestoneName, String version) {
+        boolean isCheckedVersion = false;
+        if (milestoneName.contains(version)) {
+            isCheckedVersion = true;
+        }
+
+        return isCheckedVersion;
+    }
+
+    /**
+     * Check the repository is a valid repository
+     *
+     * @param repoName - name of the repository
+     * @return - true or false
+     */
+    private boolean checkValidRepo(String repoName) {
+        boolean isValid = false;
+        if (repoName.contains("product")) {
+            isValid = true;
+        }
+
+        return isValid;
+    }
 
     /**
      * Create Product repository map
@@ -246,7 +355,6 @@ public class ProcessorImplement implements Processor {
         productRepoMap.put("Integration Test", repoList);
     }
 
-
     /**
      * Check whether the event is cross referenced
      *
@@ -264,4 +372,40 @@ public class ProcessorImplement implements Processor {
         return status;
     }
 
+
+    /**
+     * Get the milstones for particular product
+     *
+     * @param productName - repo name
+     * @return - ArrayList of milestone objects
+     */
+    private ArrayList<Milestone> getMilestoneForProduct(String productName) {
+        if (productRepoMap.isEmpty()) {
+            this.createProductAndRepos();
+        }
+
+        ArrayList<String> repos = productRepoMap.get(productName.replace("\"", ""));
+        ArrayList<Milestone> milestones = new ArrayList<>();
+
+        for (String repo : repos) {
+            // TODO - uncheck revert
+            if (!checkValidRepo(repo)) {
+                String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+                JsonArray milestoneArray = gitHandlerImplement.getJSONArrayFromGit(url);
+
+                for (JsonElement object : milestoneArray) {
+                    String milestoneName = object.getAsJsonObject().get("title").toString();
+                    // check product version label
+                    String productVersion = this.getProductVersionFromIssue(milestoneName);
+                    if (productVersion != null) {
+                        milestones.add(new Milestone(object.getAsJsonObject(), productVersion));
+                    }// end if
+                }
+            }
+        }
+
+
+        return milestones;
+
+    }
 }

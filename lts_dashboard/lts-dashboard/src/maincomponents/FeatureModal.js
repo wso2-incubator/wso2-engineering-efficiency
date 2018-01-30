@@ -51,6 +51,10 @@ const styles = theme => ({
     },
     heading: {
         paddingRight: 16
+    },
+    marketing: {
+        paddingLeft: 20,
+        fontSize: 16,
     }
 });
 
@@ -68,7 +72,7 @@ function getModalStyle() {
     };
 }
 
-class MilestoneModal extends React.Component {
+class FeatureModal extends React.Component {
     handleOpen = () => {
         this.setState({open: true});
     };
@@ -89,7 +93,7 @@ class MilestoneModal extends React.Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
-        if (nextProps.data !== this.props.data) {
+        if (nextProps.versionData !== this.props.versionData) {
             this.setState({
                     data: nextProps.data,
                     leftData: [],
@@ -109,18 +113,18 @@ class MilestoneModal extends React.Component {
     // fetch milestone features
     fetchMilestoneFeatures(data) {
         this.setState({
-            progressState: true
-        },()=>(
-            axios.post('http://10.100.5.173:8080/lts/milestone',
-                data
-            ).then(
-                (response) => {
-                    let datat = response.data;
-                    this.makeTwoWayList(datat);
-                }
+                progressState: true
+            }, () => (
+                axios.post('http://10.100.5.173:8080/lts/milestone',
+                    data
+                ).then(
+                    (response) => {
+                        let datat = response.data;
+                        this.makeTwoWayList(datat);
+                    }
+                )
             )
-        )
-    );
+        );
     }
 
 
@@ -134,7 +138,7 @@ class MilestoneModal extends React.Component {
                 leftArray.push(featureArray[i])
             }
             else {
-                rightArray.push(featureArray[i])
+                leftArray.push(featureArray[i])
             }
         }
 
@@ -145,58 +149,39 @@ class MilestoneModal extends React.Component {
         })
     }
 
-    // calculate the completion of the milestone
-    calculateCompletion() {
-        let openIssues = parseInt(this.props.data["open_issues"]);
-        let closedIssues = parseInt(this.props.data["closed_issues"]);
-        let total = openIssues + closedIssues;
-        let completion = 0;
-        if (total > 0) {
-            completion = Math.round(closedIssues / total*100);
-        }
-
-        return completion;
-    }
 
     // create issue url list belong to the milestone
     createIssueListofMilestone() {
         let milestoneIssues = [];
-        let milestoneTitle = this.props.data["title"];
         this.props.issueList.forEach(function (issue) {
-            if (issue["milestone"] != null) {
-                if (issue["milestone"]["title"] === milestoneTitle) {
-                    let object = {
-                        url: issue["url"],
-                        html_url: issue["html_url"],
-                        title: issue["issue_title"],
-                    };
-                    milestoneIssues.push(object)
-                }
-            }
+
+            let object = {
+                url: issue["url"],
+                html_url: issue["html_url"],
+                title: issue["issue_title"],
+            };
+            milestoneIssues.push(object)
+
         });
 
         return milestoneIssues;
     }
 
 
-
     generate(array) {
 
         return array.map((value, index) =>
-            <ListItem button key={index} onClick={() => window.open(value["html_url"].replace("\"",""))}>
+            <ListItem button key={index} onClick={() => window.open(value["html_url"].replace("\"", ""))}>
                 <ListItemIcon>
-                    <StarIcon />
+                    <StarIcon/>
                 </ListItemIcon>
                 <ListItemText
                     primary={value["feature"]}
-                    secondary={"From issue :"+value["title"]}
+                    secondary={"From issue :" + value["title"]}
                 />
             </ListItem>
         );
     }
-
-
-
 
 
     render() {
@@ -214,13 +199,13 @@ class MilestoneModal extends React.Component {
                             {/*top titile bar*/}
                             <AppBar position="static" color="default">
                                 <Toolbar>
-                                    <Typography type="title" color="inherit" className={classes.heading}>
-                                        Features of Milestone
-                                    </Typography>
                                     <Typography type="title" color="inherit">
-                                        <a href={this.props.data["html_url"]}> {this.props.data["title"]}</a>
+                                        {this.props.versionData["product"] + " : " + this.props.versionData["version"]}
                                     </Typography>
-                                    {this.state.progressState && <CircularProgress className={classes.progress} />}
+                                    <Typography type="title" color="inherit" className={classes.marketing}>
+                                        Marketing Messages
+                                    </Typography>
+                                    {this.state.progressState && <CircularProgress className={classes.progress}/>}
                                 </Toolbar>
                             </AppBar>
 
@@ -248,8 +233,8 @@ class MilestoneModal extends React.Component {
     }
 }
 
-MilestoneModal.propTypes = {
+FeatureModal.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(MilestoneModal);
+export default withStyles(styles)(FeatureModal);
