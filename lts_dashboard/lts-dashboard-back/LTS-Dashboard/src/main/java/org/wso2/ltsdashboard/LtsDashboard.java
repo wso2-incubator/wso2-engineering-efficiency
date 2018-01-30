@@ -145,7 +145,7 @@ public class LtsDashboard {
         logger.debug("Request to features");
         ProcessorImplement processorImplement = new ProcessorImplement(
                 gitToken, databaseUrl, databaseUser, databasePassword);
-        JsonArray featureList = processorImplement.getMilestoneFeatures(issueList);
+        JsonArray featureList = processorImplement.getAllFeatures(issueList);
 
         return makeResponseWithBody(featureList);
     }
@@ -174,6 +174,12 @@ public class LtsDashboard {
     @OPTIONS
     @Path("/milestone")
     public Response milestoneOptions() {
+        return makeResponse();
+    }
+
+    @OPTIONS
+    @Path("/features")
+    public Response featureOptions() {
         return makeResponse();
     }
 

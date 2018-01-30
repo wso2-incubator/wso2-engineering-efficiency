@@ -110,7 +110,7 @@ public class ProcessorImplement implements Processor {
 
         for (String repo : repos) {
             // TODO - uncheck revert
-            if (!checkValidRepo(repo)) {
+            if (checkValidRepo(repo) || repo.equals("label-test")) {
                 String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
                 JsonArray milestoneArray = gitHandlerImplement.getJSONArrayFromGit(url);
 
@@ -208,13 +208,9 @@ public class ProcessorImplement implements Processor {
 
                         // make new json object
                         JsonObject object = new JsonObject();
-                        object.addProperty("url", issueUrl);
-                        object.addProperty("feature", feature
-                                .toString().replace("\"",""));
-                        object.addProperty("html_url",issueObject.get("html_url")
-                                .toString().replace("\"",""));
-                        object.addProperty("title",issueObject.get("title").
-                                toString().replace("\"",""));
+                        object.addProperty("feature", this.trimJsonElementString(feature));
+                        object.addProperty("html_url",this.trimJsonElementString(issueObject.get("html_url")));
+                        object.addProperty("title",this.trimJsonElementString(issueObject.get("title")));
                         featureList.add(object);
                     }
 
@@ -234,7 +230,7 @@ public class ProcessorImplement implements Processor {
      */
     @Override
     public JsonArray getAllFeatures(JsonArray issueUrlList) {
-        JsonArray featureList = new JsonArray();
+        JsonArray issueList = new JsonArray();
 
 
         // getting event lists from issue list
@@ -250,29 +246,24 @@ public class ProcessorImplement implements Processor {
                 if (this.checkCrossReferenced(event)) {
                     PullRequest featureComponent = new PullRequest(event.getAsJsonObject());
                     JsonArray featureArray = featureComponent.getFeatures();
-                    for (JsonElement feature : featureArray) {
-
-                        // make new json object
-                        JsonObject object = new JsonObject();
-                        object.addProperty("url", issueUrl);
-                        object.addProperty("feature", feature
-                                .toString().replace("\"",""));
-                        object.addProperty("html_url",issueObject.get("html_url")
-                                .toString().replace("\"",""));
-                        object.addProperty("title",issueObject.get("title").
-                                toString().replace("\"",""));
-                        featureList.add(object);
-                    }
+                    JsonObject issueTempObject = new JsonObject();
+                    issueTempObject.addProperty("html_url",
+                            this.trimJsonElementString(issueObject.get("html_url")));
+                    issueTempObject.add("features",featureArray);
+                    issueTempObject.addProperty("title",this.trimJsonElementString(issueObject.get("title")));
+                    issueList.add(issueTempObject);
 
                 } //end if
             }
         }
 
-        return featureList;
+        return issueList;
     }
 
 
-
+    private String trimJsonElementString(JsonElement  text){
+        return text.toString().replace("\"","");
+    }
 
     /**
      * Get prodcut version from label

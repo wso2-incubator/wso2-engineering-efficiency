@@ -26,13 +26,9 @@ import Toolbar from "material-ui/es/Toolbar/Toolbar";
 import Paper from "material-ui/es/Paper/Paper";
 import PropTypes from "prop-types";
 import {withStyles} from "material-ui/styles/index";
-import Grid from "material-ui/es/Grid/Grid";
 import axios from "axios/index";
-import ListItemText from "material-ui/es/List/ListItemText";
 import CircularProgress from "material-ui/es/Progress/CircularProgress";
-import ListItemIcon from "material-ui/es/List/ListItemIcon";
-import StarIcon from 'material-ui-icons/Star';
-import ListItem from "material-ui/es/List/ListItem";
+import ExpansionSummary from './milestones/ExpansionSummary.js';
 
 
 const styles = theme => ({
@@ -85,8 +81,7 @@ class FeatureModal extends React.Component {
         this.state = {
             open: false,
             data: {},
-            leftData: ["test 1", "test 2", "test 3"],
-            rightData: ["test 1", "test 2", "test 3"],
+            featureData: [],
             progressState: false
         };
 
@@ -96,8 +91,7 @@ class FeatureModal extends React.Component {
         if (nextProps.versionData !== this.props.versionData) {
             this.setState({
                     data: nextProps.data,
-                    leftData: [],
-                    rightData: []
+                    featureData: [],
                 },
                 () => (
                     this.fetchMilestoneFeatures(this.createIssueListofMilestone())
@@ -115,12 +109,15 @@ class FeatureModal extends React.Component {
         this.setState({
                 progressState: true
             }, () => (
-                axios.post('http://10.100.5.173:8080/lts/milestone',
+                axios.post('http://10.100.5.173:8080/lts/features',
                     data
                 ).then(
                     (response) => {
                         let datat = response.data;
-                        this.makeTwoWayList(datat);
+                        this.setState({
+                            featureData: datat,
+                            progressState: false
+                        })
                     }
                 )
             )
@@ -128,26 +125,6 @@ class FeatureModal extends React.Component {
     }
 
 
-    // make two way feature List to display
-    makeTwoWayList(featureArray) {
-        let arraySize = featureArray.length;
-        let leftArray = [];
-        let rightArray = [];
-        for (let i = 0; i < arraySize; i++) {
-            if (i % 2 === 0) {
-                leftArray.push(featureArray[i])
-            }
-            else {
-                leftArray.push(featureArray[i])
-            }
-        }
-
-        this.setState({
-            leftData: leftArray,
-            rightData: rightArray,
-            progressState: false
-        })
-    }
 
 
     // create issue url list belong to the milestone
@@ -169,17 +146,8 @@ class FeatureModal extends React.Component {
 
 
     generate(array) {
-
         return array.map((value, index) =>
-            <ListItem button key={index} onClick={() => window.open(value["html_url"].replace("\"", ""))}>
-                <ListItemIcon>
-                    <StarIcon/>
-                </ListItemIcon>
-                <ListItemText
-                    primary={value["feature"]}
-                    secondary={"From issue :" + value["title"]}
-                />
-            </ListItem>
+            <ExpansionSummary data={value}/>
         );
     }
 
@@ -211,18 +179,9 @@ class FeatureModal extends React.Component {
 
                             {/*feature List*/}
                             <Paper className={classes.paper} elevation={4}>
-                                <Grid container>
-                                    <Grid item xs={12} md={6}>
-                                        {
-                                            this.generate(this.state.leftData)
-                                        }
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        {
-                                            this.generate(this.state.rightData)
-                                        }
-                                    </Grid>
-                                </Grid>
+                               <div>
+                                   {this.generate(this.state.featureData)}
+                               </div>
                             </Paper>
                         </div>
 
