@@ -34,6 +34,7 @@ import Slide from "material-ui/es/transitions/Slide";
 import IconButton from "material-ui/es/IconButton/IconButton";
 import CloseIcon from 'material-ui-icons/Close';
 import purple from 'material-ui/colors/purple';
+import {getServer} from "../resources/util";
 
 
 const styles = theme => ({
@@ -118,7 +119,7 @@ class FeatureModal extends React.Component {
         this.setState({
                 progressState: true
             }, () => (
-                axios.post('http://10.100.5.173:8080/lts/features',
+                axios.post('http://'+getServer()+'/lts/features',
                     data
                 ).then(
                     (response) => {

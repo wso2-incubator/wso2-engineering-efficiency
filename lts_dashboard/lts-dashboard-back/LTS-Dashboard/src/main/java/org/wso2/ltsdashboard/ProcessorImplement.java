@@ -260,7 +260,9 @@ public class ProcessorImplement implements Processor {
                             this.trimJsonElementString(issueObject.get("html_url")));
                     issueTempObject.add("features", featureArray);
                     issueTempObject.addProperty("title", this.trimJsonElementString(issueObject.get("title")));
-                    issueList.add(issueTempObject);
+                    if(featureArray.size()>0) {
+                        issueList.add(issueTempObject);
+                    }
 
                 } //end if
             }
@@ -321,7 +323,7 @@ public class ProcessorImplement implements Processor {
      */
     private boolean checkValidRepo(String repoName) {
         boolean isValid = false;
-        if (repoName.contains("product")) {
+        if (repoName.contains("product")|| repoName.contains("ballerina")) {
             isValid = true;
         }
 

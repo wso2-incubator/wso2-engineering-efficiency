@@ -26,6 +26,7 @@ import {FormControl} from 'material-ui/Form';
 import Select from 'material-ui/Select';
 import axios from "axios/index";
 import CircularProgress from "material-ui/es/Progress/CircularProgress";
+import {getServer} from "../resources/util";
 
 const styles = theme => ({
     container: {
@@ -72,14 +73,14 @@ class VersionNavigator extends React.Component {
             this.setState({
                 issueLoading:true
             },()=>(
-                axios.post('http://10.100.5.173:8080/lts/versions',
+                axios.post('http://'+getServer()+'/lts/versions',
                     productObject
                 ).then(
                     (response) => {
                         let datat = response.data;
                         this.setState(
                             {
-                                versionList: datat,
+                                versionList: datat.sort().reverse(),
                                 issueLoading:false
                             }
                         );

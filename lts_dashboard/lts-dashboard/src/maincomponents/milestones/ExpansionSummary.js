@@ -34,6 +34,7 @@ import ListItemText from "material-ui/es/List/ListItemText";
 import StarIcon from 'material-ui-icons/Star';
 import Button from "material-ui/es/Button/Button";
 
+
 const styles = theme => ({
     root: {
         width: '100%',
@@ -93,10 +94,10 @@ class ExpansionSummary extends React.Component {
                             {this.generateFeatures(this.props.data["features"])}
                         </List>
                     </ExpansionPanelDetails>
-                    <Divider />
-                    <Button onClick={() => window.open(this.props.data["html_url"], '_blank')} dense color="secondary">
-                        Change Version
-                    </Button>
+                    {/*<Divider />*/}
+                    {/*<Button onClick={() => window.open(this.props.data["html_url"], '_blank')} dense color="secondary">*/}
+                        {/*Change Version*/}
+                    {/*</Button>*/}
                 </ExpansionPanel>
 
         );

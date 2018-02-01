@@ -28,7 +28,7 @@ import axios from "axios/index";
 import MilestoneModal from "./maincomponents/MilestoneModal.js"
 import LinearProgress from "material-ui/es/Progress/LinearProgress";
 import FeatureModal from "./maincomponents/FeatureModal.js";
-
+import {getServer} from "./resources/util";
 
 const styles = {
     blocks: {
@@ -78,8 +78,9 @@ class App extends Component {
 
     }
 
+
     setIssues(productName, versionName) {
-        if (productName !== '' || versionName !== '') {
+        if (productName !== null || versionName !== null) {
             let productObject = {};
             productObject["product"] = productName;
             productObject["version"] = versionName;
@@ -91,7 +92,7 @@ class App extends Component {
                     issueList: [],
                     openFeatureModal: false
                 }, () => (
-                    axios.post('http://10.100.5.173:8080/lts/issues',
+                    axios.post('http://'+getServer()+'/lts/issues',
                         productObject
                     ).then(
                         (response) => {

@@ -34,7 +34,7 @@ import ListItemIcon from "material-ui/es/List/ListItemIcon";
 import StarIcon from 'material-ui-icons/Star';
 import ListItem from "material-ui/es/List/ListItem";
 import purple from "material-ui/colors/purple";
-
+import {getServer} from "../resources/util";
 
 const styles = theme => ({
     paper: theme.mixins.gutters({
@@ -112,7 +112,7 @@ class MilestoneModal extends React.Component {
         this.setState({
                 progressState: true
             }, () => (
-                axios.post('http://10.100.5.173:8080/lts/milestone',
+                axios.post('http://'+getServer()+'/lts/milestone',
                     data
                 ).then(
                     (response) => {
