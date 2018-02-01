@@ -161,7 +161,6 @@ public class ProcessorImplement implements Processor {
         JsonArray issueArray = new JsonArray();
 
         for (Milestone milestone : milestones) {
-            System.out.println(milestone.getTitle());
             logger.debug("Milestone name :: " + milestone.getTitle());
             if (checkVersion(milestone.getTitle(), finalLabel)) {
                 String url = this.baseUrl + "repos/" + milestone.getRepo() + "/issues?milestone=" + milestone.getId() +

@@ -28,11 +28,8 @@ target
 *.iml
 node_modules
 <<<<<<< HEAD
-=======
+
 *.log
 log/
-<<<<<<< HEAD
->>>>>>> test-inc
-=======
 *.ini
->>>>>>> test-mil
+
