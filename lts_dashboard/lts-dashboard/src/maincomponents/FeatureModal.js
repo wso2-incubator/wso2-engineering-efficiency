@@ -29,6 +29,12 @@ import {withStyles} from "material-ui/styles/index";
 import axios from "axios/index";
 import CircularProgress from "material-ui/es/Progress/CircularProgress";
 import ExpansionSummary from './milestones/ExpansionSummary.js';
+import Dialog from "material-ui/es/Dialog/Dialog";
+import Slide from "material-ui/es/transitions/Slide";
+import IconButton from "material-ui/es/IconButton/IconButton";
+import CloseIcon from 'material-ui-icons/Close';
+import purple from 'material-ui/colors/purple';
+import {getServer} from "../resources/util";
 
 
 const styles = theme => ({
@@ -66,6 +72,10 @@ function getModalStyle() {
         boxShadow: '0 5px 15px rgba(0, 0, 0, .5)',
 
     };
+}
+
+function transition(props) {
+    return <Slide direction="up" {...props} />;
 }
 
 class FeatureModal extends React.Component {
@@ -109,7 +119,7 @@ class FeatureModal extends React.Component {
         this.setState({
                 progressState: true
             }, () => (
-                axios.post('http://10.100.5.173:8080/lts/features',
+                axios.post('http://'+getServer()+'/lts/features',
                     data
                 ).then(
                     (response) => {
@@ -147,33 +157,40 @@ class FeatureModal extends React.Component {
 
     generate(array) {
         return array.map((value, index) =>
-            <ExpansionSummary data={value}/>
+            <ExpansionSummary key={index} data={value}/>
         );
     }
+
 
 
     render() {
         const {classes} = this.props;
         return (
             <div>
-                <Modal
-                    aria-labelledby="simple-modal-title"
-                    aria-describedby="simple-modal-description"
+                <Dialog
+                    fullScreen
+                    transition={transition}
                     open={this.state.open}
                     onClose={this.handleClose}
                 >
-                    <div style={getModalStyle()}>
+                    {/*<div style={getModalStyle()}>*/}
+                    <div>
                         <div>
                             {/*top titile bar*/}
-                            <AppBar position="static" color="default">
+                            <AppBar position="static" color="primary">
                                 <Toolbar>
+                                    <IconButton color="inherit" onClick={this.handleClose} aria-label="Close">
+                                        <CloseIcon />
+                                    </IconButton>
                                     <Typography type="title" color="inherit">
                                         {this.props.versionData["product"] + " : " + this.props.versionData["version"]}
                                     </Typography>
                                     <Typography type="title" color="inherit" className={classes.marketing}>
                                         Marketing Messages
                                     </Typography>
-                                    {this.state.progressState && <CircularProgress className={classes.progress}/>}
+                                    {this.state.progressState && <CircularProgress
+                                        style={{ color: purple[500] }}
+                                        className={classes.progress}/>}
                                 </Toolbar>
                             </AppBar>
 
@@ -186,7 +203,7 @@ class FeatureModal extends React.Component {
                         </div>
 
                     </div>
-                </Modal>
+                </Dialog>
             </div>
         );
     }

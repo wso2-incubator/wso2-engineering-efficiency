@@ -25,6 +25,7 @@ import {MenuItem} from 'material-ui/Menu';
 import {FormControl} from 'material-ui/Form';
 import Select from 'material-ui/Select';
 import axios from "axios/index";
+import {getServer} from "../resources/util";
 
 const styles = theme => ({
     container: {
@@ -61,7 +62,7 @@ class ProductNavigator extends React.Component {
     };
 
     fetchVersions() {
-        axios.get('http://10.100.5.173:8080/lts/products'
+        axios.get('http://'+getServer()+'/lts/products'
         ).then(
             (response) => {
                 let datat = response.data;

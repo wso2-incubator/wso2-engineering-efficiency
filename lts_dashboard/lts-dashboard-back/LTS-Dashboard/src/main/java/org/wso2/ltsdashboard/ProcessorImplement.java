@@ -63,6 +63,7 @@ public class ProcessorImplement implements Processor {
         }
     }
 
+
     /**
      * Get the product list
      *
@@ -101,9 +102,15 @@ public class ProcessorImplement implements Processor {
 
         for (String repo : repos) {
             // TODO - uncheck revert
-            if (checkValidRepo(repo)) {
-                System.out.println("repo >>>> " + repo);
-                String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+
+            if (checkValidRepo(repo) || repo.equals("label-test")) {
+                String url;
+                if (repo.equals("label-test")) {
+                    url = this.baseUrl + "repos/wso2-incubator/" + repo + "/milestones";
+                } else {
+                    url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+                }
+
                 JsonArray milestoneArray = gitHandlerImplement.getJSONArrayFromGit(url);
 
                 for (JsonElement object : milestoneArray) {
@@ -141,6 +148,7 @@ public class ProcessorImplement implements Processor {
     public JsonArray getIssues(String productName, String label) {
         String productNameFormatted = productName.replace("\"", "");
         ArrayList<Milestone> milestones;
+
         //check hashmap has version milestone data
         if (!productMilestoneMap.containsKey(productNameFormatted)) {
             milestones = this.getMilestoneForProduct(productNameFormatted);
@@ -202,9 +210,11 @@ public class ProcessorImplement implements Processor {
                         // make new json object
                         JsonObject object = new JsonObject();
                         object.addProperty("feature", this.trimJsonElementString(feature));
-                        object.addProperty("html_url",this.trimJsonElementString(issueObject.get("html_url")));
-                        object.addProperty("title",this.trimJsonElementString(issueObject.get("title")));
-                        featureList.add(object);
+                        object.addProperty("html_url", this.trimJsonElementString(issueObject.get("html_url")));
+                        object.addProperty("title", this.trimJsonElementString(issueObject.get("title")));
+                        if(featureArray.size()>0) {
+                            featureList.add(object);
+                        }
                     }
 
                 } //end if
@@ -242,9 +252,11 @@ public class ProcessorImplement implements Processor {
                     JsonObject issueTempObject = new JsonObject();
                     issueTempObject.addProperty("html_url",
                             this.trimJsonElementString(issueObject.get("html_url")));
-                    issueTempObject.add("features",featureArray);
-                    issueTempObject.addProperty("title",this.trimJsonElementString(issueObject.get("title")));
-                    issueList.add(issueTempObject);
+                    issueTempObject.add("features", featureArray);
+                    issueTempObject.addProperty("title", this.trimJsonElementString(issueObject.get("title")));
+                    if(featureArray.size()>0) {
+                        issueList.add(issueTempObject);
+                    }
 
                 } //end if
             }
@@ -254,8 +266,8 @@ public class ProcessorImplement implements Processor {
     }
 
 
-    private String trimJsonElementString(JsonElement  text){
-        return text.toString().replace("\"","");
+    private String trimJsonElementString(JsonElement text) {
+        return text.toString().replace("\"", "");
     }
 
     /**
@@ -272,7 +284,9 @@ public class ProcessorImplement implements Processor {
         //check regex
         Matcher m = r.matcher(labelName);
         if (m.find()) {
-            productVersion = labelName.split(" ")[0].replace("\"", "");
+            productVersion = labelName.split(" ")[0]
+                                        .split("-")[0]
+                                        .replace("\"", "");
         }
 
         return productVersion;
@@ -303,7 +317,7 @@ public class ProcessorImplement implements Processor {
      */
     private boolean checkValidRepo(String repoName) {
         boolean isValid = false;
-        if (repoName.contains("product")) {
+        if (repoName.contains("product")|| repoName.contains("ballerina")) {
             isValid = true;
         }
 
@@ -373,8 +387,14 @@ public class ProcessorImplement implements Processor {
 
         for (String repo : repos) {
             // TODO - uncheck revert
-            if (!checkValidRepo(repo)) {
-                String url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+            if (checkValidRepo(repo) || repo.equals("label-test")) {
+                String url;
+                if (repo.equals("label-test")) {
+                    url = this.baseUrl + "repos/wso2-incubator/" + repo + "/milestones";
+                } else {
+                    url = this.baseUrl + "repos/" + this.org + "/" + repo + "/milestones";
+                }
+
                 JsonArray milestoneArray = gitHandlerImplement.getJSONArrayFromGit(url);
 
                 for (JsonElement object : milestoneArray) {

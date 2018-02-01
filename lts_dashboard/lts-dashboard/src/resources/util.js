@@ -17,26 +17,9 @@
  *
  */
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-  float: left;
-  padding-right: 20px;
-}
+import React from 'react';
 
-.App-header {
-  background-color: #0f0240;
-  height: 70px;
-  padding: 20px;
-  color: white;
-}
 
-.App-title {
-  font-size: 2em;
-  padding-left: 20px;
+export function getServer() {
+    return "10.100.5.173:8080";
 }
-
-.App-intro {
-  font-size: large;
-}
-

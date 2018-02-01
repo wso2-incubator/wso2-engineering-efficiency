@@ -61,7 +61,9 @@ public class Issue {
         issueObject.addProperty("url", this.trimString(this.issueUrl));
         issueObject.addProperty("html_url", this.trimString(this.htmlUrl));
         issueObject.addProperty("issue_title", this.trimString(this.issueTitle));
-        issueObject.addProperty("version", this.trimString(this.version));
+        if(this.version!=null) {
+            issueObject.addProperty("version", this.trimString(this.version));
+        }
         if (this.milestone != null) {
             issueObject.add("milestone", this.milestone.createJsonObject());
         } else {

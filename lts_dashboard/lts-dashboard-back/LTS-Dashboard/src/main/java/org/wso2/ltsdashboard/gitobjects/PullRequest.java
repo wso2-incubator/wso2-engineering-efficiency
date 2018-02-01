@@ -68,7 +68,7 @@ public class PullRequest {
 
 
             for (String feature : features) {
-                if (feature.length() > 0) {
+                if (this.checkValidFeature(feature)) {
                     featureArray.add(feature);
                 }
             }
@@ -76,6 +76,17 @@ public class PullRequest {
 
 
         return featureArray;
+    }
+
+    private boolean checkValidFeature(String feature){
+        boolean isValid = false;
+
+        feature = feature.replace(" ","");
+        if(feature.length()>0 && !feature.contains("N/A")){
+            isValid = true;
+        }
+
+        return isValid;
     }
 
 
