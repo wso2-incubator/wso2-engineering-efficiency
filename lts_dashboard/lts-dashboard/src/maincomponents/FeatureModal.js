@@ -20,7 +20,6 @@
 
 import React from 'react';
 import Typography from 'material-ui/Typography';
-import Modal from 'material-ui/Modal';
 import AppBar from "material-ui/es/AppBar/AppBar";
 import Toolbar from "material-ui/es/Toolbar/Toolbar";
 import Paper from "material-ui/es/Paper/Paper";
@@ -60,19 +59,6 @@ const styles = theme => ({
     }
 });
 
-function getModalStyle() {
-
-    return {
-        position: 'absolute',
-        width: `80%`,
-        top: `10%`,
-        left: `10%`,
-        border: '1px solid #e5e5e5',
-        backgroundColor: '#fff',
-        boxShadow: '0 5px 15px rgba(0, 0, 0, .5)',
-
-    };
-}
 
 function transition(props) {
     return <Slide direction="up" {...props} />;
@@ -119,7 +105,7 @@ class FeatureModal extends React.Component {
         this.setState({
                 progressState: true
             }, () => (
-                axios.post('http://'+getServer()+'/lts/features',
+                axios.post('http://' + getServer() + '/lts/features',
                     data
                 ).then(
                     (response) => {
@@ -133,8 +119,6 @@ class FeatureModal extends React.Component {
             )
         );
     }
-
-
 
 
     // create issue url list belong to the milestone
@@ -155,12 +139,11 @@ class FeatureModal extends React.Component {
     }
 
 
-    generate(array) {
+    static generate(array) {
         return array.map((value, index) =>
             <ExpansionSummary key={index} data={value}/>
         );
     }
-
 
 
     render() {
@@ -173,14 +156,13 @@ class FeatureModal extends React.Component {
                     open={this.state.open}
                     onClose={this.handleClose}
                 >
-                    {/*<div style={getModalStyle()}>*/}
                     <div>
                         <div>
                             {/*top titile bar*/}
                             <AppBar position="static" color="primary">
                                 <Toolbar>
                                     <IconButton color="inherit" onClick={this.handleClose} aria-label="Close">
-                                        <CloseIcon />
+                                        <CloseIcon/>
                                     </IconButton>
                                     <Typography type="title" color="inherit">
                                         {this.props.versionData["product"] + " : " + this.props.versionData["version"]}
@@ -189,16 +171,16 @@ class FeatureModal extends React.Component {
                                         Marketing Messages
                                     </Typography>
                                     {this.state.progressState && <CircularProgress
-                                        style={{ color: purple[500] }}
+                                        style={{color: purple[500]}}
                                         className={classes.progress}/>}
                                 </Toolbar>
                             </AppBar>
 
                             {/*feature List*/}
                             <Paper className={classes.paper} elevation={4}>
-                               <div>
-                                   {this.generate(this.state.featureData)}
-                               </div>
+                                <div>
+                                    {FeatureModal.generate(this.state.featureData)}
+                                </div>
                             </Paper>
                         </div>
 

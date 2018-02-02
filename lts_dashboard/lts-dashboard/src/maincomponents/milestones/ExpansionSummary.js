@@ -19,20 +19,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import ExpansionPanel, {
-    ExpansionPanelDetails,
-    ExpansionPanelSummary,
-} from 'material-ui/ExpansionPanel';
+import {withStyles} from 'material-ui/styles';
+import ExpansionPanel, {ExpansionPanelDetails, ExpansionPanelSummary,} from 'material-ui/ExpansionPanel';
 import Typography from 'material-ui/Typography';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Divider from "material-ui/es/Divider/Divider";
 import List from "material-ui/es/List/List";
 import ListItem from "material-ui/es/List/ListItem";
 import ListItemIcon from "material-ui/es/List/ListItemIcon";
 import ListItemText from "material-ui/es/List/ListItemText";
 import StarIcon from 'material-ui-icons/Star';
-import Button from "material-ui/es/Button/Button";
 
 
 const styles = theme => ({
@@ -41,7 +36,7 @@ const styles = theme => ({
     },
     heading: {
         fontSize: theme.typography.pxToRem(15),
-        flexBasis: '50%',
+        flexBasis: '30%',
         flexShrink: 0,
         color: theme.palette.primary.main
     },
@@ -53,6 +48,9 @@ const styles = theme => ({
         width: '100%',
         maxWidth: 360,
         backgroundColor: theme.palette.background.paper,
+    },
+    column: {
+        flexBasis: '50%',
     },
 });
 
@@ -66,39 +64,42 @@ class ExpansionSummary extends React.Component {
             expanded: !this.state.expanded,
         });
     };
-    
-    
-    generateFeatures(array){
+
+
+    generateFeatures(array) {
         return array.map((value, index) =>
             <ListItem button key={index}>
                 <ListItemIcon>
-                    <StarIcon />
+                    <StarIcon/>
                 </ListItemIcon>
-                <ListItemText inset primary={value} />
+                <ListItemText
+                    inset primary={value}/>
             </ListItem>
         );
     }
 
     render() {
-        const { classes } = this.props;
-        const { expanded } = this.state;
+        const {classes} = this.props;
+        const {expanded} = this.state;
 
         return (
-                <ExpansionPanel expanded={expanded} >
-                    <ExpansionPanelSummary onClick={this.handleChange} expandIcon={<ExpandMoreIcon />}>
-                        <Typography className={classes.heading}>{this.props.data["title"]}</Typography>
-                        <Typography className={classes.secondaryHeading}>{this.props.data["html_url"]}</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
+            <ExpansionPanel expanded={expanded}>
+                <ExpansionPanelSummary onClick={this.handleChange} expandIcon={<ExpandMoreIcon/>}>
+                    <Typography className={classes.heading}>{this.props.data["title"]}</Typography>
+                    <Typography className={classes.secondaryHeading}>{this.props.data["html_url"]}</Typography>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                    <div className={classes.column}>
                         <List className={classes.root} dense={true}>
                             {this.generateFeatures(this.props.data["features"])}
                         </List>
-                    </ExpansionPanelDetails>
-                    {/*<Divider />*/}
-                    {/*<Button onClick={() => window.open(this.props.data["html_url"], '_blank')} dense color="secondary">*/}
-                        {/*Change Version*/}
-                    {/*</Button>*/}
-                </ExpansionPanel>
+                    </div>
+                </ExpansionPanelDetails>
+                {/*<Divider />*/}
+                {/*<Button onClick={() => window.open(this.props.data["html_url"], '_blank')} dense color="secondary">*/}
+                {/*Change Version*/}
+                {/*</Button>*/}
+            </ExpansionPanel>
 
         );
     }

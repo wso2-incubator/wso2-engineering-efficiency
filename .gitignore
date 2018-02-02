@@ -32,4 +32,5 @@ node_modules
 *.log
 log/
 *.ini
+config.ini
 

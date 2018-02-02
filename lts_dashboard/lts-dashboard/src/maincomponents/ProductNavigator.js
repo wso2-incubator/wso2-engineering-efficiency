@@ -80,23 +80,25 @@ class ProductNavigator extends React.Component {
         const {classes} = this.props;
 
         return (
-            <form className={classes.container} autoComplete="off">
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="product-simple">Product</InputLabel>
-                    <Select
-                        value={this.state.product}
-                        onChange={this.handleChange}
-                        input={<Input name="product" id="product-simple"/>}
-                    >
-                        <MenuItem value="">
-                            <em>None</em>
-                        </MenuItem>
-                        {this.state.productList.map((productName, index) => (
-                            <MenuItem key={index} value={productName}>{productName}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </form>
+            <div>
+                <form className={classes.container} autoComplete="off">
+                    <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="product-simple">Product</InputLabel>
+                        <Select
+                            value={this.state.product}
+                            onChange={this.handleChange}
+                            input={<Input name="product" id="product-simple"/>}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {this.state.productList.map((productName, index) => (
+                                <MenuItem key={index} value={productName}>{productName}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </form>
+            </div>
         );
     }
 }
