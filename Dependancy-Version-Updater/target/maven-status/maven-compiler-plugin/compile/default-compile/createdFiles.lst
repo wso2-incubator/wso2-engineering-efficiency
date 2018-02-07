@@ -1,0 +1,15 @@
+com/wso2/Model/Report.class
+com/wso2/Model/OutdatedDependency.class
+com/wso2/DependencyProcessor/POMWriter.class
+com/wso2/ProductRetrieve/GithubConnector.class
+com/wso2/DependencyProcessor/MavenCentralConnector.class
+com/wso2/Model/Product.class
+com/wso2/App.class
+com/wso2/Model/LatestVersionJSON.class
+com/wso2/Constants.class
+com/wso2/DependencyProcessor/POMReader.class
+com/wso2/DependencyProcessor/DependencyUpdater.class
+com/wso2/DependencyProcessor/WSO2DependencyUpdater.class
+com/wso2/ProductBuilder/MavenInvoker.class
+com/wso2/ProductBuilder/MavenInvoker$1.class
+com/wso2/Model/Dashboard.class
