@@ -16,16 +16,14 @@
  * under the License.
  *
  */
-
 package org.wso2.DependencyProcessor;
 
-import org.wso2.Constants;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
+import org.wso2.Constants;
 import org.wso2.Model.OutdatedDependency;
 import org.wso2.ReportGenerator.OutdatedDependencyReporter;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +32,9 @@ import java.util.Properties;
 /**
  * TODO:Class level comment
  */
-public class WSO2DependencyUpdater extends DependencyUpdater {
+public abstract class WSO2DependencyUpdater extends DependencyUpdater{
 
-    public Model updateModel(Model model,Properties globalProperties){
+    public Model updateModel(Model model, Properties globalProperties){
 
         Model modifiedModel = model.clone();
         String pomLocation = model.getProjectDirectory().toString();
@@ -59,50 +57,40 @@ public class WSO2DependencyUpdater extends DependencyUpdater {
         }
         return modifiedModel;
     }
-    private Model updateToLatestInLocation(String pomLocation,List<Dependency> dependencies, Properties globalProperties, Properties localProperties) {
-        List<Dependency> updatedDependencies = getListCopy(dependencies);
-        List<OutdatedDependency> outdatedDependencies = new ArrayList<OutdatedDependency>();
-        OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
-        Model model = new Model();
-        List<Dependency> dependenciesNotFound = new ArrayList<Dependency>();
-        for (Dependency dependency : dependencies) {
-            String currentVersion = dependency.getVersion();
-            String groupId = dependency.getGroupId();
-            if (groupId.contains(Constants.WSO2_GROUP_TAG) ) {
-                String latestVersion = MavenCentralConnector.getLatestVersion(dependency);
-                if(latestVersion.equals(Constants.EMPTY_STRING)){
-                    dependenciesNotFound.add(dependency);
-                }
-                else if(currentVersion!=null){
-                    if(isPropertyTag(currentVersion)){
-                        String versionKey = getVersionKey(currentVersion);
-                        String version = getProperty(versionKey,localProperties,globalProperties);
 
-                        if(!latestVersion.equals(version)){
-                            dependency.setVersion(version);
-                            updatedDependencies = updateDependecyList(updatedDependencies,dependency,latestVersion);
-                            outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies,dependency,latestVersion);
-                        }
-                    }
-                    else{
-                        if(!latestVersion.equals(currentVersion)){
-                            dependency.setVersion(currentVersion);
-                            updatedDependencies = updateDependecyList(updatedDependencies,dependency,latestVersion);
-                            outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies,dependency,latestVersion);
-                        }
-                    }
-                }
-            }
+    protected abstract Model updateToLatestInLocation(String pomLocation, List<Dependency> managementDependencies, Properties globalProperties, Properties localProperties);
+
+    protected String getProperty(String key, Properties localProperties, Properties globalProperties){
+        String value = localProperties.getProperty(key);
+        if(value==null){
+            value = globalProperties.getProperty(key);
         }
-        model.setDependencies(updatedDependencies);
-        model.setProperties(localProperties);
-        System.out.println(outdatedDependencies);
-        outdatedDependencyReporter.setReportEntries(outdatedDependencies);
-        outdatedDependencyReporter.saveToCSV(Constants.ROOT_PATH+"/Reports/"+pomLocation.replace('/','_'));
-        return model;
+        return value;
     }
 
-    private List<OutdatedDependency> updateOutdatedDependencyList(List<OutdatedDependency> outdatedDependencies, Dependency dependency, String latestVersion) {
+    protected String getVersionKey(String propertyKey){
+        return propertyKey.substring(2,propertyKey.length()-1);
+    }
+
+    protected boolean isPropertyTag(String versionTag) {
+        if(versionTag == null){
+            return false;
+        }
+        if (versionTag.startsWith(Constants.PROPERTY_START_TAG) && versionTag.endsWith(Constants.PROPERTY_END_TAG)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected ArrayList<Dependency> getListCopy(List<Dependency> dependencyList) {
+        ArrayList<Dependency> dependencies = new ArrayList<Dependency>();
+        for (Dependency dependency : dependencyList) {
+            dependencies.add(dependency);
+        }
+        return dependencies;
+    }
+    protected List<OutdatedDependency> updateOutdatedDependencyList(List<OutdatedDependency> outdatedDependencies, Dependency dependency, String latestVersion) {
         ArrayList<String> versionList =MavenCentralConnector.getVersionList(dependency);
         OutdatedDependency outdatedDependency = new OutdatedDependency(dependency);
         outdatedDependency.setLatestVersion(latestVersion);
@@ -111,47 +99,12 @@ public class WSO2DependencyUpdater extends DependencyUpdater {
         return outdatedDependencies;
     }
 
-    private List<Dependency> updateDependecyList(List<Dependency> dependencies,Dependency dependency, String latestVersion) {
+    protected List<Dependency> updateDependencyList(List<Dependency> dependencies, Dependency dependency, String latestVersion) {
         Dependency dependencyClone  =  dependency.clone();
         dependencyClone.setVersion(latestVersion);
         dependencies.remove(dependency);
         dependencies.add(dependencyClone);
         return dependencies;
-
     }
-
-    private ArrayList<Dependency> getListCopy(List<Dependency> dependencyList) {
-        ArrayList<Dependency> dependencies = new ArrayList<Dependency>();
-        for (Dependency dependency : dependencyList) {
-            dependencies.add(dependency);
-        }
-        return dependencies;
-    }
-
-    private String getProperty(String key,Properties localProperties, Properties globalProperties){
-        String value = localProperties.getProperty(key);
-        if(value==null){
-            value = globalProperties.getProperty(key);
-        }
-        return value;
-    }
-
-    private String getVersionKey(String propertyKey){
-        return propertyKey.substring(2,propertyKey.length()-1);
-    }
-
-    private boolean isPropertyTag(String versionTag){
-        if(versionTag.startsWith(Constants.PROPERTY_START_TAG) && versionTag.endsWith(Constants.PROPERTY_END_TAG)){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
-
-
-
-
 
 }

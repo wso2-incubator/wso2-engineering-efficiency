@@ -19,9 +19,11 @@
 
 package org.wso2;
 
+import org.wso2.DependencyProcessor.DependencyUpdater;
 import org.wso2.DependencyProcessor.POMReader;
 import org.wso2.DependencyProcessor.POMWriter;
-import org.wso2.DependencyProcessor.WSO2DependencyUpdater;
+import org.wso2.DependencyProcessor.WSO2DependencyMajorUpdater;
+import org.wso2.DependencyProcessor.WSO2DependencyMinorUpdater;
 import org.wso2.Model.Product;
 import org.wso2.ProductBuilder.MavenInvoker;
 import org.wso2.ProductRetrieve.GithubConnector;
@@ -67,7 +69,8 @@ public class App {
         ArrayList<Model> modelList = new ArrayList<Model>();
         POMReader pomReader = new POMReader();
         POMWriter pomWriter = new POMWriter();
-        WSO2DependencyUpdater wso2DependencyUpdater = new WSO2DependencyUpdater();
+        //DependencyUpdater DependencyUpdater = new WSO2DependencyMajorUpdater();
+        DependencyUpdater DependencyUpdater = new WSO2DependencyMinorUpdater();
         Model model = pomReader.getPomModel(projectPomPath);
         Properties properties =model.getProperties();
         properties.setProperty(Constants.PROJECT_VERSION_STRING,model.getVersion());
@@ -80,8 +83,7 @@ public class App {
         ArrayList<Properties> propertiesList = new ArrayList<Properties>();
         Model updatedRootModel = new Model();
         for (Model childModel : modelList) {
-            String pomLocation = childModel.getProjectDirectory().toString();
-            Model updatedModel = wso2DependencyUpdater.updateModel(childModel,properties);
+            Model updatedModel = DependencyUpdater.updateModel(childModel,properties);
             if(!childModel.getProjectDirectory().toString().equals(projectPomPath)){
                 pomWriter.writePom(updatedModel);
             }

@@ -28,4 +28,6 @@ import java.util.Properties;
 public  abstract class DependencyUpdater {
     public abstract Model updateModel(Model model, Properties properties);
 
+
+
 }

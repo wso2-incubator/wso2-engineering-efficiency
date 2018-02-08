@@ -34,7 +34,6 @@ import org.json.JSONObject;
 import java.io.*;
 import java.util.ArrayList;
 
-
 public class MavenCentralConnector {
     public static String getLatestVersion(Dependency dependency){
         try {
@@ -77,6 +76,11 @@ public class MavenCentralConnector {
         return Constants.EMPTY_STRING;
     }
 
+    /**
+     *
+     * @param dependency
+     * @return
+     */
     public static ArrayList<String> getVersionList(Dependency dependency){
         try {
             String data =Constants.JSON_OBJECT_START_TAG+
@@ -128,4 +132,77 @@ public class MavenCentralConnector {
         }
         return new ArrayList<String>();
     }
+
+    public static String getLatestMinorVersion(Dependency dependency) {
+        String latestVersion = new String();
+        try {
+            String data =Constants.JSON_OBJECT_START_TAG+
+                    Constants.GROUP_ID_TAG+
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER+
+                    dependency.getGroupId()+
+                    Constants.JSON_OBJECT_ELEMENT_SEPERATER+
+                    Constants.ARTIFACT_ID_TAG+
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER+
+                    dependency.getArtifactId()+
+                    Constants.JSON_OBJECT_END_TAG;
+
+
+            String currentVersion = dependency.getVersion();
+
+
+            StringEntity entity = new StringEntity(data,ContentType.APPLICATION_JSON);
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpPost request = new HttpPost(Constants.GET_VERSION_LIST);
+            request.setEntity(entity);
+            HttpResponse response = httpClient.execute(request);
+            if(response.getStatusLine().getStatusCode()==200){
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    result.append(line);
+                }
+                JSONObject jsonObject = new JSONObject(result.toString());
+                rd.close();
+
+                JSONArray versionList = jsonObject.getJSONArray(Constants.AVAILABLE_VERSIONS_KEY);
+                latestVersion = getLatestMinorVersionFromJson(currentVersion, versionList);
+                return latestVersion;
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return latestVersion;
+    }
+
+    private static String getLatestMinorVersionFromJson(String currentVersion, JSONArray versionList) {
+        int currentMajorVersionId = getMajorFromVersion(currentVersion);
+        boolean majorVersionFound = false;
+        int index = 0;
+        String version = versionList.get(index).toString();
+
+        while(!majorVersionFound && index<versionList.length()){
+            version = versionList.get(index).toString();
+            if(currentMajorVersionId>= getMajorFromVersion(version)){
+                index+=1;
+            }
+            else{
+                majorVersionFound = true;
+            }
+        }
+        return versionList.get(index-1).toString();
+    }
+
+    private static int getMajorFromVersion(String version){
+        System.out.println(version);
+        return Integer.parseInt(version.split("\\.")[0]);
+    }
+
+
 }
