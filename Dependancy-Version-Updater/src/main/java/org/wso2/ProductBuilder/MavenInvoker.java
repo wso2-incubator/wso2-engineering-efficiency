@@ -45,7 +45,7 @@ public class MavenInvoker {
         request.setOutputHandler(new InvocationOutputHandler() {
             public void consumeLine(String s) {
 
-                System.out.println(s);
+ //               System.out.println(s);
             }
         });
         request.setGoals( Collections.singletonList( Constants.MAVEN_INVOKE_COMMAND ) );

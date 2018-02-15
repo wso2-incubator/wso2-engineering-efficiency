@@ -22,6 +22,7 @@ package org.wso2;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.DatabaseHandler.DashboardDBConnector;
+import org.wso2.DatabaseHandler.LocalDBConnector;
 import org.wso2.DependencyProcessor.DependencyUpdater;
 import org.wso2.DependencyProcessor.POMReader;
 import org.wso2.DependencyProcessor.POMWriter;
@@ -44,17 +45,21 @@ public class App {
     static String MAVEN_HOME;
     private static final Log log = LogFactory.getLog(App.class);
     public static void main( String[] args ) {
-
+        LocalDBConnector localDBConnector = new LocalDBConnector();
         ArrayList<Product> productList;
         productList = getAllProducts();
         HashMap<String,Integer> statusMap = new HashMap<String, Integer>();
         for (Product product : productList) {
             boolean status = updateProduct(product);
             if(status){
+                //localDBConnector.insertBuildData(product,1);
+                System.out.println("Product Build Successful :"+product.getProductName());
                 statusMap.put(product.getProductName(),1);
 
             }
             else{
+                //localDBConnector.insertBuildData(product,0);
+                System.out.println("Product Build Unsuccessful :"+product.getProductName());
                 statusMap.put(product.getProductName(),0);
             }
         }
@@ -64,12 +69,19 @@ public class App {
         log.info("Reading Configuration file: "+Constants.CONFIG_FILE_NAME);
         MAVEN_HOME = ConfigFileReader.getMavenHome();
         ArrayList<ProductComponent> components = product.getProductComponentsList();
-
+        ArrayList<ProductComponent> notFoundComponents = new ArrayList<ProductComponent>();
         for (ProductComponent component : components) {
             GithubConnector githubConnector = new GithubConnector();
-            githubConnector.retrieveComponent(component);
+            boolean retrieved = githubConnector.retrieveComponent(component);
+            if(!retrieved){
+                notFoundComponents.add(component);
+            }
 
         }
+
+        components.removeAll(notFoundComponents);
+
+
         ArrayList<String> componentTempFiles = RepositoryHandler.getTemporaryProductComponents(components,Constants.SUFFIX_TEMP_FILE);
         int successCount = 0;
         for (String componentTempFile : componentTempFiles) {
@@ -77,9 +89,11 @@ public class App {
             boolean buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME,componentTempFile);
             if(buildStatus){
                 successCount+=1;
+                System.out.println("Component Build Successful :"+product.getProductName()+"::"+componentTempFile);
                 log.info(componentTempFile+" Build Successful");
             }
             else{
+                System.out.println("Component Build Unsuccessful :"+product.getProductName()+"::"+componentTempFile);
                 log.info(componentTempFile+" Failed to build");
             }
         }

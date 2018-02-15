@@ -35,7 +35,7 @@ public class RepositoryHandler {
         ArrayList<String> tempPathList =  new ArrayList<String>();
 
         for (ProductComponent component : components) {
-            String projectPath =Constants.ROOT_PATH+File.separator+component.getName();
+            String projectPath =Constants.ROOT_PATH+component.getName();
             deleteFile(projectPath + suffix);
             copyProjectToTempDirectory(projectPath,projectPath+ suffix);
             tempPathList.add(projectPath+suffix);

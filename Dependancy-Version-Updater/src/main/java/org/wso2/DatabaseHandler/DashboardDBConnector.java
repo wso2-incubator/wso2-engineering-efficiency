@@ -78,14 +78,12 @@ public class DashboardDBConnector {
         Statement stmt;
         try {
             stmt = conn.createStatement();
-            System.out.println("SELECT DISTINCT(Component) from JNKS_COMPONENTPRODUCT WHERE Product="+"\""+productName+"\"");
             ResultSet rs = stmt.executeQuery("SELECT DISTINCT(Component) from JNKS_COMPONENTPRODUCT WHERE Product="+"\""+productName+"\"");
             while (rs.next()) {
                 String componentName = rs.getString(1);
-                if(!componentName.contains("_")){
-                    ProductComponent productComponent = new ProductComponent(componentName, Constants.GIT_URL_PREFIX+componentName+".git");
-                    productComponents.add(productComponent);
-                }
+                ProductComponent productComponent = new ProductComponent(componentName, Constants.GIT_URL_PREFIX+componentName+".git");
+                productComponents.add(productComponent);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();

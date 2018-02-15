@@ -21,7 +21,11 @@ package org.wso2.ProductRetrieve;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.wso2.Constants;
 import org.wso2.Model.ProductComponent;
 import org.eclipse.jgit.api.Git;
@@ -60,33 +64,46 @@ public class GithubConnector {
     }
 
     private boolean clone(ProductComponent productComponent){
-        boolean status = false;
+
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("dimuthnc", "Priyadarshani@143");
 
         try {
             log.info("Cloning the repository to local storage: "+productComponent.getName());
             git = Git.cloneRepository()
+                    .setCredentialsProvider(credentialsProvider)
                     .setURI( productComponent.getUrl())
                     .setDirectory(new File(Constants.ROOT_PATH+File.separator+ productComponent.getName())).call();
-            status = true;
+            return true;
 
-        } catch (Exception e) {
+        } catch (InvalidRemoteException e) {
+            log.info("Remote repository not found :"+productComponent.getName());
+
+        } catch (TransportException e) {
+            e.printStackTrace();
+        } catch (GitAPIException e) {
             e.printStackTrace();
         }
+        return false;
 
-        return status;
+
     }
 
-    public void retrieveComponent(ProductComponent productComponent){
+    public boolean retrieveComponent(ProductComponent productComponent){
         log.info("Retrieving component: "+productComponent.getName());
 
         File repository = new File(Constants.ROOT_PATH+File.separator+ productComponent.getName());
         if (repository.exists() && repository.isDirectory()) {
             log.info("Existing repository found for : "+productComponent.getName());
             update(productComponent);
+            return true;
         }
         else{
             log.info("Existing repository not found for : "+productComponent.getName());
-            clone(productComponent);
+            boolean cloned = clone(productComponent);
+            if(!cloned){
+                return false;
+            }
+            return true;
         }
     }
 
