@@ -19,6 +19,8 @@
 
 package org.wso2.DependencyProcessor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.Constants;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -31,10 +33,15 @@ import org.apache.maven.model.Dependency;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.wso2.ProductRetrieve.GithubConnector;
+
 import java.io.*;
 import java.util.ArrayList;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
 public class MavenCentralConnector {
+    private static final Log log = LogFactory.getLog(GithubConnector.class);
     public static String getLatestVersion(Dependency dependency){
         try {
             String data =Constants.JSON_OBJECT_START_TAG+
@@ -54,7 +61,7 @@ public class MavenCentralConnector {
             HttpResponse response = httpClient.execute(request);
 
             if(response.getStatusLine().getStatusCode() == Constants.SUCCESSFUL_STATUS_CODE) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
                 while ((line = rd.readLine()) != null) {
@@ -77,9 +84,9 @@ public class MavenCentralConnector {
     }
 
     /**
-     *
-     * @param dependency
-     * @return
+     *This method will provide all available versions for a given dependency.
+     * @param dependency    Dependency object with relevant information
+     * @return  ArrayList of Strings which represent the all released
      */
     public static ArrayList<String> getVersionList(Dependency dependency){
         try {
@@ -182,25 +189,33 @@ public class MavenCentralConnector {
     }
 
     private static String getLatestMinorVersionFromJson(String currentVersion, JSONArray versionList) {
-        int currentMajorVersionId = getMajorFromVersion(currentVersion);
-        boolean majorVersionFound = false;
-        int index = 0;
-        String version = versionList.get(index).toString();
-
-        while(!majorVersionFound && index<versionList.length()){
-            version = versionList.get(index).toString();
-            if(currentMajorVersionId>= getMajorFromVersion(version)){
-                index+=1;
+        try{
+            int currentMajorVersionId = getMajorFromVersion(currentVersion);
+            boolean majorVersionFound = false;
+            int index = 0;
+            String version;
+            while(!majorVersionFound && index<versionList.length()){
+                version = versionList.get(index).toString();
+                if(currentMajorVersionId>= getMajorFromVersion(version)){
+                    index+=1;
+                }
+                else{
+                    majorVersionFound = true;
+                }
             }
-            else{
-                majorVersionFound = true;
-            }
+            return versionList.get(index-1).toString();
         }
-        return versionList.get(index-1).toString();
+        catch (NullPointerException nullPointerException){
+            log.info("Null Pointer Exception");
+            log.info(currentVersion==null);
+            log.info(versionList.toString());
+            return currentVersion;
+        }
+
     }
 
-    private static int getMajorFromVersion(String version){
-        System.out.println(version);
+    private static int getMajorFromVersion (String version) throws NullPointerException{
+
         return Integer.parseInt(version.split("\\.")[0]);
     }
 

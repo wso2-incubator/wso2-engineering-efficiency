@@ -38,7 +38,6 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         List<OutdatedDependency> outdatedDependencies = new ArrayList<OutdatedDependency>();
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
-        List<Dependency> dependenciesNotFound = new ArrayList<Dependency>();
         for (Dependency dependency : dependencies) {
             String currentVersion = dependency.getVersion();
             String groupId = dependency.getGroupId();
@@ -47,18 +46,13 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
                     String versionKey = getVersionKey(currentVersion);
                     String version = getProperty(versionKey,localProperties,globalProperties);
                     dependency.setVersion(version);
-
                 }
-
                 String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
-
-               if(currentVersion!=null){
+                if(dependency.getVersion()!=null){
                    if(!latestVersion.equals(currentVersion)){
-                       dependency.setVersion(currentVersion);
                        updatedDependencies = updateDependencyList(updatedDependencies,dependency,latestVersion);
                        outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies,dependency,latestVersion);
                    }
-
                 }
             }
         }
@@ -68,6 +62,4 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         outdatedDependencyReporter.saveToCSV(Constants.ROOT_PATH+"/Reports/"+pomLocation.replace('/','_'));
         return model;
     }
-
-
 }

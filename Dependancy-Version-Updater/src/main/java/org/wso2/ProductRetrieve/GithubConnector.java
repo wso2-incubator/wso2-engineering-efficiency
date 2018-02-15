@@ -19,8 +19,11 @@
 
 package org.wso2.ProductRetrieve;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.wso2.Constants;
-import org.wso2.Model.Product;
+import org.wso2.Model.ProductComponent;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -29,37 +32,41 @@ import java.io.File;
 import java.io.IOException;
 
 
+
 public class GithubConnector {
 
-    Git git;
+    private static final Log log = LogFactory.getLog(GithubConnector.class);
+    private Git git;
 
 
 
-
-    public boolean update(Product product){
+    private boolean update(ProductComponent productComponent){
         boolean status =false;
         try {
-            status =Git.open(new File(product.getSubdirectory())).pull().call().isSuccessful();
+            log.info("Calling git pull for component: "+ productComponent.getName());
+            status =Git.open(new File(Constants.ROOT_PATH+File.separator+productComponent.getName())).pull().call().isSuccessful();
 
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (RefNotAdvertisedException exception){
+            log.error("Branch not found in remote repository. Therefore cannot update the existing local repository");
         } catch (GitAPIException e){
             e.printStackTrace();
         }
 
 
-
         return status;
     }
 
-    public boolean clone(Product product){
+    private boolean clone(ProductComponent productComponent){
         boolean status = false;
 
         try {
+            log.info("Cloning the repository to local storage: "+productComponent.getName());
             git = Git.cloneRepository()
-                    .setURI( product.getUrl())
-                    .setDirectory(new File(Constants.ROOT_PATH+File.separator+product.getName())).call();
+                    .setURI( productComponent.getUrl())
+                    .setDirectory(new File(Constants.ROOT_PATH+File.separator+ productComponent.getName())).call();
             status = true;
 
         } catch (Exception e) {
@@ -69,7 +76,21 @@ public class GithubConnector {
         return status;
     }
 
-    public boolean pullRequest(Product product){
+    public void retrieveComponent(ProductComponent productComponent){
+        log.info("Retrieving component: "+productComponent.getName());
+
+        File repository = new File(Constants.ROOT_PATH+File.separator+ productComponent.getName());
+        if (repository.exists() && repository.isDirectory()) {
+            log.info("Existing repository found for : "+productComponent.getName());
+            update(productComponent);
+        }
+        else{
+            log.info("Existing repository not found for : "+productComponent.getName());
+            clone(productComponent);
+        }
+    }
+
+    public boolean pullRequest(ProductComponent productComponent){
         return true;
     }
 

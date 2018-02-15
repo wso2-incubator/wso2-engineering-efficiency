@@ -19,77 +19,114 @@
 
 package org.wso2;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.DatabaseHandler.DashboardDBConnector;
 import org.wso2.DependencyProcessor.DependencyUpdater;
 import org.wso2.DependencyProcessor.POMReader;
 import org.wso2.DependencyProcessor.POMWriter;
-import org.wso2.DependencyProcessor.WSO2DependencyMajorUpdater;
 import org.wso2.DependencyProcessor.WSO2DependencyMinorUpdater;
+import org.wso2.FileHandler.ConfigFileReader;
+import org.wso2.FileHandler.RepositoryHandler;
 import org.wso2.Model.Product;
+import org.wso2.Model.ProductComponent;
 import org.wso2.ProductBuilder.MavenInvoker;
 import org.wso2.ProductRetrieve.GithubConnector;
 import org.apache.maven.model.Model;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 
 public class App {
     static String MAVEN_HOME;
+    private static final Log log = LogFactory.getLog(App.class);
     public static void main( String[] args ) {
-        readConfigFile();
-        HashMap<String,String> productURLMap;
-        HashMap<String,String > productRepoMap ;
-        productURLMap = getAllProjectsFromDashboardDB();
-        productRepoMap = getExistingRepos();
-        HashMap<String,String> productMap = updateRepositories(productURLMap, productRepoMap);
 
-        Iterator iterator = productMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry pair = (Map.Entry)iterator.next();
-            updateProductDependencies(pair.getValue().toString());
-            MavenInvoker.mavenBuilder(MAVEN_HOME,pair.getValue().toString());
-            iterator.remove(); // avoids a ConcurrentModificationException
+        ArrayList<Product> productList;
+        productList = getAllProducts();
+        HashMap<String,Integer> statusMap = new HashMap<String, Integer>();
+        for (Product product : productList) {
+            boolean status = updateProduct(product);
+            if(status){
+                statusMap.put(product.getProductName(),1);
+
+            }
+            else{
+                statusMap.put(product.getProductName(),0);
+            }
         }
     }
+    private static boolean updateProduct(Product product) {
+        ConfigFileReader.readConfigFile();
+        log.info("Reading Configuration file: "+Constants.CONFIG_FILE_NAME);
+        MAVEN_HOME = ConfigFileReader.getMavenHome();
+        ArrayList<ProductComponent> components = product.getProductComponentsList();
 
-    private static boolean updateProductDependencies(String productName) {
+        for (ProductComponent component : components) {
+            GithubConnector githubConnector = new GithubConnector();
+            githubConnector.retrieveComponent(component);
+
+        }
+        ArrayList<String> componentTempFiles = RepositoryHandler.getTemporaryProductComponents(components,Constants.SUFFIX_TEMP_FILE);
+        int successCount = 0;
+        for (String componentTempFile : componentTempFiles) {
+            updateComponentDependencies(componentTempFile);
+            boolean buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME,componentTempFile);
+            if(buildStatus){
+                successCount+=1;
+                log.info(componentTempFile+" Build Successful");
+            }
+            else{
+                log.info(componentTempFile+" Failed to build");
+            }
+        }
+        if(successCount== components.size()){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param projectPath   Component of product that need a dependency update
+     * @return status indicating the success or failure of update process
+     */
+    private static boolean updateComponentDependencies(String projectPath) {
         boolean status;
-        String  projectPomPath = Constants.ROOT_PATH+productName;
         ArrayList<Model> modelList = new ArrayList<Model>();
+
+
         POMReader pomReader = new POMReader();
         POMWriter pomWriter = new POMWriter();
-        //DependencyUpdater DependencyUpdater = new WSO2DependencyMajorUpdater();
-        DependencyUpdater DependencyUpdater = new WSO2DependencyMinorUpdater();
-        Model model = pomReader.getPomModel(projectPomPath);
+        //DependencyUpdater DependencyUpdater = new WSO2DependencyMajorUpdater(); // to update wso2 dependencies to latest available version
+        DependencyUpdater DependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
+
+        Model model = pomReader.getPomModel(projectPath); //create model for root pom
         Properties properties =model.getProperties();
         properties.setProperty(Constants.PROJECT_VERSION_STRING,model.getVersion());
         modelList.add(model);
+
         List<String> modules =model.getModules();
         for (String module : modules) {
-            model  = pomReader.getPomModel(projectPomPath+ File.separator+module);
+            model  = pomReader.getPomModel(projectPath+ File.separator+module); //create model for each child pom mentioned in root pom
             modelList.add(model);
         }
+
         ArrayList<Properties> propertiesList = new ArrayList<Properties>();
-        Model updatedRootModel = new Model();
+        Model updatedRootModel = model.clone();
         for (Model childModel : modelList) {
             Model updatedModel = DependencyUpdater.updateModel(childModel,properties);
-            if(!childModel.getProjectDirectory().toString().equals(projectPomPath)){
+            if(!childModel.getProjectDirectory().toString().equals(projectPath)){
+                propertiesList.add(updatedModel.getProperties());
                 pomWriter.writePom(updatedModel);
             }
             else{
-                propertiesList.add(updatedModel.getProperties());
+
                 updatedRootModel = updatedModel;
+
             }
         }
         for (Properties properties1 : propertiesList) {
@@ -98,68 +135,13 @@ public class App {
             }
         }
         updatedRootModel.setProperties(properties);
+
         status =pomWriter.writePom(updatedRootModel);
         return status;
     }
-
-    private static HashMap<String,String> updateRepositories(HashMap<String, String> productURLMap, HashMap<String, String> productRepoMap) {
-        HashMap<String,String> productMap = new HashMap<String, String>();
-        GithubConnector githubConnector = new GithubConnector();
-
-        Iterator iterator = productURLMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry pair = (Map.Entry)iterator.next();
-            String productName = pair.getKey().toString();
-            String productURL = pair.getValue().toString();
-            String repoName = productRepoMap.get(productName);
-            if(productRepoMap.containsKey(pair.getKey())){
-                Product product = new Product(productName,productURL, Constants.ROOT_PATH+ File.separator+repoName);
-                githubConnector.update(product);
-                productMap.put(productName,repoName);
-            }
-            else{
-                Product product = new Product(productName,productURL,null);
-                githubConnector.clone(product);
-                product.setSubdirectory(Constants.ROOT_PATH+productName);
-                productMap.put(productName,productName);
-            }
-            iterator.remove(); // avoids a ConcurrentModificationException
-        }
-        return productMap;
+    public static ArrayList<Product> getAllProducts() {
+        DashboardDBConnector dashboardDBConnector = new DashboardDBConnector();
+        ArrayList<Product> products =dashboardDBConnector.getAllProducts();
+        return products;
     }
-
-    private static HashMap<String,String> getExistingRepos() {
-        HashMap<String,String> projectRepoMap = new HashMap<String, String>();
-//        projectRepoMap.put("product-ei","product-ei");
-        projectRepoMap.put("product-apim","product-apim");
-        return projectRepoMap;
-    }
-
-    private static HashMap<String,String> getAllProjectsFromDashboardDB() {
-        HashMap<String,String> projectURLMap = new HashMap<String, String>();
-//        projectURLMap.put("product-ei","product-ei");
-        projectURLMap.put("product-apim","product-apim");
-        return projectURLMap;
-    }
-
-    private static void readConfigFile() {
-        File configFile = new File(Constants.CONFIG_FILE_NAME);
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        try {
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(configFile);
-            doc.getDocumentElement().normalize();
-            Node node =doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0);
-            MAVEN_HOME =node.getTextContent();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
 }

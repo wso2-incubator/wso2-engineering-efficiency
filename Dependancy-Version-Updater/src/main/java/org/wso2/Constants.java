@@ -44,11 +44,15 @@ public class Constants {
     public static final String LATEST_VERSION_KEY = "NewestVersion";
     public static final String UTF_8_CHARSET_NAME = "UTF-8";
     public static final String MAVEN_INVOKE_COMMAND_WITHOUT_TESTS = "clean install -DskipTests";
+    public static final String MAVEN_INVOKE_COMMAND = "clean install";
     public static final String CSV_FILE_EXTENSION = ".csv";
-
+    public static final String GIT_URL_PREFIX ="https://github.com/wso2/";
 
     public static final String[] OUTDATED_DEPENDENCY_REPORT_HEADER = {"Group ID","Artifact ID", "Current Version","Latest Version", "All Available Versions"};
     public static final int NOT_FOUND_STATUS_CODE = 404;
     public static final int SUCCESSFUL_STATUS_CODE = 200;
     public static final int OUTDATED_DEPENDENCY_ELEMENT_SIZE = 5;
+
+
+    public static final String SUFFIX_TEMP_FILE = "-temp";
 }

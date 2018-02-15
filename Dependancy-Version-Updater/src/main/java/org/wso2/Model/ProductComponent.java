@@ -17,23 +17,34 @@
  *
  */
 
-package org.wso2.DependencyProcessor;
+package org.wso2.Model;
 
-import org.apache.maven.model.Model;
-import java.util.Properties;
-
-/**
- * TODO:Class level comment
- */
-public  abstract class DependencyUpdater {
-    /**
-     *
-     * @param model org.apache.maven.model.Model that represent the attributes of a particular pom.xml
-     * @param properties java.util.Properties object with all the properties included in the root pom.xml
-     * @return updated model with dependency changes
-     */
-    public abstract Model updateModel(Model model, Properties properties);
+public class ProductComponent {
+    private String name;
+    private String url;
 
 
+    public ProductComponent(String name, String url) {
+        this.name = name;
+        this.url = url;
+
+    }
+
+    public String getName() {
+
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
 }

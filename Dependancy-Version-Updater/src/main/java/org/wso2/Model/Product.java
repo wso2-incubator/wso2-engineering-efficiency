@@ -16,42 +16,35 @@
  * under the License.
  *
  */
-
 package org.wso2.Model;
 
+import java.util.ArrayList;
+
+/**
+ * TODO:Class level comment
+ */
 public class Product {
-    private String name;
-    private String url;
-    private String subdirectory;
+    String productName;
+    ArrayList<ProductComponent> productComponentsList;
 
-    public Product(String name, String url, String subdirectory) {
-        this.name = name;
-        this.url = url;
-        this.subdirectory = subdirectory;
+    public Product(String productName) {
+        this.productName = productName;
+        productComponentsList = new ArrayList<ProductComponent>();
     }
 
-    public String getName() {
-
-        return name;
+    public void addProductComponent(ProductComponent productComponent){
+        productComponentsList.add(productComponent);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public ArrayList<ProductComponent> getProductComponentsList(){
+        return productComponentsList;
     }
 
-    public String getUrl() {
-        return url;
+    public void setProductComponentsList(ArrayList<ProductComponent> productComponentsList) {
+        this.productComponentsList = productComponentsList;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getSubdirectory() {
-        return subdirectory;
-    }
-
-    public void setSubdirectory(String subdirectory) {
-        this.subdirectory = subdirectory;
+    public String getProductName() {
+        return productName;
     }
 }

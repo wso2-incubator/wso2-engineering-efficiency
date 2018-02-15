@@ -36,6 +36,7 @@ public class POMWriter {
         MavenXpp3Writer mavenXpp3Writer = new MavenXpp3Writer();
         Writer fileWriter = null;
         try{
+            System.out.println(updatedModel.getProjectDirectory().getAbsolutePath()+File.separator+ Constants.POM_NAME);
             File pomFile = new File(updatedModel.getProjectDirectory().getAbsolutePath()+File.separator+ Constants.POM_NAME);
             fileWriter = WriterFactory.newXmlWriter(pomFile);
             mavenXpp3Writer.write(fileWriter, updatedModel);

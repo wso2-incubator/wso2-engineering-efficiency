@@ -16,24 +16,10 @@
  * under the License.
  *
  */
-
-package org.wso2.DependencyProcessor;
-
-import org.apache.maven.model.Model;
-import java.util.Properties;
+package org.wso2.DatabaseHandler;
 
 /**
  * TODO:Class level comment
  */
-public  abstract class DependencyUpdater {
-    /**
-     *
-     * @param model org.apache.maven.model.Model that represent the attributes of a particular pom.xml
-     * @param properties java.util.Properties object with all the properties included in the root pom.xml
-     * @return updated model with dependency changes
-     */
-    public abstract Model updateModel(Model model, Properties properties);
-
-
-
+public class LocalDBConnector {
 }

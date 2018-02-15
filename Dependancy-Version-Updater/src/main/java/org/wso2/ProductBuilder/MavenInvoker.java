@@ -22,6 +22,7 @@ package org.wso2.ProductBuilder;
 import org.wso2.Constants;
 import org.apache.maven.cli.MavenCli;
 import org.apache.maven.shared.invoker.*;
+import org.wso2.Model.ProductComponent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,17 +38,17 @@ import java.util.Collections;
 public class MavenInvoker {
 
 
-    public static boolean mavenBuilder(String mavenHome,String repositoryName){
+    public static boolean mavenBuild(String mavenHome, String directoryPath){
 
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(new File(Constants.ROOT_PATH+File.separator+repositoryName));
+        request.setPomFile(new File(directoryPath));
         request.setOutputHandler(new InvocationOutputHandler() {
             public void consumeLine(String s) {
 
                 System.out.println(s);
             }
         });
-        request.setGoals( Collections.singletonList( Constants.MAVEN_INVOKE_COMMAND_WITHOUT_TESTS ) );
+        request.setGoals( Collections.singletonList( Constants.MAVEN_INVOKE_COMMAND ) );
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(new File(mavenHome));
         InvocationResult invocationResult;
@@ -68,23 +69,6 @@ public class MavenInvoker {
         return false;
     }
 
-    public static boolean mavenNewBuilder(){
-        String workingDirectory =Constants.ROOT_PATH+"This App";
-        System.out.println(workingDirectory);
-        MavenCli mavenCli = new MavenCli();
 
-        try {
-            PrintStream stdout = new PrintStream( new File(workingDirectory+File.separator+"temp.txt"), "UTF-8");
-            mavenCli.doMain(new String[]{"-Dmaven.multiModuleProjectDirectory=" + workingDirectory, "install"},workingDirectory,stdout,stdout);
-            return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-
-    }
 }
 
