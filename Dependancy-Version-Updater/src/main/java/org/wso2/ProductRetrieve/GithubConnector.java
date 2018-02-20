@@ -51,10 +51,10 @@ public class GithubConnector {
             status =Git.open(new File(Constants.ROOT_PATH+File.separator+productComponent.getName())).pull().call().isSuccessful();
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (RefNotAdvertisedException exception){
             log.error("Branch not found in remote repository. Therefore cannot update the existing local repository");
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (GitAPIException e){
             e.printStackTrace();
         }
@@ -64,9 +64,7 @@ public class GithubConnector {
     }
 
     private boolean clone(ProductComponent productComponent){
-
         CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("dimuthnc", "Priyadarshani@143");
-
         try {
             log.info("Cloning the repository to local storage: "+productComponent.getName());
             git = Git.cloneRepository()
@@ -84,8 +82,6 @@ public class GithubConnector {
             e.printStackTrace();
         }
         return false;
-
-
     }
 
     public boolean retrieveComponent(ProductComponent productComponent){
@@ -106,7 +102,6 @@ public class GithubConnector {
             return true;
         }
     }
-
     public boolean pullRequest(ProductComponent productComponent){
         return true;
     }

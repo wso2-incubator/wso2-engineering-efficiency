@@ -48,12 +48,11 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
                     dependency.setVersion(version);
                 }
                 String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
-                if(dependency.getVersion()!=null){
-                   if(!latestVersion.equals(currentVersion)){
-                       updatedDependencies = updateDependencyList(updatedDependencies,dependency,latestVersion);
-                       outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies,dependency,latestVersion);
-                   }
+                if(isValidUpdate(latestVersion,currentVersion,dependency,localProperties,globalProperties)){
+                    updatedDependencies = updateDependencyList(updatedDependencies,dependency,latestVersion);
+                    outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies,dependency,latestVersion);
                 }
+
             }
         }
         model.setDependencies(updatedDependencies);
@@ -61,5 +60,22 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
         outdatedDependencyReporter.saveToCSV(Constants.ROOT_PATH+"/Reports/"+pomLocation.replace('/','_'));
         return model;
+    }
+
+    private boolean isValidUpdate(String latestVersion, String currentVersion,Dependency dependency,Properties localProperties, Properties globalProperties) {
+        if(isPropertyTag(currentVersion)){
+            String propertyKey = getVersionKey(currentVersion);
+            currentVersion = getProperty(propertyKey,localProperties,globalProperties);
+        }
+        if(dependency.getVersion() == null){
+            return false;
+        }
+        else if(latestVersion.length()==0){
+            return false;
+        }
+        else if(latestVersion.equals(currentVersion)){
+            return false;
+        }
+        return true;
     }
 }

@@ -47,6 +47,11 @@ public class Constants {
     public static final String MAVEN_INVOKE_COMMAND = "clean install";
     public static final String CSV_FILE_EXTENSION = ".csv";
     public static final String GIT_URL_PREFIX ="https://github.com/wso2/";
+    public static final String JDBC_DRIVER_NAME ="com.mysql.jdbc.Driver";
+    public static final String MYSQL_DB_URL ="jdbc:mysql://127.0.0.1:3308";
+    public static final String MYSQL_DB_USERNAME ="root";
+    public static final String MYSQL_DB_PASSWORD ="";
+
 
     public static final String[] OUTDATED_DEPENDENCY_REPORT_HEADER = {"Group ID","Artifact ID", "Current Version","Latest Version", "All Available Versions"};
     public static final int NOT_FOUND_STATUS_CODE = 404;

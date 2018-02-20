@@ -21,6 +21,7 @@ package org.wso2;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.migrator.Constant;
 import org.wso2.DatabaseHandler.DashboardDBConnector;
 import org.wso2.DatabaseHandler.LocalDBConnector;
 import org.wso2.DependencyProcessor.DependencyUpdater;
@@ -52,48 +53,51 @@ public class App {
         for (Product product : productList) {
             boolean status = updateProduct(product);
             if(status){
-                //localDBConnector.insertBuildData(product,1);
+                localDBConnector.insertBuildData(product,1);
                 System.out.println("Product Build Successful :"+product.getProductName());
                 statusMap.put(product.getProductName(),1);
 
             }
             else{
-                //localDBConnector.insertBuildData(product,0);
+                localDBConnector.insertBuildData(product,0);
                 System.out.println("Product Build Unsuccessful :"+product.getProductName());
                 statusMap.put(product.getProductName(),0);
             }
         }
     }
     private static boolean updateProduct(Product product) {
+        DashboardDBConnector dashboardDBConnector = new DashboardDBConnector();
+
         ConfigFileReader.readConfigFile();
+        GithubConnector githubConnector = new GithubConnector();
         log.info("Reading Configuration file: "+Constants.CONFIG_FILE_NAME);
         MAVEN_HOME = ConfigFileReader.getMavenHome();
         ArrayList<ProductComponent> components = product.getProductComponentsList();
         ArrayList<ProductComponent> notFoundComponents = new ArrayList<ProductComponent>();
         for (ProductComponent component : components) {
-            GithubConnector githubConnector = new GithubConnector();
+
             boolean retrieved = githubConnector.retrieveComponent(component);
             if(!retrieved){
                 notFoundComponents.add(component);
             }
 
         }
-
         components.removeAll(notFoundComponents);
-
-
         ArrayList<String> componentTempFiles = RepositoryHandler.getTemporaryProductComponents(components,Constants.SUFFIX_TEMP_FILE);
         int successCount = 0;
         for (String componentTempFile : componentTempFiles) {
             updateComponentDependencies(componentTempFile);
             boolean buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME,componentTempFile);
+            String componentName = getComponentNameFromTempFile(componentTempFile);
+
             if(buildStatus){
                 successCount+=1;
-                System.out.println("Component Build Successful :"+product.getProductName()+"::"+componentTempFile);
+                dashboardDBConnector.insertBuildStatus(1,product.getProductName(),componentName);
                 log.info(componentTempFile+" Build Successful");
             }
             else{
-                System.out.println("Component Build Unsuccessful :"+product.getProductName()+"::"+componentTempFile);
+
+                dashboardDBConnector.insertBuildStatus(0,product.getProductName(),componentName);
                 log.info(componentTempFile+" Failed to build");
             }
         }
@@ -101,6 +105,14 @@ public class App {
             return true;
         }
         return false;
+    }
+
+    private static String getComponentNameFromTempFile(String componentTempFile) {
+        int tempNameLength=componentTempFile.length();
+        int tempSuffixLength = Constants.SUFFIX_TEMP_FILE.length();
+        int rootPathLength = Constants.ROOT_PATH.length();
+
+        return componentTempFile.substring(rootPathLength,tempNameLength-tempSuffixLength);
     }
 
     /**
@@ -119,39 +131,45 @@ public class App {
         DependencyUpdater DependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
 
         Model model = pomReader.getPomModel(projectPath); //create model for root pom
-        Properties properties =model.getProperties();
-        properties.setProperty(Constants.PROJECT_VERSION_STRING,model.getVersion());
-        modelList.add(model);
-
-        List<String> modules =model.getModules();
-        for (String module : modules) {
-            model  = pomReader.getPomModel(projectPath+ File.separator+module); //create model for each child pom mentioned in root pom
+        if(model!=null){
+            Properties properties =model.getProperties();
+            properties.setProperty(Constants.PROJECT_VERSION_STRING,model.getVersion());
             modelList.add(model);
+
+            List<String> modules =model.getModules();
+            for (String module : modules) {
+                model  = pomReader.getPomModel(projectPath+ File.separator+module); //create model for each child pom mentioned in root pom
+                modelList.add(model);
+            }
+
+            ArrayList<Properties> propertiesList = new ArrayList<Properties>();
+            Model updatedRootModel = model.clone();
+            for (Model childModel : modelList) {
+                Model updatedModel = DependencyUpdater.updateModel(childModel,properties);
+                if(!childModel.getProjectDirectory().toString().equals(projectPath)){
+                    propertiesList.add(updatedModel.getProperties());
+                    pomWriter.writePom(updatedModel);
+                }
+                else{
+                    updatedRootModel = updatedModel;
+                }
+            }
+            for (Properties properties1 : propertiesList) {
+                for (Object property : properties1.keySet()) {
+                    properties.setProperty(property.toString(), properties1.getProperty(property.toString()));
+                }
+            }
+            updatedRootModel.setProperties(properties);
+            //updatedRootModel.setVersion(updatedRootModel.getVersion()+Constants.SUFFIX_TEMP_FILE);
+
+            status =pomWriter.writePom(updatedRootModel);
+            return status;
+
+        }
+        else{
+            return true;
         }
 
-        ArrayList<Properties> propertiesList = new ArrayList<Properties>();
-        Model updatedRootModel = model.clone();
-        for (Model childModel : modelList) {
-            Model updatedModel = DependencyUpdater.updateModel(childModel,properties);
-            if(!childModel.getProjectDirectory().toString().equals(projectPath)){
-                propertiesList.add(updatedModel.getProperties());
-                pomWriter.writePom(updatedModel);
-            }
-            else{
-
-                updatedRootModel = updatedModel;
-
-            }
-        }
-        for (Properties properties1 : propertiesList) {
-            for (Object property : properties1.keySet()) {
-                properties.setProperty(property.toString(), properties1.getProperty(property.toString()));
-            }
-        }
-        updatedRootModel.setProperties(properties);
-
-        status =pomWriter.writePom(updatedRootModel);
-        return status;
     }
     public static ArrayList<Product> getAllProducts() {
         DashboardDBConnector dashboardDBConnector = new DashboardDBConnector();

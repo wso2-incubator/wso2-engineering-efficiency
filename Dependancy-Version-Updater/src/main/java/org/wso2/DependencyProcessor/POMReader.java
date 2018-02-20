@@ -26,6 +26,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -34,13 +35,17 @@ public class POMReader {
     public Model getPomModel(String path){
         File pomFile = new File(path+File.separator+ Constants.POM_NAME);
         InputStreamReader reader;
-        Model model = new Model();
+        Model model = null;
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try {
-            reader = new InputStreamReader(new FileInputStream(path+File.separator+Constants.POM_NAME), Constants.UTF_8_CHARSET_NAME);
+            reader = new InputStreamReader(new FileInputStream(path + File.separator + Constants.POM_NAME), Constants.UTF_8_CHARSET_NAME);
             model = mavenReader.read(reader);
             model.setPomFile(pomFile);
 
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return model;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (XmlPullParserException e) {

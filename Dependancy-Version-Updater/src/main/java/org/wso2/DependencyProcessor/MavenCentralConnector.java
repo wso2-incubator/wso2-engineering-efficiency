@@ -203,21 +203,20 @@ public class MavenCentralConnector {
                     majorVersionFound = true;
                 }
             }
-            return versionList.get(index-1).toString();
+            if(majorVersionFound){
+                return versionList.get(index-1).toString();
+            }
+            else return currentVersion;
+
         }
         catch (NullPointerException nullPointerException){
-            log.info("Null Pointer Exception");
-            log.info(currentVersion==null);
-            log.info(versionList.toString());
             return currentVersion;
         }
-
+        catch (NumberFormatException numberFormatException){
+            return currentVersion;
+        }
     }
-
-    private static int getMajorFromVersion (String version) throws NullPointerException{
-
+    private static int getMajorFromVersion (String version) throws NullPointerException,NumberFormatException{
         return Integer.parseInt(version.split("\\.")[0]);
     }
-
-
 }

@@ -35,7 +35,6 @@ import java.util.Properties;
  * TODO:Class level comment
  */
 public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
-
     protected Model updateToLatestInLocation(String pomLocation,List<Dependency> dependencies, Properties globalProperties, Properties localProperties) {
         List<Dependency> updatedDependencies = getListCopy(dependencies);
         List<OutdatedDependency> outdatedDependencies = new ArrayList<OutdatedDependency>();

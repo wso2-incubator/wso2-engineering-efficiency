@@ -16,43 +16,19 @@
  * under the License.
  *
  */
+package tk.neverstopcoding.StudentFile;
 
-package org.wso2.Model;
-
-public class ProductComponent {
-    private String name;
-    private String url;
-    private boolean status;
-
-    public boolean isStatus() {
-        return status;
+/**
+ * TODO:Class level comment
+ */
+public class Student {
+    int[] marks;
+    public Student(){
+        this.marks = new int[10];
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+
+    public void setMark(int i, int score){
+        marks[i] = score;
     }
-
-    public ProductComponent(String name, String url) {
-        this.name = name;
-        this.url = url;
-
-    }
-
-    public String getName() {
-
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
 }

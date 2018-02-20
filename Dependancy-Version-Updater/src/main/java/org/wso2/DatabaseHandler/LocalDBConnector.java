@@ -18,8 +18,11 @@
  */
 package org.wso2.DatabaseHandler;
 
+import org.wso2.Constants;
 import org.wso2.Model.Product;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -29,18 +32,14 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 
 /**
- * TODO:Class level comment
+ * Connector to Local Database
  */
 public class LocalDBConnector {
     Connection connection;
     public LocalDBConnector(){
-
-
         try {
-
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3308/DependencyUpdateDB","root","");
-
+            Class.forName(Constants.JDBC_DRIVER_NAME).newInstance();
+            connection = DriverManager.getConnection(Constants.MYSQL_DB_URL+"/DependencyUpdateDB",Constants.MYSQL_DB_USERNAME,Constants.MYSQL_DB_PASSWORD);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -52,9 +51,9 @@ public class LocalDBConnector {
         }
     }
 
-    public void insertBuildData(Product product, int status) {
+    public boolean insertBuildData(Product product, int status) {
 
-        String sql = "INSERT INTO BuildData(ProductID,Status,Timestamp(?,?,?)";
+        String sql = "INSERT INTO BuildData(ProductID,Status,Timestamp) VALUES (?,?,?)";
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
         try{
@@ -62,40 +61,38 @@ public class LocalDBConnector {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, productId);
             preparedStatement.setInt(2, status);
-            preparedStatement.setLong(3, timestamp.getTime());
+            preparedStatement.setBigDecimal(3, BigDecimal.valueOf(timestamp.getTime()));
             preparedStatement.executeUpdate();
+            return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
+        return false;
     }
 
     private int getProductID(String productName) throws SQLException {
         Statement stmt;
         stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery("SELECT ProductID from Products WHERE ProductName="+"\""+productName+"\"");
-        if(rs.wasNull()) {
+        if(!rs.next() ) {
             insertProduct(productName);
             return getProductID(productName);
         }
         else {
             return Integer.parseInt(rs.getString(1));
         }
-
-
-
     }
 
     private void insertProduct(String productName) {
-        String sql = "INSERT INTO Products(name) VALUES(?)";
+        String sql = "INSERT INTO Products(ProductName) VALUES(?)";
         try{
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, productName);
-            pstmt.executeUpdate();
+            PreparedStatement prepareStatement = connection.prepareStatement(sql);
+            prepareStatement.setString(1, productName);
+            prepareStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
-
 }
 
 
