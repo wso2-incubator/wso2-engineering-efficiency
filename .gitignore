@@ -8,6 +8,9 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .idea
+Dependancy-Version-Updater/*.iml
+Dependancy-Version-Updater/*.swp
+.iml
 Dependancy-Version-Updater/target/.idea
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
