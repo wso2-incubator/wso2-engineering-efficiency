@@ -19,8 +19,16 @@
 
 package org.wso2.dependencyupdater.ProductBuilder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationOutputHandler;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.wso2.dependencyupdater.Constants;
-import org.apache.maven.shared.invoker.*;
 
 import java.io.File;
 import java.util.Collections;
@@ -31,14 +39,16 @@ import java.util.Collections;
 
 public class MavenInvoker {
 
-    public static boolean mavenBuild(String mavenHome, String directoryPath) {
+    private static final Log log = LogFactory.getLog(MavenInvoker.class);
 
+    public static boolean mavenBuild(String mavenHome, String buidFileName) {
+
+        String directoryPath = Constants.ROOT_PATH + buidFileName;
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(directoryPath));
         request.setOutputHandler(new InvocationOutputHandler() {
             public void consumeLine(String s) {
 
-                //               System.out.println(s);
             }
         });
         request.setGoals(Collections.singletonList(Constants.MAVEN_INVOKE_COMMAND));
@@ -48,10 +58,10 @@ public class MavenInvoker {
         try {
             invocationResult = invoker.execute(request);
             if (invocationResult.getExitCode() == 0) {
+                log.info(buidFileName + " Build Successful");
                 return true;
             } else {
-
-                System.out.println(invocationResult.getExecutionException());
+                log.info(buidFileName + " Build Failed");
                 return false;
             }
 

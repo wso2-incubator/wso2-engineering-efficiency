@@ -18,9 +18,12 @@
  */
 package org.wso2.dependencyupdater.DependencyProcessor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
+import org.wso2.dependencyupdater.App;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.Model.OutdatedDependency;
 
@@ -32,8 +35,11 @@ import java.util.Properties;
  * TODO:Class level comment
  */
 public abstract class WSO2DependencyUpdater extends DependencyUpdater {
+    private static final Log log = LogFactory.getLog(App.class);
+    public boolean updateModel(Model model, Properties globalProperties) {
 
-    public Model updateModel(Model model, Properties globalProperties) {
+        boolean dependencyModelUpdated;
+        boolean managementModelUpdated = false;
 
         Model modifiedModel = model.clone();
         String pomLocation = model.getProjectDirectory().toString();
@@ -41,20 +47,43 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
 
         Properties localProperties = model.getProperties();
         Model dependencyModel = updateToLatestInLocation(pomLocation, modelDependencies, globalProperties, localProperties);
+        Properties updatedLocalProperties = dependencyModel.getProperties();
+        dependencyModelUpdated = getUpdateStatus(updatedLocalProperties);
+        updatedLocalProperties.remove("update.status");
         modifiedModel.setDependencies(dependencyModel.getDependencies());
-        modifiedModel.setProperties(dependencyModel.getProperties());
+        modifiedModel.setProperties(updatedLocalProperties);
         if (model.getDependencyManagement() != null) {
             List<Dependency> managementDependencies = model.getDependencyManagement().getDependencies();
             Model dependencyManagementModel = updateToLatestInLocation(pomLocation, managementDependencies, globalProperties, localProperties);
+            updatedLocalProperties = dependencyManagementModel.getProperties();
+            managementModelUpdated = getUpdateStatus(updatedLocalProperties);
+            updatedLocalProperties.remove("update.status");
             DependencyManagement dependencyManagement = modifiedModel.getDependencyManagement();
             dependencyManagement.setDependencies(dependencyManagementModel.getDependencies());
             modifiedModel.setDependencyManagement(dependencyManagement);
-            Properties managementProperties = dependencyManagementModel.getProperties();
+            Properties managementProperties = updatedLocalProperties;
             for (Object property : managementProperties.keySet()) {
                 modifiedModel.addProperty(property.toString(), managementProperties.getProperty(property.toString()));
             }
+
         }
-        return modifiedModel;
+        boolean status = getUpdateStatus(modifiedModel, dependencyModelUpdated, managementModelUpdated);
+        POMWriter.writePom(modifiedModel);
+        return status;
+    }
+
+    private boolean getUpdateStatus(Model modifiedModel, boolean dependencyModelUpdated, boolean managementModelUpdated) {
+
+        if (modifiedModel.getDependencyManagement() == null) {
+            return dependencyModelUpdated;
+        } else {
+            return dependencyModelUpdated || managementModelUpdated;
+        }
+    }
+
+    private boolean getUpdateStatus(Properties updatedLocalProperties) {
+
+        return Boolean.valueOf(updatedLocalProperties.getProperty("update.status"));
     }
 
     protected abstract Model updateToLatestInLocation(String pomLocation, List<Dependency> managementDependencies, Properties globalProperties, Properties localProperties);
@@ -111,6 +140,40 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         dependencies.remove(dependency);
         dependencies.add(dependencyClone);
         return dependencies;
+    }
+
+    protected boolean isValidUpdate(Dependency dependency, Properties localProperties, Properties globalProperties) {
+
+        String currentVersion = dependency.getVersion();
+        if (isPropertyTag(currentVersion)) {
+            String propertyKey = getVersionKey(currentVersion);
+            currentVersion = getProperty(propertyKey, localProperties, globalProperties);
+            if (currentVersion == null) {
+                return false;
+            }
+            dependency.setVersion(currentVersion);
+
+        }
+        log.info(dependency.getGroupId() + ":" + dependency.getArtifactId() + "  " + currentVersion + "  ");
+        if (currentVersion == null) {
+            log.info("current version is null");
+            return false;
+        }
+        if (!dependency.getGroupId().contains(Constants.WSO2_GROUP_TAG)) {
+            log.info("Dependency does not belongs to wso2");
+            return false;
+        }
+        String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
+
+        if (latestVersion.length() == 0) {
+            log.info("latest version not found");
+            return false;
+        } else if (latestVersion.equals(currentVersion)) {
+            log.info("Already in the latest version");
+            return false;
+        }
+        log.info("Dependency " + dependency.getGroupId() + ":" + dependency.getArtifactId() + " Updated from version " + currentVersion + " to " + latestVersion);
+        return true;
     }
 
 }

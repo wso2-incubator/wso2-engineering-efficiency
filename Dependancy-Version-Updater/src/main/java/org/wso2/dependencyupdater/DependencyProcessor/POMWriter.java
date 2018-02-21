@@ -38,7 +38,7 @@ public class POMWriter {
 
     private static final Log log = LogFactory.getLog(App.class);
 
-    public boolean writePom(Model updatedModel) {
+    public static boolean writePom(Model updatedModel) {
 
         MavenXpp3Writer mavenXpp3Writer = new MavenXpp3Writer();
         Writer fileWriter = null;

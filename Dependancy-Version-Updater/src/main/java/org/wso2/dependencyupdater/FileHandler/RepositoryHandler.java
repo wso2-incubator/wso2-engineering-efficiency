@@ -19,8 +19,11 @@
 package org.wso2.dependencyupdater.FileHandler;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.dependencyupdater.App;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.Model.ProductComponent;
+import org.wso2.dependencyupdater.Model.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,25 +34,18 @@ import java.util.ArrayList;
  */
 public class RepositoryHandler {
 
-    public static ArrayList<String> getTemporaryProductComponents(ArrayList<ProductComponent> components, String suffix) {
+    private static final Log log = LogFactory.getLog(App.class);
 
-        ArrayList<String> tempPathList = new ArrayList<String>();
+    public static boolean copyProjectToTempDirectory(Component component) {
 
-        for (ProductComponent component : components) {
-            String projectPath = Constants.ROOT_PATH + component.getName();
-            deleteFile(projectPath + suffix);
-            copyProjectToTempDirectory(projectPath, projectPath + suffix);
-            tempPathList.add(projectPath + suffix);
-        }
-        return tempPathList;
-    }
-
-    private static boolean copyProjectToTempDirectory(String sourcePath, String destinationPath) {
-
+        String sourcePath = Constants.ROOT_PATH+component.getName();
+        String destinationPath = sourcePath+Constants.SUFFIX_TEMP_FILE;
         File source = new File(sourcePath);
         File dest = new File(destinationPath);
         try {
+            deleteFile(destinationPath);
             FileUtils.copyDirectory(source, dest);
+            log.info("Temporary file created for "+component.getName());
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,6 +57,7 @@ public class RepositoryHandler {
 
         try {
             FileUtils.deleteDirectory(new File(destination));
+            log.info("Existing temporary file deleted :"+destination);
             return true;
         } catch (IOException e) {
             e.printStackTrace();

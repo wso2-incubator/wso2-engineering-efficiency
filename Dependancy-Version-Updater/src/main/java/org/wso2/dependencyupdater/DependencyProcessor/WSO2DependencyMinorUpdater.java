@@ -18,8 +18,11 @@
  */
 package org.wso2.dependencyupdater.DependencyProcessor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.wso2.dependencyupdater.App;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.Model.OutdatedDependency;
 import org.wso2.dependencyupdater.ReportGenerator.OutdatedDependencyReporter;
@@ -32,6 +35,8 @@ import java.util.Properties;
  * TODO:Class level comment
  */
 public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
+
+    private static final Log log = LogFactory.getLog(App.class);
 
     /**
      * @param pomLocation
@@ -47,50 +52,32 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
         for (Dependency dependency : dependencies) {
-            String currentVersion = dependency.getVersion();
-            String groupId = dependency.getGroupId();
-            if (currentVersion != null && groupId.contains(Constants.WSO2_GROUP_TAG)) {
-                if (isPropertyTag(currentVersion)) {
-                    String versionKey = getVersionKey(currentVersion);
-                    String version = getProperty(versionKey, localProperties, globalProperties);
-                    dependency.setVersion(version);
-                }
+            if (isValidUpdate(dependency, localProperties, globalProperties)) {
                 String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
-                if (isValidUpdate(latestVersion, currentVersion, dependency, localProperties, globalProperties)) {
-                    updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
-                    outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
-                }
-
+                updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
+                outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
             }
         }
+        localProperties = addUpdateStatus(localProperties, outdatedDependencies.size());
         model.setDependencies(updatedDependencies);
         model.setProperties(localProperties);
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
+        log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in " + pomLocation);
+
         outdatedDependencyReporter.saveToCSV(Constants.ROOT_PATH + "/Reports/" + pomLocation.replace('/', '_'));
         return model;
     }
 
-    /**
-     * @param latestVersion
-     * @param currentVersion
-     * @param dependency
-     * @param localProperties
-     * @param globalProperties
-     * @return
-     */
-    private boolean isValidUpdate(String latestVersion, String currentVersion, Dependency dependency, Properties localProperties, Properties globalProperties) {
+    private Properties addUpdateStatus(Properties localProperties, int updateCount) {
 
-        if (isPropertyTag(currentVersion)) {
-            String propertyKey = getVersionKey(currentVersion);
-            currentVersion = getProperty(propertyKey, localProperties, globalProperties);
+        if (updateCount == 0) {
+            localProperties.put("update.status", "false");
+        } else {
+            localProperties.put("update.status", "true");
         }
-        if (dependency.getVersion() == null) {
-            return false;
-        } else if (latestVersion.length() == 0) {
-            return false;
-        } else if (latestVersion.equals(currentVersion)) {
-            return false;
-        }
-        return true;
+        return localProperties;
+
     }
+
+
 }

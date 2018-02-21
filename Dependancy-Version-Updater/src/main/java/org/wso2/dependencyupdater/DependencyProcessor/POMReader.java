@@ -37,7 +37,7 @@ public class POMReader {
 
     private static final Log log = LogFactory.getLog(App.class);
 
-    public Model getPomModel(String path) {
+    public static Model getPomModel(String path) {
 
         File pomFile = new File(path + File.separator + Constants.POM_NAME);
         InputStreamReader reader;

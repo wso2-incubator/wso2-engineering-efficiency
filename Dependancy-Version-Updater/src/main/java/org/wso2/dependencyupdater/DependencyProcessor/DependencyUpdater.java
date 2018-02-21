@@ -33,6 +33,6 @@ public abstract class DependencyUpdater {
      * @param properties java.util.Properties object with all the properties included in the root pom.xml
      * @return updated model with dependency changes
      */
-    public abstract Model updateModel(Model model, Properties properties);
+    public abstract boolean updateModel(Model model, Properties properties);
 
 }

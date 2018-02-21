@@ -16,36 +16,39 @@
  * under the License.
  *
  */
+
 package org.wso2.dependencyupdater.Model;
 
-import java.util.ArrayList;
+public class Component {
 
-/**
- * TODO:Class level comment
- */
-public class Product {
+    private String name;
+    private boolean status;
 
-    String productName;
-    ArrayList<ProductComponent> productComponentsList;
+    public boolean isStatus() {
 
-    public Product(String productName) {
-
-        this.productName = productName;
-        productComponentsList = new ArrayList<ProductComponent>();
+        return status;
     }
 
-    public ArrayList<ProductComponent> getProductComponentsList() {
+    public void setStatus(boolean status) {
 
-        return productComponentsList;
+        this.status = status;
     }
 
-    public void setProductComponentsList(ArrayList<ProductComponent> productComponentsList) {
+    public Component(String name) {
 
-        this.productComponentsList = productComponentsList;
+        this.name = name;
+
     }
 
-    public String getProductName() {
+    public String getName() {
 
-        return productName;
+        return name;
     }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
+
+
 }

@@ -19,8 +19,7 @@
 package org.wso2.dependencyupdater.DatabaseHandler;
 
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.Model.Product;
-import org.wso2.dependencyupdater.Model.ProductComponent;
+import org.wso2.dependencyupdater.Model.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,80 +34,57 @@ import java.util.ArrayList;
  */
 public class DashboardDBConnector {
 
-    Connection conn;
+    private static Connection getConnection() throws SQLException {
 
-    public DashboardDBConnector() {
-
-        try {
-
-            Class.forName(Constants.JDBC_DRIVER_NAME).newInstance();
-            conn = DriverManager.getConnection(Constants.MYSQL_DB_URL + "/UnifiedDashboards", Constants.MYSQL_DB_USERNAME, Constants.MYSQL_DB_PASSWORD);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        return DriverManager.getConnection(Constants.MYSQL_DB_URL + "/UnifiedDashboards", Constants.MYSQL_DB_USERNAME, Constants.MYSQL_DB_PASSWORD);
     }
 
-    public ArrayList<Product> getAllProducts() {
+    private static ArrayList<Component> getAllComponents(String productName) throws SQLException {
 
-        ArrayList<Product> productList = new ArrayList<Product>();
-        Statement stmt;
+        ArrayList<Component> components = new ArrayList<Component>();
+        Statement statement = null;
+        ResultSet resultSet = null;
+        Connection connection =null;
         try {
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT DISTINCT(Product) from GitRepositories");
-            while (rs.next()) {
+            connection = getConnection();
+            statement = connection.createStatement();
 
-                Product product = new Product(rs.getString(1));
-                product.setProductComponentsList(getAllComponents(product.getProductName()));
-                productList.add(product);
-
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return productList;
-
-    }
-
-    private ArrayList<ProductComponent> getAllComponents(String productName) {
-
-        ArrayList<ProductComponent> productComponents = new ArrayList<ProductComponent>();
-        Statement stmt;
-        try {
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT DISTINCT(Component),URL from GitRepositories WHERE Product=" + "\"" + productName + "\" AND URL IS NOT NULL");
-            while (rs.next()) {
-                String componentName = rs.getString("Component");
-                String url = rs.getString("URL");
+            resultSet = statement.executeQuery("SELECT DISTINCT(Component),URL from GitRepositories WHERE Product=" + "\"" + productName + "\" AND URL IS NOT NULL");
+            while (resultSet.next()) {
+                String componentName = resultSet.getString("Component");
+                String url = resultSet.getString("URL");
                 if (!componentName.equals("unknown")) {
-                    ProductComponent productComponent = new ProductComponent(componentName, url);
-                    productComponents.add(productComponent);
+                    Component component = new Component(componentName);
+                    components.add(component);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+
+        } finally {
+            statement.close();
+            resultSet.close();
+            connection.close();
         }
-        return productComponents;
+
+        return components;
     }
 
-    public void insertBuildStatus(int status, String productName, String componentName) {
+    public void insertBuildStatus(int status, String productName, String componentName) throws SQLException {
+
+        Connection connection = getConnection();
+        String updateStatus = "UPDATE GitRepositories SET CurrentStatus=? WHERE Product=? AND Component=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(updateStatus);;
 
         try {
-            String updateStatus = "UPDATE GitRepositories SET CurrentStatus=? WHERE Product=? AND Component=?";
-            PreparedStatement preparedStatement = conn.prepareStatement(updateStatus);
+
             preparedStatement.setInt(1, status);
             preparedStatement.setString(2, productName);
             preparedStatement.setString(3, componentName);
             preparedStatement.executeUpdate();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            preparedStatement.close();
+
         }
 
     }

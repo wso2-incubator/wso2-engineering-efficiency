@@ -19,8 +19,11 @@
 
 package org.wso2.dependencyupdater.DependencyProcessor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.wso2.dependencyupdater.App;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.Model.OutdatedDependency;
 import org.wso2.dependencyupdater.ReportGenerator.OutdatedDependencyReporter;
@@ -33,6 +36,7 @@ import java.util.Properties;
  * Updater for updating dependencies to latest available version
  */
 public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
+    private static final Log log = LogFactory.getLog(App.class);
 
     /**
      * @param pomLocation
@@ -47,39 +51,31 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
         List<OutdatedDependency> outdatedDependencies = new ArrayList<OutdatedDependency>();
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
-        List<Dependency> dependenciesNotFound = new ArrayList<Dependency>();
         for (Dependency dependency : dependencies) {
-            String currentVersion = dependency.getVersion();
-            String groupId = dependency.getGroupId();
-            if (groupId.contains(Constants.WSO2_GROUP_TAG)) {
+            if (isValidUpdate(dependency, localProperties, globalProperties)) {
                 String latestVersion = MavenCentralConnector.getLatestVersion(dependency);
-                if (latestVersion.equals(Constants.EMPTY_STRING)) {
-                    dependenciesNotFound.add(dependency);
-                } else if (currentVersion != null) {
-                    if (isPropertyTag(currentVersion)) {
-                        String versionKey = getVersionKey(currentVersion);
-                        String version = getProperty(versionKey, localProperties, globalProperties);
-
-                        if (!latestVersion.equals(version)) {
-                            dependency.setVersion(version);
-                            updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
-                            outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
-                        }
-                    } else {
-                        if (!latestVersion.equals(currentVersion)) {
-                            dependency.setVersion(currentVersion);
-                            updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
-                            outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
-                        }
-                    }
-                }
+                updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
+                outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
             }
         }
+        localProperties = addUpdateStatus(localProperties, outdatedDependencies.size());
         model.setDependencies(updatedDependencies);
         model.setProperties(localProperties);
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
+        log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in " + pomLocation);
+
         outdatedDependencyReporter.saveToCSV(Constants.ROOT_PATH + "/Reports/" + pomLocation.replace('/', '_'));
         return model;
     }
 
+    private Properties addUpdateStatus(Properties localProperties, int updateCount) {
+
+        if (updateCount == 0) {
+            localProperties.put("update.status", "false");
+        } else {
+            localProperties.put("update.status", "true");
+        }
+        return localProperties;
+
+    }
 }
