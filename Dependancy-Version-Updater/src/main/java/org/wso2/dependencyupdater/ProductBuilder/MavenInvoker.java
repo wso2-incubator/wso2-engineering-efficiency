@@ -29,8 +29,12 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.FileHandler.MavenOutputHandler;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 
 /**
@@ -41,16 +45,25 @@ public class MavenInvoker {
 
     private static final Log log = LogFactory.getLog(MavenInvoker.class);
 
-    public static boolean mavenBuild(String mavenHome, String buidFileName) {
+
+    public static int mavenBuild(String mavenHome, final String buidFileName) {
+
 
         String directoryPath = Constants.ROOT_PATH + buidFileName;
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(directoryPath));
-        request.setOutputHandler(new InvocationOutputHandler() {
-            public void consumeLine(String s) {
+        File logFile = new File(Constants.ROOT_PATH+"Error Log/"+getComponentName(buidFileName)+".txt");
+        try {
+            InvocationOutputHandler outputHandler = new MavenOutputHandler(logFile);
+            request.setOutputHandler(outputHandler) ;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
-            }
-        });
+
+
+
+
         request.setGoals(Collections.singletonList(Constants.MAVEN_INVOKE_COMMAND));
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(new File(mavenHome));
@@ -59,16 +72,19 @@ public class MavenInvoker {
             invocationResult = invoker.execute(request);
             if (invocationResult.getExitCode() == 0) {
                 log.info(buidFileName + " Build Successful");
-                return true;
+                return 1;
             } else {
                 log.info(buidFileName + " Build Failed");
-                return false;
             }
 
         } catch (MavenInvocationException e) {
             e.printStackTrace();
         }
-        return false;
+        return 0;
+    }
+
+    private static String getComponentName(String tempFileName){
+        return tempFileName.substring(0,tempFileName.length()-Constants.SUFFIX_TEMP_FILE.length());
     }
 
 }

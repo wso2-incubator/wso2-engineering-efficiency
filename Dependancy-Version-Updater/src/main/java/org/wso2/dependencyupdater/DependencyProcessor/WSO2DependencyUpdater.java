@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
-import org.wso2.dependencyupdater.App;
+import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.Model.OutdatedDependency;
 
@@ -35,7 +35,7 @@ import java.util.Properties;
  * TODO:Class level comment
  */
 public abstract class WSO2DependencyUpdater extends DependencyUpdater {
-    private static final Log log = LogFactory.getLog(App.class);
+    private static final Log log = LogFactory.getLog(Application.class);
     public boolean updateModel(Model model, Properties globalProperties) {
 
         boolean dependencyModelUpdated;

@@ -33,11 +33,11 @@ import javax.xml.parsers.ParserConfigurationException;
  * TODO:Class level comment
  */
 public class ConfigFileReader {
+
     private static String MAVEN_HOME;
 
-
-
     public static void readConfigFile() {
+
         File configFile = new File(Constants.CONFIG_FILE_NAME);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         try {
@@ -53,10 +53,10 @@ public class ConfigFileReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    public static String getMavenHome(){
+    public static String getMavenHome() {
+
         return MAVEN_HOME;
     }
 }

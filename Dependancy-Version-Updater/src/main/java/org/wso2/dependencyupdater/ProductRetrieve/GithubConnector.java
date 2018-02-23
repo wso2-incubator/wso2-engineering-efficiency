@@ -37,7 +37,7 @@ import java.io.IOException;
 public class GithubConnector {
 
     private static final Log log = LogFactory.getLog(GithubConnector.class);
-    private Git git;
+    private static Git git;
 
     public static boolean update(Component component) {
 
@@ -57,50 +57,47 @@ public class GithubConnector {
         return status;
     }
 
-//    private boolean clone(Component component) {
-//
-//        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("dimuthnc", "Priyadarshani@143");
-//        try {
-//            log.info("Cloning the repository to local storage: " + component.getName());
-//            git = Git.cloneRepository()
-//                    .setCredentialsProvider(credentialsProvider)
-//                    .setURI(component.getUrl())
-//                    .setDirectory(new File(Constants.ROOT_PATH + File.separator + component.getName())).call();
-//            return true;
-//
-//        } catch (InvalidRemoteException e) {
-//            log.info("Remote repository not found :" + component.getName());
-//
-//        } catch (TransportException e) {
-//            e.printStackTrace();
-//        } catch (GitAPIException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
-//
-//    public boolean retrieveComponent(Component component) {
-//
-//        log.info("Retrieving component: " + component.getName());
-//
-//        File repository = new File(Constants.ROOT_PATH + File.separator + component.getName());
-//        if (repository.exists() && repository.isDirectory()) {
-//            log.info("Existing repository found for : " + component.getName());
-//            update(component);
-//            return true;
-//        } else {
-//            log.info("Existing repository not found for : " + component.getName());
-//            boolean cloned = clone(component);
-//            if (!cloned) {
-//                return false;
-//            }
-//            return true;
-//        }
-//    }
+    private static boolean clone(Component component) {
 
-    public boolean pullRequest(Component component) {
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("dimuthnc", "Priyadarshani@143");
+        try {
+            log.info("Cloning the repository to local storage: " + component.getName());
+            git = Git.cloneRepository()
+                    .setCredentialsProvider(credentialsProvider)
+                    .setURI(component.getUrl())
+                    .setDirectory(new File(Constants.ROOT_PATH + File.separator + component.getName())).call();
+            return true;
 
-        return true;
+        } catch (InvalidRemoteException e) {
+            log.info("Remote repository not found :" + component.getName());
+
+        } catch (TransportException e) {
+            e.printStackTrace();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
+
+    public static boolean retrieveComponent(Component component) {
+
+        log.info("Retrieving component: " + component.getName());
+
+        File repository = new File(Constants.ROOT_PATH + File.separator + component.getName());
+        if (repository.exists() && repository.isDirectory()) {
+            log.info("Existing repository found for : " + component.getName());
+            update(component);
+            return true;
+        } else {
+            log.info("Existing repository not found for : " + component.getName());
+            boolean cloned = clone(component);
+            if (!cloned) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+
 
 }

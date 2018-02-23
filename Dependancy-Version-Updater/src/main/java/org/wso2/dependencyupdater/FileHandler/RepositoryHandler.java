@@ -21,20 +21,19 @@ package org.wso2.dependencyupdater.FileHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.dependencyupdater.App;
+import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.Model.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * TODO:Class level comment
  */
 public class RepositoryHandler {
 
-    private static final Log log = LogFactory.getLog(App.class);
+    private static final Log log = LogFactory.getLog(Application.class);
 
     public static boolean copyProjectToTempDirectory(Component component) {
 

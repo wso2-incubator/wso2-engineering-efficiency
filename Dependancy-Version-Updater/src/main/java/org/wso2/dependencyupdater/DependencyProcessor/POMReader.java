@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.wso2.dependencyupdater.App;
+import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import java.io.InputStreamReader;
 
 public class POMReader {
 
-    private static final Log log = LogFactory.getLog(App.class);
+    private static final Log log = LogFactory.getLog(Application.class);
 
     public static Model getPomModel(String path) {
 

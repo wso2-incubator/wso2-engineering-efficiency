@@ -21,6 +21,11 @@
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
@@ -38,11 +43,13 @@
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-embedder</artifactId>
       <version>3.1.1</version>
+
     </dependency>
     <dependency>
       <groupId>org.eclipse.aether</groupId>
       <artifactId>aether-connector-wagon</artifactId>
       <version>0.9.0.M2</version>
+
     </dependency>
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>
@@ -65,6 +72,7 @@
       <version>5.1.6</version>
     </dependency>
 
+
   </dependencies>
   <build>
     <plugins>
@@ -76,6 +84,30 @@
           <systemPropertyVariables>
             <maven.home>/usr/share/maven/bin</maven.home>
           </systemPropertyVariables>
+        </configuration>
+
+
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>org.wso2.dependencyupdater.Application</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
         </configuration>
       </plugin>
     </plugins>

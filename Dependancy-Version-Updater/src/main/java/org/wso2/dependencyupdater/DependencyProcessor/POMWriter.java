@@ -24,7 +24,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.WriterFactory;
-import org.wso2.dependencyupdater.App;
+import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 
 import java.io.File;
@@ -36,7 +36,7 @@ import java.io.Writer;
  */
 public class POMWriter {
 
-    private static final Log log = LogFactory.getLog(App.class);
+    private static final Log log = LogFactory.getLog(Application.class);
 
     public static boolean writePom(Model updatedModel) {
 

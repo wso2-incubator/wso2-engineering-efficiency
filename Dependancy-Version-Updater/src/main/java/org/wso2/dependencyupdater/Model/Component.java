@@ -22,14 +22,38 @@ package org.wso2.dependencyupdater.Model;
 public class Component {
 
     private String name;
-    private boolean status;
+    private int status;
+    private String url;
 
-    public boolean isStatus() {
+    public Component(String name, int status, String url) {
+
+        this.name = name;
+        this.status = status;
+        this.url = url;
+    }
+
+    public Component(String name, String url) {
+
+        this.name = name;
+        this.url = url;
+    }
+
+    public String getUrl() {
+
+        return url;
+    }
+
+    public void setUrl(String url) {
+
+        this.url = url;
+    }
+
+    public int getStatus() {
 
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
 
         this.status = status;
     }
