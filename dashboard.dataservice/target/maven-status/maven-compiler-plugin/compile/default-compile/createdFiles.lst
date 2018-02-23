@@ -1,7 +1,0 @@
-org/wso2/dashboard/dataservice/DashboardDataService.class
-org/wso2/dashboard/dataservice/Model/ProductArea.class
-org/wso2/dashboard/dataservice/Model/BuildStat.class
-org/wso2/dashboard/dataservice/Application.class
-org/wso2/dashboard/dataservice/ProductBuildStatus/BuildStatusFinder.class
-org/wso2/dashboard/dataservice/Database/LocalDBConnector.class
-org/wso2/dashboard/dataservice/Constants.class
