@@ -26,31 +26,41 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 /**
- * TODO:Class level comment
+ * This method implements PrintStreamHandler class to handle maven build outputs
  */
 public class MavenOutputHandler extends PrintStreamHandler {
 
-    private final PrintStream tee;
+    private final PrintStream printStream;
     private final boolean alwaysFlush;
 
-    public MavenOutputHandler(File tee) throws FileNotFoundException {
+    /**
+     * This method append the maven output to a given file
+     * @param file  File object
+     * @throws FileNotFoundException Indicates file is not present in the location
+     */
+    public MavenOutputHandler(File file) throws FileNotFoundException {
 
-        this(true, new PrintStream(new FileOutputStream(tee, true)));
+        this(true, new PrintStream(new FileOutputStream(file, true)));
     }
 
-    public MavenOutputHandler(boolean alwaysFlush, PrintStream tee) {
 
-        this.tee = tee;
+    public MavenOutputHandler(boolean alwaysFlush, PrintStream printStream) {
+
+        this.printStream = printStream;
         this.alwaysFlush = alwaysFlush;
     }
 
+    /**
+     * Determines how each output line is handled
+     * @param line Text line
+     */
     @Override
     public void consumeLine(String line) {
 
         super.consumeLine(line);
-        tee.println(line);
+        printStream.println(line);
         if (alwaysFlush) {
-            tee.flush();
+            printStream.flush();
         }
     }
 }

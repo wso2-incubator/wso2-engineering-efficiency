@@ -24,14 +24,16 @@ import org.apache.maven.model.Model;
 import java.util.Properties;
 
 /**
- * TODO:Class level comment
+ * Model class for updating org.apache.maven.model.Model that represent a pom.xml file
  */
 public abstract class DependencyUpdater {
 
     /**
+     * Implementation of this method will include the set of rules for updating a org.apache.maven.model.Model
+     *
      * @param model      org.apache.maven.model.Model that represent the attributes of a particular pom.xml
      * @param properties java.util.Properties object with all the properties included in the root pom.xml
-     * @return updated model with dependency changes
+     * @return state of update operation
      */
     public abstract boolean updateModel(Model model, Properties properties);
 

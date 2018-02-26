@@ -43,12 +43,11 @@ import java.util.Properties;
 public class Application {
 
     private static final Log log = LogFactory.getLog(Application.class);
-    static String MAVEN_HOME;
+
 
     public static void main(String[] args) {
         //Reading the configurations from the config file
         ConfigFileReader.readConfigFile();
-        MAVEN_HOME = ConfigFileReader.getMavenHome();
         ArrayList<Component> components = getAllComponents();
 
         DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
@@ -69,7 +68,7 @@ public class Application {
                 if (componentUpdateStatus) {
                     //if the component is updated, invoke a maven build
                     log.info("Component updated :" + component.getName());
-                    int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, componentTemporaryDirectoryName);
+                    int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
                     component.setStatus(buildStatus);
                     DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
 
@@ -78,7 +77,7 @@ public class Application {
                     log.info("Component not updated :" + component.getName());
                     int latestBuildStatus = DatabaseConnector.getLatestBuild(component);
                     if (latestBuildStatus == Constants.BUILD_NOT_AVAILABLE_CODE) {
-                        int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, componentTemporaryDirectoryName);
+                        int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
                         component.setStatus(buildStatus);
                         DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
 
@@ -133,6 +132,7 @@ public class Application {
             for (Model childModel : modelList) {
                 boolean pomUpdateState = dependencyUpdater.updateModel(childModel, properties);
                 log.info("pom.xml File updated :" + pomUpdateState);
+                //If at least one pom file updated, updateState will set to true
                 if (pomUpdateState) {
                     updateStatus = true;
                 }

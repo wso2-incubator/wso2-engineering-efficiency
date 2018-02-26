@@ -18,6 +18,8 @@
  */
 package org.wso2.dependencyupdater.FileHandler;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.wso2.dependencyupdater.Constants;
@@ -34,10 +36,14 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class ConfigFileReader {
 
-    private static String MAVEN_HOME;
+    public static String MAVEN_HOME;
     public static String GITHUB_USERNAME;
     public static String GITHUB_PASSWORD;
+    private static final Log log = LogFactory.getLog(ConfigFileReader.class);
 
+    /**
+     * Retrieves set of values from configuration file
+     */
     public static void readConfigFile() {
 
         File configFile = new File(Constants.CONFIG_FILE_NAME);
@@ -53,17 +59,15 @@ public class ConfigFileReader {
             GITHUB_PASSWORD = githubPasswordNode.getTextContent();
             MAVEN_HOME = mavenHomeNode.getTextContent();
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            String errorMessage = "Error occurred in Configurations";
+            log.error(errorMessage, e);
         } catch (SAXException e) {
-            e.printStackTrace();
+            String errorMessage = "Error occurred in XML Parsing";
+            log.error(errorMessage, e);
         } catch (IOException e) {
-            e.printStackTrace();
+            String errorMessage = "File Not Found";
+            log.error(errorMessage, e);
         }
-    }
-
-    public static String getMavenHome() {
-
-        return MAVEN_HOME;
     }
 
 }

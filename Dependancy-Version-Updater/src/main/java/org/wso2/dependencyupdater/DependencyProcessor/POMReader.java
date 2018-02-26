@@ -29,14 +29,13 @@ import org.wso2.dependencyupdater.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
  * Contains methods for reading a pom.xml file
  */
-public class POMReader {
+public class POMReader{
 
     private static final Log log = LogFactory.getLog(Application.class);
 
@@ -56,14 +55,12 @@ public class POMReader {
             model = mavenReader.read(reader);
             model.setPomFile(pomFile);
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            log.info("NO Pom Files found");
-            return model;
-        } catch (IOException e) {
-            e.printStackTrace();
+        }  catch (IOException e) {
+            String logMessage ="Pom file not found";
+            log.error(logMessage);
         } catch (XmlPullParserException e) {
-            e.printStackTrace();
+            String logMessage ="Error occurred in XMLPullParser ";
+            log.error(logMessage);
         }
         return model;
     }

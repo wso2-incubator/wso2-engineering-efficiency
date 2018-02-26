@@ -32,12 +32,17 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * TODO:Class level comment
+ * Contains methods for writing a org.apache.maven.model.Model Model to a pom.xml file
  */
 public class POMWriter {
 
     private static final Log log = LogFactory.getLog(Application.class);
 
+    /**
+     * Writes a org.apache.maven.model.Model to a pom.xml
+     * @param updatedModel org.apache.maven.model.Model
+     * @return status indicating the success or failure of process
+     */
     public static boolean writePom(Model updatedModel) {
 
         MavenXpp3Writer mavenXpp3Writer = new MavenXpp3Writer();
@@ -49,7 +54,8 @@ public class POMWriter {
             return true;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            String errorMessage = "Location does not exists";
+            log.error(errorMessage,e);
         } finally {
             IOUtil.close(fileWriter);
         }

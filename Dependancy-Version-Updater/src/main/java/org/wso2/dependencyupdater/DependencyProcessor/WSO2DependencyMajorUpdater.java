@@ -33,22 +33,25 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Updater for updating dependencies to latest available version
+ * Updater for updating WSO2 dependencies to latest available version
  */
 public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
 
     private static final Log log = LogFactory.getLog(Application.class);
 
     /**
-     * @param pomLocation
-     * @param dependencies
-     * @param globalProperties
-     * @param localProperties
-     * @return
+     * Retrieves the set of dependencies used in a model and set their version to latest available version
+     * (version that returns from MavenCentralConnector.getLatestVersion(dependency) method )
+     *
+     * @param pomLocation      Location of the pom file
+     * @param dependencies     Set of dependencies
+     * @param globalProperties Global properties (properties included in the root pom file)
+     * @param localProperties  local properties (properties included in the current pom file)
+     * @return org.apache.maven.model.Model with updated dependencies
      */
     protected Model updateToLatestInLocation(String pomLocation, List<Dependency> dependencies, Properties globalProperties, Properties localProperties) {
 
-        List<Dependency> updatedDependencies = getListCopy(dependencies);
+        List<Dependency> updatedDependencies = new ArrayList<Dependency>(dependencies);
         List<OutdatedDependency> outdatedDependencies = new ArrayList<OutdatedDependency>();
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
@@ -69,14 +72,4 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
         return model;
     }
 
-    private Properties addUpdateStatus(Properties localProperties, int updateCount) {
-
-        if (updateCount == 0) {
-            localProperties.put("update.status", "false");
-        } else {
-            localProperties.put("update.status", "true");
-        }
-        return localProperties;
-
-    }
 }

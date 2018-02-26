@@ -29,6 +29,7 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.FileHandler.MavenOutputHandler;
 
 import java.io.File;
@@ -46,11 +47,10 @@ public class MavenInvoker {
     /**
      * Method to invoke maven clean install command
      *
-     * @param mavenHome     location of M2_HOME variable
      * @param directoryName Directory Name for project
      * @return Build Status
      */
-    public static int mavenBuild(String mavenHome, final String directoryName) {
+    public static int mavenBuild(final String directoryName) {
 
         String directoryPath = Constants.ROOT_PATH + directoryName;
         InvocationRequest request = new DefaultInvocationRequest();
@@ -68,7 +68,7 @@ public class MavenInvoker {
 
         request.setGoals(Collections.singletonList(Constants.MAVEN_INVOKE_COMMAND));
         Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(mavenHome));
+        invoker.setMavenHome(new File(ConfigFileReader.MAVEN_HOME));
         InvocationResult invocationResult;
         try {
             invocationResult = invoker.execute(request);

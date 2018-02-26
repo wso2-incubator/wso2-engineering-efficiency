@@ -41,10 +41,19 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+/**
+ * Contains methods that connect with the micro-service to resolve dependency versions
+ */
 public class MavenCentralConnector {
 
     private static final Log log = LogFactory.getLog(GithubConnector.class);
 
+    /**
+     * Identify the latest available version for a given dependency
+     *
+     * @param dependency Dependency object
+     * @return String that indicates the latest available version
+     */
     public static String getLatestVersion(Dependency dependency) {
 
         try {
@@ -76,13 +85,15 @@ public class MavenCentralConnector {
                 return jsonObject.getString(Constants.LATEST_VERSION_KEY);
             }
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            String errorMessage = "Encoding method not supported";
+            log.error(errorMessage);
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            String errorMessage = "Invalid request or respond";
+            log.error(errorMessage);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException", e);
         } catch (JSONException e) {
-            e.printStackTrace();
+            log.error("JSONException", e);
         }
         return Constants.EMPTY_STRING;
     }
@@ -135,17 +146,26 @@ public class MavenCentralConnector {
                 return versions;
             }
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            String errorMessage = "Encoding method not supported";
+            log.error(errorMessage);
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            String errorMessage = "Invalid request or respond";
+            log.error(errorMessage);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException", e);
         } catch (JSONException e) {
-            e.printStackTrace();
+            log.error("JSONException", e);
         }
         return new ArrayList<String>();
     }
 
+    /**
+     * Identifies the latest version with the same current major version component.
+     * Example- version 4.3.2 will be updated to 4.4.5 even though there is an available version of 5.3.2
+     *
+     * @param dependency Dependency object
+     * @return String indicating the latest minor version
+     */
     public static String getLatestMinorVersion(Dependency dependency) {
 
         String latestVersion = "";
@@ -182,17 +202,26 @@ public class MavenCentralConnector {
                 return latestVersion;
             }
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            String errorMessage = "Encoding method not supported";
+            log.error(errorMessage);
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            String errorMessage = "Invalid request or respond";
+            log.error(errorMessage);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException", e);
         } catch (JSONException e) {
-            e.printStackTrace();
+            log.error("JSONException", e);
         }
         return latestVersion;
     }
 
+    /**
+     * Retrieves the latest minor version from a JSON Array of version
+     *
+     * @param currentVersion current version used in dependency
+     * @param versionList    JSON Array of Strings indicating versions
+     * @return String that indicates the latest minor version
+     */
     private static String getLatestMinorVersionFromJson(String currentVersion, JSONArray versionList) {
 
         try {
@@ -219,6 +248,15 @@ public class MavenCentralConnector {
         }
     }
 
+    /**
+     * Retrieves major component of the version string
+     * Example - version 5.3.1 -> 5 , version 4.2.5 -> 4
+     *
+     * @param version String indicating the version
+     * @return integer that represent the major component
+     * @throws NullPointerException  When the version is a null string
+     * @throws NumberFormatException when the version string is not representing a number
+     */
     private static int getMajorFromVersion(String version) throws NullPointerException, NumberFormatException {
 
         return Integer.parseInt(version.split("\\.")[0]);

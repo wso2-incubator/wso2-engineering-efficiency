@@ -29,12 +29,18 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * TODO:Class level comment
+ * Contains methods for handling repositories
  */
 public class RepositoryHandler {
 
     private static final Log log = LogFactory.getLog(Application.class);
 
+    /**
+     * This method copy a component to a temporary location
+     *
+     * @param component Component that needs to be copied to a temporary location
+     * @return boolean status indicating the success of copying process
+     */
     public static boolean copyProjectToTempDirectory(Component component) {
 
         String sourcePath = Constants.ROOT_PATH + component.getName();
@@ -47,21 +53,26 @@ public class RepositoryHandler {
             log.info("Temporary file created for " + component.getName());
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            String errorMessage = "File Not Found";
+            log.error(errorMessage, e);
         }
         return false;
     }
 
-    private static boolean deleteFile(String destination) {
+    /**
+     * Method for deleting temporary project directories
+     *
+     * @param destination location of the Directory
+     */
+    private static void deleteFile(String destination) {
 
         try {
             FileUtils.deleteDirectory(new File(destination));
             log.info("Existing temporary file deleted :" + destination);
-            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            String errorMessage = "File Not Found";
+            log.error(errorMessage, e);
         }
-        return false;
     }
 
 }
