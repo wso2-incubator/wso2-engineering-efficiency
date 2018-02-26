@@ -22,7 +22,7 @@ package org.wso2.dependencyupdater;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Model;
-import org.wso2.dependencyupdater.DatabaseHandler.LocalDBConnector;
+import org.wso2.dependencyupdater.DatabaseHandler.DatabaseConnector;
 import org.wso2.dependencyupdater.DependencyProcessor.DependencyUpdater;
 import org.wso2.dependencyupdater.DependencyProcessor.POMReader;
 import org.wso2.dependencyupdater.DependencyProcessor.WSO2DependencyMinorUpdater;
@@ -65,17 +65,17 @@ public class Application {
                     log.info(component.getName() + "  Component updated. Therefore building with maven");
                     int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, component.getName() + Constants.SUFFIX_TEMP_FILE);
                     component.setStatus(buildStatus);
-                    LocalDBConnector.insertBuildStatus(component, currentTime);
+                    DatabaseConnector.insertBuildStatus(component, currentTime);
                 } else {
                     log.info(component.getName() + "  Component not updated.");
-                    int latestBuildStatus = LocalDBConnector.getLatestBuild(component);
+                    int latestBuildStatus = DatabaseConnector.getLatestBuild(component);
                     if (latestBuildStatus == 2) {
                         int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, component.getName() + Constants.SUFFIX_TEMP_FILE);
                         component.setStatus(buildStatus);
-                        LocalDBConnector.insertBuildStatus(component, currentTime);
+                        DatabaseConnector.insertBuildStatus(component, currentTime);
                     } else {
                         component.setStatus(latestBuildStatus);
-                        LocalDBConnector.insertBuildStatus(component, currentTime);
+                        DatabaseConnector.insertBuildStatus(component, currentTime);
                     }
 
                 }
@@ -86,7 +86,7 @@ public class Application {
 
     private static ArrayList<Component> getAllComponents() {
 
-        return LocalDBConnector.getAllComponents();
+        return DatabaseConnector.getAllComponents();
     }
 
     private static boolean updateComponentDependencies(String fileName) {

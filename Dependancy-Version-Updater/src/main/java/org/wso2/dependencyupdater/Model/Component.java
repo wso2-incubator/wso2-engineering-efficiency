@@ -19,6 +19,9 @@
 
 package org.wso2.dependencyupdater.Model;
 
+/**
+ * Details about a Component
+ */
 public class Component {
 
     private String name;
@@ -73,6 +76,5 @@ public class Component {
 
         this.name = name;
     }
-
 
 }

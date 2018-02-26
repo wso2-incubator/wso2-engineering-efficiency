@@ -32,11 +32,13 @@ import java.util.ArrayList;
 /**
  * Connector to Local Database
  */
-public class LocalDBConnector {
+public class DatabaseConnector {
 
     /**
-     * @param component
-     * @param timeStamp
+     * This method insert build status to database
+     *
+     * @param component component object corresponding to build
+     * @param timeStamp updated timestamp
      */
     public static void insertBuildStatus(Component component, long timeStamp) {
 
@@ -67,6 +69,11 @@ public class LocalDBConnector {
 
     }
 
+    /**
+     * This method returns all the components from database
+     *
+     * @return list of components
+     */
     public static ArrayList<Component> getAllComponents() {
 
         Connection connection = null;
