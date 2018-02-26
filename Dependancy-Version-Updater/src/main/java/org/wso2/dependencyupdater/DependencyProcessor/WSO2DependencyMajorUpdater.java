@@ -36,6 +36,7 @@ import java.util.Properties;
  * Updater for updating dependencies to latest available version
  */
 public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
+
     private static final Log log = LogFactory.getLog(Application.class);
 
     /**

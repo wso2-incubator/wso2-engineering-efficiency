@@ -31,6 +31,9 @@ public class Constants {
     public static final String CSV_END_OF_LINE = "\n";
     public static final String PROJECT_VERSION_STRING = "project.version";
     public static final String MAVEN_HOME_TAG = "M2_HOME";
+    public static final String GITHUB_USERNAME_TAG = "GITHUB_USERNAME";
+    public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";
+
     public static final String WSO2_GROUP_TAG = "org.wso2";
     public static final String PROPERTY_START_TAG = "${";
     public static final String PROPERTY_END_TAG = "}";
@@ -51,11 +54,17 @@ public class Constants {
     public static final String MYSQL_DB_URL = "jdbc:mysql://127.0.0.1:3308";
     public static final String MYSQL_DB_USERNAME = "root";
     public static final String MYSQL_DB_PASSWORD = "";
+    public static final String MAVEN_LOG_SUBDIRECTORY = "Error Log";
+    public static final String LOG_SEPERATOR = "==============================================================";
+
 
     public static final String[] OUTDATED_DEPENDENCY_REPORT_HEADER = {"Group ID", "Artifact ID", "Current Version", "Latest Version", "All Available Versions"};
     public static final int NOT_FOUND_STATUS_CODE = 404;
     public static final int SUCCESSFUL_STATUS_CODE = 200;
     public static final int OUTDATED_DEPENDENCY_ELEMENT_SIZE = 5;
+    public static final int BUILD_FAIL_CODE = 0;
+    public static final int BUILD_SUCCESS_CODE = 1;
+    public static final int BUILD_NOT_AVAILABLE_CODE = 2;
 
     public static final String SUFFIX_TEMP_FILE = "-temp";
 }

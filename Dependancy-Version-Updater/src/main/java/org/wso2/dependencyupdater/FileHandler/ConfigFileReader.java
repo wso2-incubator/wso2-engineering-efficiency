@@ -30,11 +30,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * TODO:Class level comment
+ * Contains the methods for reading configuration files
  */
 public class ConfigFileReader {
 
     private static String MAVEN_HOME;
+    public static String GITHUB_USERNAME;
+    public static String GITHUB_PASSWORD;
 
     public static void readConfigFile() {
 
@@ -44,8 +46,12 @@ public class ConfigFileReader {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(configFile);
             doc.getDocumentElement().normalize();
-            Node node = doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0);
-            MAVEN_HOME = node.getTextContent();
+            Node mavenHomeNode = doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0);
+            Node githubUsernameNode = doc.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0);
+            Node githubPasswordNode = doc.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0);
+            GITHUB_USERNAME = githubUsernameNode.getTextContent();
+            GITHUB_PASSWORD = githubPasswordNode.getTextContent();
+            MAVEN_HOME = mavenHomeNode.getTextContent();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -59,4 +65,5 @@ public class ConfigFileReader {
 
         return MAVEN_HOME;
     }
+
 }

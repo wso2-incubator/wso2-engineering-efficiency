@@ -41,6 +41,12 @@ public class Component {
         this.url = url;
     }
 
+    public Component(String name) {
+
+        this.name = name;
+
+    }
+
     public String getUrl() {
 
         return url;
@@ -59,12 +65,6 @@ public class Component {
     public void setStatus(int status) {
 
         this.status = status;
-    }
-
-    public Component(String name) {
-
-        this.name = name;
-
     }
 
     public String getName() {

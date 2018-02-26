@@ -33,15 +33,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * Contains methods for reading a pom.xml file
+ */
 public class POMReader {
 
     private static final Log log = LogFactory.getLog(Application.class);
 
+    /**
+     * This method reads pom file as a model
+     * @param path  path of the pom.xml
+     * @return  org.apache.maven.model.Model Object corresponding to the pom.xml file given;
+     */
     public static Model getPomModel(String path) {
 
         File pomFile = new File(path + File.separator + Constants.POM_NAME);
         InputStreamReader reader;
-        Model model = null;
+        Model model = new Model();
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try {
             reader = new InputStreamReader(new FileInputStream(path + File.separator + Constants.POM_NAME), Constants.UTF_8_CHARSET_NAME);

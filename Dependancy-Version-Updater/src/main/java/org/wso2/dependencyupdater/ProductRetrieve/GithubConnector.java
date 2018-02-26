@@ -21,47 +21,68 @@ package org.wso2.dependencyupdater.ProductRetrieve;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.Model.Component;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Contains methods for communicating with github
+ */
 public class GithubConnector {
 
     private static final Log log = LogFactory.getLog(GithubConnector.class);
     private static Git git;
 
-    public static boolean update(Component component) {
+    /**
+     * Method for updating components from github
+     *
+     * @param component component object for updating
+     * @return status of update
+     */
+    private static boolean update(Component component) {
 
         boolean status = false;
         try {
-            log.info("Calling git pull for component: " + component.getName());
+            String logMessage = "Calling git pull command for component: " + component.getName();
+            log.info(logMessage);
             status = Git.open(new File(Constants.ROOT_PATH + File.separator + component.getName())).pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
-            log.error("Branch not found in remote repository. Therefore cannot update the existing local repository");
+            String errorMessage = "Branch not found in remote repository. Therefore cannot update the existing local repository" + component.getName();
+            log.error(errorMessage);
         } catch (IOException e) {
-            e.printStackTrace();
+            String errorMessage = "Component directory cannot be found :" + component.getName();
+            log.error(errorMessage);
         } catch (GitAPIException e) {
-            e.printStackTrace();
+            String errorMessage = "Failed to execute git command " + component.getName();
+            log.error(errorMessage);
         }
 
         return status;
     }
 
+    /**
+     * Method for cloning new component to the local environment
+     *
+     * @param component component object for cloning
+     * @return status of clone
+     */
     private static boolean clone(Component component) {
 
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("dimuthnc", "Priyadarshani@143");
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(ConfigFileReader.GITHUB_USERNAME,ConfigFileReader.GITHUB_PASSWORD);
         try {
-            log.info("Cloning the repository to local storage: " + component.getName());
+            String logMessage = "Cloning the repository to local storage: " + component.getName();
+            log.info(logMessage);
             git = Git.cloneRepository()
                     .setCredentialsProvider(credentialsProvider)
                     .setURI(component.getUrl())
@@ -69,35 +90,41 @@ public class GithubConnector {
             return true;
 
         } catch (InvalidRemoteException e) {
-            log.info("Remote repository not found :" + component.getName());
+            String errorMessage = "Remote repository not found :" + component.getUrl();
+            log.error(errorMessage);
 
         } catch (TransportException e) {
-            e.printStackTrace();
+            String errorMessage = "Protocol error has occurred while fetching objects " + component.getUrl();
+            log.error(errorMessage);
         } catch (GitAPIException e) {
-            e.printStackTrace();
+            String errorMessage = "Error occurred in Git API " + component.getUrl();
+            log.error(errorMessage);
         }
         return false;
     }
 
+    /**
+     * Method responsible for retrieving components from github. Calls Update or clone method based on the existence of a repository
+     *
+     * @param component Component for retrieving
+     * @return Status of retrieving process
+     */
     public static boolean retrieveComponent(Component component) {
 
         log.info("Retrieving component: " + component.getName());
 
         File repository = new File(Constants.ROOT_PATH + File.separator + component.getName());
         if (repository.exists() && repository.isDirectory()) {
-            log.info("Existing repository found for : " + component.getName());
-            update(component);
-            return true;
+            String logMessage = "Existing repository found for : " + component.getName();
+            log.info(logMessage);
+            return update(component);
+
         } else {
-            log.info("Existing repository not found for : " + component.getName());
-            boolean cloned = clone(component);
-            if (!cloned) {
-                return false;
-            }
-            return true;
+
+            String logMessage = "Existing repository not found for : " + component.getName();
+            log.info(logMessage);
+            return clone(component);
         }
     }
-
-
 
 }

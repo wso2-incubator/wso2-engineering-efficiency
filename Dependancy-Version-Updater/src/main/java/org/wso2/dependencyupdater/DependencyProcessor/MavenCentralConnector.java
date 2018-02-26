@@ -148,7 +148,7 @@ public class MavenCentralConnector {
 
     public static String getLatestMinorVersion(Dependency dependency) {
 
-        String latestVersion ="";
+        String latestVersion = "";
         try {
             String data = Constants.JSON_OBJECT_START_TAG +
                     Constants.GROUP_ID_TAG +

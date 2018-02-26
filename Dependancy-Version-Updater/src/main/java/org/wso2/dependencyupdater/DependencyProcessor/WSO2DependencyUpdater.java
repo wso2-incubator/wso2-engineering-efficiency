@@ -35,7 +35,9 @@ import java.util.Properties;
  * TODO:Class level comment
  */
 public abstract class WSO2DependencyUpdater extends DependencyUpdater {
+
     private static final Log log = LogFactory.getLog(Application.class);
+
     public boolean updateModel(Model model, Properties globalProperties) {
 
         boolean dependencyModelUpdated;
@@ -48,7 +50,7 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         Properties localProperties = model.getProperties();
         Model dependencyModel = updateToLatestInLocation(pomLocation, modelDependencies, globalProperties, localProperties);
         Properties updatedLocalProperties = dependencyModel.getProperties();
-        dependencyModelUpdated = getUpdateStatus(updatedLocalProperties);
+        dependencyModelUpdated = getUpdateStatusFromModel(updatedLocalProperties);
         updatedLocalProperties.remove("update.status");
         modifiedModel.setDependencies(dependencyModel.getDependencies());
         modifiedModel.setProperties(updatedLocalProperties);
@@ -56,7 +58,7 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
             List<Dependency> managementDependencies = model.getDependencyManagement().getDependencies();
             Model dependencyManagementModel = updateToLatestInLocation(pomLocation, managementDependencies, globalProperties, localProperties);
             updatedLocalProperties = dependencyManagementModel.getProperties();
-            managementModelUpdated = getUpdateStatus(updatedLocalProperties);
+            managementModelUpdated = getUpdateStatusFromModel(updatedLocalProperties);
             updatedLocalProperties.remove("update.status");
             DependencyManagement dependencyManagement = modifiedModel.getDependencyManagement();
             dependencyManagement.setDependencies(dependencyManagementModel.getDependencies());
@@ -67,12 +69,12 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
             }
 
         }
-        boolean status = getUpdateStatus(modifiedModel, dependencyModelUpdated, managementModelUpdated);
+        boolean status = getUpdateStatusFromProperties(modifiedModel, dependencyModelUpdated, managementModelUpdated);
         POMWriter.writePom(modifiedModel);
         return status;
     }
 
-    private boolean getUpdateStatus(Model modifiedModel, boolean dependencyModelUpdated, boolean managementModelUpdated) {
+    private boolean getUpdateStatusFromProperties(Model modifiedModel, boolean dependencyModelUpdated, boolean managementModelUpdated) {
 
         if (modifiedModel.getDependencyManagement() == null) {
             return dependencyModelUpdated;
@@ -81,7 +83,7 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         }
     }
 
-    private boolean getUpdateStatus(Properties updatedLocalProperties) {
+    private boolean getUpdateStatusFromModel(Properties updatedLocalProperties) {
 
         return Boolean.valueOf(updatedLocalProperties.getProperty("update.status"));
     }
@@ -156,20 +158,29 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         }
         log.info(dependency.getGroupId() + ":" + dependency.getArtifactId() + "  " + currentVersion + "  ");
         if (currentVersion == null) {
-            log.info("current version is null");
+            if(log.isDebugEnabled()){
+                log.info("current version is null");
+            }
             return false;
         }
         if (!dependency.getGroupId().contains(Constants.WSO2_GROUP_TAG)) {
-            log.info("Dependency does not belongs to wso2");
+            if(log.isDebugEnabled()){
+                log.info("Dependency does not belongs to wso2");
+            }
             return false;
         }
         String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
 
         if (latestVersion.length() == 0) {
-            log.info("latest version not found");
+            if(log.isDebugEnabled()){
+                log.info("latest version not found");
+            }
+
             return false;
         } else if (latestVersion.equals(currentVersion)) {
-            log.info("Already in the latest version");
+            if(log.isDebugEnabled()){
+                log.info("Already in the latest version");
+            }
             return false;
         }
         log.info("Dependency " + dependency.getGroupId() + ":" + dependency.getArtifactId() + " Updated from version " + currentVersion + " to " + latestVersion);

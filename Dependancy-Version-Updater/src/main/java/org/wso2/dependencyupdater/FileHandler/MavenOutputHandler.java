@@ -29,20 +29,24 @@ import java.io.PrintStream;
  * TODO:Class level comment
  */
 public class MavenOutputHandler extends PrintStreamHandler {
+
     private final PrintStream tee;
     private final boolean alwaysFlush;
 
     public MavenOutputHandler(File tee) throws FileNotFoundException {
+
         this(true, new PrintStream(new FileOutputStream(tee, true)));
     }
 
     public MavenOutputHandler(boolean alwaysFlush, PrintStream tee) {
+
         this.tee = tee;
         this.alwaysFlush = alwaysFlush;
     }
 
     @Override
     public void consumeLine(String line) {
+
         super.consumeLine(line);
         tee.println(line);
         if (alwaysFlush) {

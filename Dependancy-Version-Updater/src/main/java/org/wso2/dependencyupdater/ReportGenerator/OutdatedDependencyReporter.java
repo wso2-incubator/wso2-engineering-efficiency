@@ -18,7 +18,10 @@
  */
 package org.wso2.dependencyupdater.ReportGenerator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.Model.OutdatedDependency;
 import org.wso2.dependencyupdater.Model.Report;
 
 import java.io.File;
@@ -26,27 +29,34 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-
-import org.wso2.dependencyupdater.Model.OutdatedDependency;
-
 import java.nio.charset.Charset;
 
 /**
- * TODO:Class level comment
+ * Implementation of Report model to report Outdated Dependencies included in a pom.xml file
  */
 public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
 
-    public boolean saveToCSV(String fileName) {
+    private static final Log log = LogFactory.getLog(OutdatedDependencyReporter.class);
 
+    /**
+     * Implementation of abstract method to report set of outdated dependencies
+     *
+     * @param componentPath path for csv file
+     * @return status of report generating process.
+     */
+    public boolean saveToCSV(String componentPath) {
+        //If no entries in the entry list, report will not be generated
         if (reportEntries.isEmpty()) {
+            String logMessage = "Outdated dependency list is empty. Therefore report file will not be generated";
+            log.info(logMessage);
             return false;
         }
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new
-                    FileOutputStream(new File(fileName + Constants.CSV_FILE_EXTENSION)),
+                    FileOutputStream(new File(componentPath + Constants.CSV_FILE_EXTENSION)),
                     Charset.forName(Constants.UTF_8_CHARSET_NAME).newEncoder()
             );
-
+            //header row for csv
             PrintWriter printWriter = new PrintWriter(outputStreamWriter);
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Dependency Group ID");
@@ -59,7 +69,7 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
             stringBuilder.append(Constants.CSV_DELIMITER);
             stringBuilder.append("All newer Versions");
             stringBuilder.append(Constants.CSV_END_OF_LINE);
-
+            //set of rows to report updated dependencies
             for (OutdatedDependency dependency : reportEntries) {
 
                 stringBuilder.append(dependency.getGroupId());
@@ -79,7 +89,8 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
             return true;
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            String errorMessage = "Directory not found to save Report :" + componentPath;
+            log.error(errorMessage);
         }
         return false;
     }

@@ -23,6 +23,9 @@ import org.apache.maven.model.Dependency;
 
 import java.util.List;
 
+/**
+ * Contains details about Dependency
+ */
 public class OutdatedDependency extends org.apache.maven.model.Dependency {
 
     private String latestVersion;

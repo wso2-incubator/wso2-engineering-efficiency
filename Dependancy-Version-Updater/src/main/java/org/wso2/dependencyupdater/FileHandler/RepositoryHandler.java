@@ -37,14 +37,14 @@ public class RepositoryHandler {
 
     public static boolean copyProjectToTempDirectory(Component component) {
 
-        String sourcePath = Constants.ROOT_PATH+component.getName();
-        String destinationPath = sourcePath+Constants.SUFFIX_TEMP_FILE;
+        String sourcePath = Constants.ROOT_PATH + component.getName();
+        String destinationPath = sourcePath + Constants.SUFFIX_TEMP_FILE;
         File source = new File(sourcePath);
         File dest = new File(destinationPath);
         try {
             deleteFile(destinationPath);
             FileUtils.copyDirectory(source, dest);
-            log.info("Temporary file created for "+component.getName());
+            log.info("Temporary file created for " + component.getName());
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,7 +56,7 @@ public class RepositoryHandler {
 
         try {
             FileUtils.deleteDirectory(new File(destination));
-            log.info("Existing temporary file deleted :"+destination);
+            log.info("Existing temporary file deleted :" + destination);
             return true;
         } catch (IOException e) {
             e.printStackTrace();

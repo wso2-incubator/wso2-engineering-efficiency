@@ -33,36 +33,38 @@ import org.wso2.dependencyupdater.FileHandler.MavenOutputHandler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 
 /**
- *
+ * Contains methods for Invoking maven commands
  */
 
 public class MavenInvoker {
 
     private static final Log log = LogFactory.getLog(MavenInvoker.class);
 
+    /**
+     * Method to invoke maven clean install command
+     *
+     * @param mavenHome     location of M2_HOME variable
+     * @param directoryName Directory Name for project
+     * @return Build Status
+     */
+    public static int mavenBuild(String mavenHome, final String directoryName) {
 
-    public static int mavenBuild(String mavenHome, final String buidFileName) {
-
-
-        String directoryPath = Constants.ROOT_PATH + buidFileName;
+        String directoryPath = Constants.ROOT_PATH + directoryName;
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(directoryPath));
-        File logFile = new File(Constants.ROOT_PATH+"Error Log/"+getComponentName(buidFileName)+".txt");
+
+        File logFile = new File(Constants.ROOT_PATH + Constants.MAVEN_LOG_SUBDIRECTORY
+                + File.separator + getComponentName(directoryName) + ".txt");
         try {
             InvocationOutputHandler outputHandler = new MavenOutputHandler(logFile);
-            request.setOutputHandler(outputHandler) ;
+            request.setOutputHandler(outputHandler);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            String errorMessage = "Log File Directory Not Found " + logFile;
+            log.error(errorMessage);
         }
-
-
-
-
 
         request.setGoals(Collections.singletonList(Constants.MAVEN_INVOKE_COMMAND));
         Invoker invoker = new DefaultInvoker();
@@ -71,20 +73,30 @@ public class MavenInvoker {
         try {
             invocationResult = invoker.execute(request);
             if (invocationResult.getExitCode() == 0) {
-                log.info(buidFileName + " Build Successful");
-                return 1;
+                String logMessage = "Maven build Successful :" + getComponentName(directoryName);
+                log.info(logMessage);
+                return Constants.BUILD_SUCCESS_CODE;
             } else {
-                log.info(buidFileName + " Build Failed");
+                String logMessage = "Maven build Failed :" + getComponentName(directoryName);
+                log.info(logMessage, invocationResult.getExecutionException());
             }
 
         } catch (MavenInvocationException e) {
-            e.printStackTrace();
+            String errorMessage = "Failed to invoke :" + Constants.MAVEN_INVOKE_COMMAND;
+            log.error(errorMessage);
         }
-        return 0;
+        return Constants.BUILD_FAIL_CODE;
     }
 
-    private static String getComponentName(String tempFileName){
-        return tempFileName.substring(0,tempFileName.length()-Constants.SUFFIX_TEMP_FILE.length());
+    /**
+     * This method determines original component  name from the tempory file name
+     *
+     * @param temporaryFileName Temporary file name
+     * @return Component Name
+     */
+    private static String getComponentName(String temporaryFileName) {
+        //removes the suffix string added to create the temporary file name
+        return temporaryFileName.substring(0, temporaryFileName.length() - Constants.SUFFIX_TEMP_FILE.length());
     }
 
 }

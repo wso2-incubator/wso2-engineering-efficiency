@@ -22,6 +22,11 @@ package org.wso2.dependencyupdater.Model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains Details about a CSV report
+ *
+ * @param <Type> Report may contain certain types of object.
+ */
 public abstract class Report<Type> {
 
     protected List<Type> reportEntries;
@@ -36,6 +41,12 @@ public abstract class Report<Type> {
         this.reportEntries = entries;
     }
 
+    /**
+     * This method handle the reporting part based on Object type reporting
+     *
+     * @param filename
+     * @return
+     */
     public abstract boolean saveToCSV(String filename);
 
 }

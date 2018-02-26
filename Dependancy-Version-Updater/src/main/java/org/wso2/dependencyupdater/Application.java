@@ -42,76 +42,96 @@ import java.util.Properties;
  */
 public class Application {
 
+    private static final Log log = LogFactory.getLog(Application.class);
     static String MAVEN_HOME;
 
-    private static final Log log = LogFactory.getLog(Application.class);
-
     public static void main(String[] args) {
-
+        //Reading the configurations from the config file
         ConfigFileReader.readConfigFile();
         MAVEN_HOME = ConfigFileReader.getMavenHome();
-        log.info("Dependency updater started");
         ArrayList<Component> components = getAllComponents();
 
+        DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
+        //DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater(); // to update wso2 dependencies to latest available version
+
         for (Component component : components) {
-            log.info("Processing the component " + component.getName() + " started");
-            GithubConnector.retrieveComponent(component);
-            long currentTime = System.currentTimeMillis();
+            log.info(Constants.LOG_SEPERATOR);
+            log.info("Component processing started :" + component.getName());
+
+            boolean gitUpdateSuccessful = GithubConnector.retrieveComponent(component);
+            long updatedTimeStamp = System.currentTimeMillis();
             boolean copySuccessful = RepositoryHandler.copyProjectToTempDirectory(component);
-            if (copySuccessful) {
-                boolean componentUpdateStatus = updateComponentDependencies(component.getName() + Constants.SUFFIX_TEMP_FILE);
-                updateComponentDependencies(component.getName() + Constants.SUFFIX_TEMP_FILE);
+            String componentTemporaryDirectoryName = component.getName() + Constants.SUFFIX_TEMP_FILE;
+
+            if (gitUpdateSuccessful && copySuccessful) {
+
+                boolean componentUpdateStatus = updateComponentDependencies(dependencyUpdater, componentTemporaryDirectoryName);
                 if (componentUpdateStatus) {
-                    log.info(component.getName() + "  Component updated. Therefore building with maven");
-                    int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, component.getName() + Constants.SUFFIX_TEMP_FILE);
+                    //if the component is updated, invoke a maven build
+                    log.info("Component updated :" + component.getName());
+                    int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, componentTemporaryDirectoryName);
                     component.setStatus(buildStatus);
-                    DatabaseConnector.insertBuildStatus(component, currentTime);
+                    DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
+
                 } else {
-                    log.info(component.getName() + "  Component not updated.");
+                    //if component is not updated, try to get the latest build status for the component and save it as the current status
+                    log.info("Component not updated :" + component.getName());
                     int latestBuildStatus = DatabaseConnector.getLatestBuild(component);
-                    if (latestBuildStatus == 2) {
-                        int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, component.getName() + Constants.SUFFIX_TEMP_FILE);
+                    if (latestBuildStatus == Constants.BUILD_NOT_AVAILABLE_CODE) {
+                        int buildStatus = MavenInvoker.mavenBuild(MAVEN_HOME, componentTemporaryDirectoryName);
                         component.setStatus(buildStatus);
-                        DatabaseConnector.insertBuildStatus(component, currentTime);
-                    } else {
+                        DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
+
+                    }
+                    //if the component has never built before, build the component and save the status
+                    else {
                         component.setStatus(latestBuildStatus);
-                        DatabaseConnector.insertBuildStatus(component, currentTime);
+                        DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
                     }
 
                 }
             }
-            log.info("Processing the component " + component.getName() + " finished");
+            log.info("Component processing finished :" + component.getName());
+            log.info(Constants.LOG_SEPERATOR);
         }
     }
 
+    /**
+     * This method retrieves component details from database
+     *
+     * @return list of component objects
+     */
     private static ArrayList<Component> getAllComponents() {
 
         return DatabaseConnector.getAllComponents();
     }
 
-    private static boolean updateComponentDependencies(String fileName) {
+    /**
+     * @param dependencyUpdater      DependencyUpdater Object with set of rules to update dependencies
+     * @param componentDirectoryName Name of the directory that contains the component
+     * @return
+     */
+    private static boolean updateComponentDependencies(DependencyUpdater dependencyUpdater, String componentDirectoryName) {
 
         boolean updateStatus = false;
-        String projectPath = Constants.ROOT_PATH + fileName;
+        String componentPath = Constants.ROOT_PATH + componentDirectoryName;
         ArrayList<Model> modelList = new ArrayList<Model>();
 
         POMReader pomReader = new POMReader();
-        //DependencyUpdater DependencyUpdater = new WSO2DependencyMajorUpdater(); // to update wso2 dependencies to latest available version
-        DependencyUpdater DependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
 
-        Model model = pomReader.getPomModel(projectPath); //reading the root pom as a model
-        if (model != null) {
+        Model model = pomReader.getPomModel(componentPath); //reading the root pom as a model
+        if (model.getPomFile() != null) {
             Properties properties = model.getProperties();
             properties.setProperty(Constants.PROJECT_VERSION_STRING, model.getVersion());
             modelList.add(model);
 
             List<String> modules = model.getModules();
             for (String module : modules) {
-                model = pomReader.getPomModel(projectPath + File.separator + module); //create model for each child pom mentioned in root pom
+                model = pomReader.getPomModel(componentPath + File.separator + module); //create model for each child pom mentioned in root pom
                 modelList.add(model);
             }
             for (Model childModel : modelList) {
-                boolean pomUpdateState = DependencyUpdater.updateModel(childModel, properties);
+                boolean pomUpdateState = dependencyUpdater.updateModel(childModel, properties);
                 log.info("pom.xml File updated :" + pomUpdateState);
                 if (pomUpdateState) {
                     updateStatus = true;
