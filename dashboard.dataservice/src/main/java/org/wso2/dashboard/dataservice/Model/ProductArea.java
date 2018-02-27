@@ -24,8 +24,14 @@ import java.util.ArrayList;
  * TODO:Class level comment
  */
 public class ProductArea {
+    String name;
 
-    ArrayList<String> components = new ArrayList<>();
+    ArrayList<String> components;
+
+    public ProductArea(String name){
+        this.name = name;
+        components = new ArrayList<>();
+    }
 
     public ArrayList<String> getComponents() {
 
@@ -36,4 +42,11 @@ public class ProductArea {
 
         this.components = components;
     }
+
+    public String getName() {
+
+        return name;
+    }
+
+
 }

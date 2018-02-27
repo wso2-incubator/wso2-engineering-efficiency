@@ -16,10 +16,13 @@
 
 package org.wso2.dashboard.dataservice;
 
+import com.google.gson.JsonObject;
 import org.json.JSONObject;
+import org.wso2.dashboard.dataservice.Database.LocalDBConnector;
 import org.wso2.dashboard.dataservice.Model.ProductArea;
 import org.wso2.dashboard.dataservice.ProductBuildStatus.BuildStatusFinder;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,14 +37,34 @@ public class DashboardDataService {
     @Path("/getBuildStatus")
     public JSONObject get() {
 
-        ProductArea productArea = new ProductArea();
-        ArrayList<String> components = new ArrayList<>();
-        components.add("product-sp");
+        ArrayList<ProductArea> productAreas = LocalDBConnector.getAllProductAreas();
+        for (ProductArea productArea : productAreas) {
+            productArea.setComponents(LocalDBConnector.getComponentsForArea(productArea.getName()));
+        }
+        JSONObject result = new JSONObject();
+        JsonObject productAreaJson = null;
+        for (ProductArea productArea : productAreas) {
+            productAreaJson = new JsonObject();
+            JsonObject jsonObject =null;
+            for (int day = 0; day < 7; day++) {
+                jsonObject = new JsonObject();
+                int state = BuildStatusFinder.getBuildStatusForDay(productArea,System.currentTimeMillis()-(day* Constants.TWENTY_FOUR_HOURS));
+                System.out.println(state);
+                jsonObject.addProperty("day"+String.valueOf(day),state);
+            }
+            productAreaJson.add(productArea.getName(),jsonObject);
 
-        productArea.setComponents(components);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("status", BuildStatusFinder.getBuildStatusForDay(productArea, System.currentTimeMillis()));
-        return jsonObject;
+        }
+        result.put("data",productAreaJson);
+
+
+
+        //productArea.setComponents(components);
+        //JSONObject jsonObject = new JSONObject();
+        //jsonObject.put("status", BuildStatusFinder.getBuildStatusForDay(productArea, System.currentTimeMillis()));
+        //return jsonObject;
+        return result;
     }
+
 
 }

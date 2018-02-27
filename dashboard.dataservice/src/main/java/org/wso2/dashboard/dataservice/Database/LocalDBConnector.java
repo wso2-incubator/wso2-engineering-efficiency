@@ -20,6 +20,7 @@ package org.wso2.dashboard.dataservice.Database;
 
 import org.wso2.dashboard.dataservice.Constants;
 import org.wso2.dashboard.dataservice.Model.BuildStat;
+import org.wso2.dashboard.dataservice.Model.ProductArea;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -44,7 +45,7 @@ public class LocalDBConnector {
      */
     public static ArrayList<BuildStat> getBuildStats(String componentName, long startTime, long endTime) {
 
-        ArrayList<BuildStat> productList = new ArrayList<>();
+        ArrayList<BuildStat> productList = new ArrayList<BuildStat>();
         PreparedStatement preparedStatement = null;
         Connection connection = null;
         ResultSet resultSet = null;
@@ -81,5 +82,72 @@ public class LocalDBConnector {
         }
         return productList;
 
+    }
+
+    public static ArrayList<ProductArea> getAllProductAreas() {
+        ArrayList<ProductArea> productAreaList = new ArrayList<>();
+        PreparedStatement preparedStatement = null;
+        Connection connection = null;
+        ResultSet resultSet = null;
+
+        String selectSQL = "select distinct(PRODUCT) from PRODUCT_COMPONENT_MAP where not PRODUCT = 'null' and not PRODUCT = 'unknown'";
+        try {
+            connection = DriverManager.getConnection(Constants.DATABASE_URL, "root", "");
+            preparedStatement = connection.prepareStatement(selectSQL);
+
+            // execute select SQL statement
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                ProductArea productArea = new ProductArea(resultSet.getString(1));
+                productAreaList.add(productArea);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                resultSet.close();
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return productAreaList;
+    }
+    public static ArrayList<String> getComponentsForArea(String componentName) {
+        ArrayList<String> componentList = new ArrayList<>();
+        PreparedStatement preparedStatement = null;
+        Connection connection = null;
+        ResultSet resultSet = null;
+
+        String selectSQL = "select REPO_NAME from PRODUCT_COMPONENT_MAP where PRODUCT =?";
+        try {
+            connection = DriverManager.getConnection(Constants.DATABASE_URL, "root", "");
+            preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setString(1,componentName);
+
+            // execute select SQL statement
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                componentList.add(resultSet.getString(1));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                resultSet.close();
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return componentList;
     }
 }

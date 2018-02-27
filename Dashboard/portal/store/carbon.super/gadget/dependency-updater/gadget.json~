@@ -1,0 +1,16 @@
+{
+    "id": "Product Build Status (Drop)- last 7 days",
+    "title": "Product Build Status (Drop)- last 7 days",
+    "type": "gadget",
+    "thumbnail": "store://gadget/dependency-updater/index.png",
+    "data": {
+        "url": "store://gadget/dependency-updater/index.xml"
+    },
+    "listen": {
+
+            "option-listener-channel-jenkins-table-gadget": {
+            "type": "address",
+            "description": "Used to filter based on state"
+        }
+    }
+}
