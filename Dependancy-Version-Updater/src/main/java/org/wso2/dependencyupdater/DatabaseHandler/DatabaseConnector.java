@@ -18,12 +18,13 @@
  */
 package org.wso2.dependencyupdater.DatabaseHandler;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.Model.Component;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
  */
 public class DatabaseConnector {
 
+    private static final Log log = LogFactory.getLog(ProductRepoMapDBConnection.class);
+
     /**
      * This method insert build status to database
      *
@@ -42,31 +45,19 @@ public class DatabaseConnector {
      */
     public static void insertBuildStatus(Component component, long timeStamp) {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
         String insertSql = "INSERT INTO ComponentBuildStatistics(Component,BuildTime,Status)  VALUES (?,?,?)";
 
         try {
-            try {
-                connection = DriverManager.getConnection(Constants.MYSQL_DB_URL + "/DependencyUpdateDB", Constants.MYSQL_DB_USERNAME, Constants.MYSQL_DB_PASSWORD);
-                preparedStatement = connection.prepareStatement(insertSql);
-                preparedStatement.setString(1, component.getName());
-                preparedStatement.setBigDecimal(2, BigDecimal.valueOf(timeStamp));
-                preparedStatement.setInt(3, component.getStatus());
-                preparedStatement.execute();
-            } catch (SQLException e) {
-                //TODO
-            }
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException e) {
-                //TODO
-            }
-
+            ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
+            Connection connection = productRepoMapDBConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(insertSql);
+            preparedStatement.setString(1, component.getName());
+            preparedStatement.setBigDecimal(2, BigDecimal.valueOf(timeStamp));
+            preparedStatement.setInt(3, component.getStatus());
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            log.error("Problem occurred in Database Connection", e);
         }
-
     }
 
     /**
@@ -76,66 +67,51 @@ public class DatabaseConnector {
      */
     public static ArrayList<Component> getAllComponents() {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        String selectSql = "select REPO_NAME,REPO_URL from PRODUCT_COMPONENT_MAP ";
+        String selectSql = "SELECT REPO_NAME,REPO_URL FROM PRODUCT_COMPONENT_MAP ";
         ArrayList<Component> components = new ArrayList<Component>();
 
         try {
-
-            connection = DriverManager.getConnection(Constants.MYSQL_DB_URL + "/DependencyUpdateDB", Constants.MYSQL_DB_USERNAME, Constants.MYSQL_DB_PASSWORD);
-            preparedStatement = connection.prepareStatement(selectSql);
-            resultSet = preparedStatement.executeQuery();
+            ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
+            Connection connection = productRepoMapDBConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
+            ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Component component = new Component(resultSet.getString(1), resultSet.getString(2));
                 components.add(component);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection(connection, preparedStatement, resultSet);
-
+            log.error("Problem occurred in Database Connection", e);
         }
         return components;
 
     }
 
-    private static void closeConnection(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
-
-        try {
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Method for retrieving the latest available build status data for a particular component
+     *
+     * @param component Component object
+     * @return integer indicating the latest build status (0 - Build Failed, 1 - Build Successful, 2 - Not available)
+     */
     public static int getLatestBuild(Component component) {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        String selectSql = "select * from ComponentBuildStatistics where Component=? GROUP BY BuildTime DESC limit 1";
+        String selectSql = "SELECT * FROM ComponentBuildStatistics WHERE Component=? GROUP BY BuildTime DESC limit 1";
 
         try {
-            connection = DriverManager.getConnection(Constants.MYSQL_DB_URL + "/DependencyUpdateDB", Constants.MYSQL_DB_USERNAME, Constants.MYSQL_DB_PASSWORD);
-            preparedStatement = connection.prepareStatement(selectSql);
+            ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
+
+            Connection connection = productRepoMapDBConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
             preparedStatement.setString(1, component.getName());
-            resultSet = preparedStatement.executeQuery();
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
-                return 2;
+                return Constants.BUILD_NOT_AVAILABLE_CODE;
             } else {
-                return Integer.parseInt(resultSet.getString(3));
+                return Integer.parseInt(resultSet.getString("Status"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection(connection, preparedStatement, resultSet);
-
+            log.error("Problem occurred in Database Connection", e);
         }
-        return 2;
+        return Constants.BUILD_NOT_AVAILABLE_CODE;
 
     }
 
