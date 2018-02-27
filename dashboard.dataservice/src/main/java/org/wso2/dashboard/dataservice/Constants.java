@@ -19,10 +19,11 @@
 package org.wso2.dashboard.dataservice;
 
 /**
- * TODO:Class level comment
+ * This class contains constant variables used by all other classes
  */
 public class Constants {
-    public static final int TWENTY_FOUR_HOURS  = 86400000;
-    public static final String DATABASE_URL  = "jdbc:mysql://127.0.0.1:3308/DependencyUpdateDB";
+
+    public static final int TWENTY_FOUR_HOURS = 86400000;
+    public static final String DATABASE_URL = "jdbc:mysql://127.0.0.1:3308/DependencyUpdateDB";
 
 }

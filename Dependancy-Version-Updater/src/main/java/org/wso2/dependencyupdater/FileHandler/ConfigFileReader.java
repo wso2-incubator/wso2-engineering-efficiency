@@ -36,10 +36,10 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class ConfigFileReader {
 
+    private static final Log log = LogFactory.getLog(ConfigFileReader.class);
     public static String MAVEN_HOME;
     public static String GITHUB_USERNAME;
     public static String GITHUB_PASSWORD;
-    private static final Log log = LogFactory.getLog(ConfigFileReader.class);
 
     /**
      * Retrieves set of values from configuration file

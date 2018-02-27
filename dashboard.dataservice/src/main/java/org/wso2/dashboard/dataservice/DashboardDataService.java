@@ -16,30 +16,16 @@
 
 package org.wso2.dashboard.dataservice;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.wso2.dashboard.dataservice.Database.LocalDBConnector;
-import org.wso2.dashboard.dataservice.Model.BuildStat;
 import org.wso2.dashboard.dataservice.Model.ProductArea;
 import org.wso2.dashboard.dataservice.ProductBuildStatus.BuildStatusFinder;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Random;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
 /**
- * This is the Microservice resource class.
- * See <a href="https://github.com/wso2/msf4j#getting-started">https://github.com/wso2/msf4j#getting-started</a>
- * for the usage of annotations.
- *
- * @since 0.1-SNAPSHOT
+ * Microservice for retrieving product build status
  */
 @Path("/service")
 public class DashboardDataService {
@@ -54,11 +40,8 @@ public class DashboardDataService {
 
         productArea.setComponents(components);
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("status",BuildStatusFinder.getBuildStatusForDay(productArea,System.currentTimeMillis()));
+        jsonObject.put("status", BuildStatusFinder.getBuildStatusForDay(productArea, System.currentTimeMillis()));
         return jsonObject;
     }
-
-
-
 
 }

@@ -79,7 +79,7 @@ public class GithubConnector {
      */
     private static boolean clone(Component component) {
 
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(ConfigFileReader.GITHUB_USERNAME,ConfigFileReader.GITHUB_PASSWORD);
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(ConfigFileReader.GITHUB_USERNAME, ConfigFileReader.GITHUB_PASSWORD);
         try {
             String logMessage = "Cloning the repository to local storage: " + component.getName();
             log.info(logMessage);

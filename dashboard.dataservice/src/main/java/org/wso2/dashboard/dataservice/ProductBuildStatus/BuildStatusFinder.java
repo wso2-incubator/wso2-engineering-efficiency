@@ -27,10 +27,17 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * TODO:Class level comment
+ * Contains methods for retrieving build status
  */
 public class BuildStatusFinder {
 
+    /**
+     * This method identifies the build status of a productArea for a given date
+     *
+     * @param productArea ProductArea object
+     * @param timeStamp   Timestamp value for identifying the required date
+     * @return build status of product area
+     */
     public static int getBuildStatusForDay(ProductArea productArea, long timeStamp) {
 
         ArrayList<String> componentList = productArea.getComponents();
@@ -44,6 +51,14 @@ public class BuildStatusFinder {
 
     }
 
+    /**
+     * Retrieve latest build statistics belong to a particular component in a particular day
+     * by searching from a range of build statistics
+     *
+     * @param componentName Component name
+     * @param timeStamp     timestamp value belong to that day
+     * @return latest build status of component for the given date
+     */
     private static int getLatestBuildStatisticsForDay(String componentName, long timeStamp) {
 
         long startTime = timeStamp - Constants.TWENTY_FOUR_HOURS;
@@ -54,11 +69,11 @@ public class BuildStatusFinder {
         } else {
             BuildStat latestBuildStat = buildStats.get(0);
             int index = 1;
-            while (!isSameDate(latestBuildStat.getTimestamp().longValue(), timeStamp) && index<buildStats.size()) {
+            while (!isSameDate(latestBuildStat.getTimestamp().longValue(), timeStamp) && index < buildStats.size()) {
                 latestBuildStat = buildStats.get(index);
                 index += 1;
             }
-            if(index==buildStats.size()){
+            if (index == buildStats.size()) {
                 return 2;
             }
             return latestBuildStat.getStatus();
@@ -66,6 +81,13 @@ public class BuildStatusFinder {
 
     }
 
+    /**
+     * Compares two dates and identifies whether they are the same date or different dates
+     *
+     * @param timeStamp1 timestamp value for day 1
+     * @param timeStamp2 timestamp value for day 2
+     * @return boolean value indicating whether dates are same or not
+     */
     private static boolean isSameDate(long timeStamp1, long timeStamp2) {
 
         Date date1 = new Date(timeStamp1);

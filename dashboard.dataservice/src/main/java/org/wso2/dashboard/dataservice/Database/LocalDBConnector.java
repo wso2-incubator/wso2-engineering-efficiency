@@ -30,10 +30,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
- * TODO:Class level comment
+ * Contains methods for connecting to the database
  */
 public class LocalDBConnector {
 
+    /**
+     * Retrieves build statistics from the database for a given time range and component name
+     *
+     * @param componentName name of the component
+     * @param startTime     starting time
+     * @param endTime       ending time
+     * @return Array List of Build statistics belong to that component, time range
+     */
     public static ArrayList<BuildStat> getBuildStats(String componentName, long startTime, long endTime) {
 
         ArrayList<BuildStat> productList = new ArrayList<>();
@@ -55,7 +63,7 @@ public class LocalDBConnector {
             while (resultSet.next()) {
                 int status = resultSet.getInt(3);
                 BigDecimal timeStamp = resultSet.getBigDecimal(2);
-                BuildStat buildStat = new BuildStat(status,timeStamp);
+                BuildStat buildStat = new BuildStat(status, timeStamp);
                 productList.add(buildStat);
             }
 

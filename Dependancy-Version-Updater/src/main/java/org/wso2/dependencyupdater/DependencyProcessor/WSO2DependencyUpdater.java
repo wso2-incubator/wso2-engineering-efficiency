@@ -159,7 +159,6 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         return versionTag != null && versionTag.startsWith(Constants.PROPERTY_START_TAG) && versionTag.endsWith(Constants.PROPERTY_END_TAG);
     }
 
-
     /**
      * Method to add new entries to outdated dependency list
      *

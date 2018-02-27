@@ -44,7 +44,6 @@ public class Application {
 
     private static final Log log = LogFactory.getLog(Application.class);
 
-
     public static void main(String[] args) {
         //Reading the configurations from the config file
         ConfigFileReader.readConfigFile();

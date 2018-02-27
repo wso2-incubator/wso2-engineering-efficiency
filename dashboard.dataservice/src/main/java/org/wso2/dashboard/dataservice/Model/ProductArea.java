@@ -24,6 +24,7 @@ import java.util.ArrayList;
  * TODO:Class level comment
  */
 public class ProductArea {
+
     ArrayList<String> components = new ArrayList<>();
 
     public ArrayList<String> getComponents() {

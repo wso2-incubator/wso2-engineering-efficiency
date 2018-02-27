@@ -24,29 +24,34 @@ import java.math.BigDecimal;
  * TODO:Class level comment
  */
 public class BuildStat {
+
+    int status;
+    BigDecimal timestamp;
+
     public BuildStat(int status, BigDecimal timestamp) {
+
         this.status = status;
         this.timestamp = timestamp;
     }
 
     public int getStatus() {
+
         return status;
     }
 
     public void setStatus(int status) {
+
         this.status = status;
     }
 
     public BigDecimal getTimestamp() {
+
         return timestamp;
     }
 
     public void setTimestamp(BigDecimal timestamp) {
+
         this.timestamp = timestamp;
     }
-
-
-    int status;
-    BigDecimal timestamp;
 
 }

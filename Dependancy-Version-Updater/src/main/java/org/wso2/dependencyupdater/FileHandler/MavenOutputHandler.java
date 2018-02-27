@@ -35,14 +35,14 @@ public class MavenOutputHandler extends PrintStreamHandler {
 
     /**
      * This method append the maven output to a given file
-     * @param file  File object
+     *
+     * @param file File object
      * @throws FileNotFoundException Indicates file is not present in the location
      */
     public MavenOutputHandler(File file) throws FileNotFoundException {
 
         this(true, new PrintStream(new FileOutputStream(file, true)));
     }
-
 
     public MavenOutputHandler(boolean alwaysFlush, PrintStream printStream) {
 
@@ -52,6 +52,7 @@ public class MavenOutputHandler extends PrintStreamHandler {
 
     /**
      * Determines how each output line is handled
+     *
      * @param line Text line
      */
     @Override

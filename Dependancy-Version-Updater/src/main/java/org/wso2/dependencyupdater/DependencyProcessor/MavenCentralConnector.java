@@ -59,11 +59,11 @@ public class MavenCentralConnector {
         try {
             String data = Constants.JSON_OBJECT_START_TAG +
                     Constants.GROUP_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER +
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
                     dependency.getGroupId() +
-                    Constants.JSON_OBJECT_ELEMENT_SEPERATER +
+                    Constants.JSON_OBJECT_ELEMENT_SEPARATOR +
                     Constants.ARTIFACT_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER +
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
                     dependency.getArtifactId() +
                     Constants.JSON_OBJECT_END_TAG;
 
@@ -109,11 +109,11 @@ public class MavenCentralConnector {
         try {
             String data = Constants.JSON_OBJECT_START_TAG +
                     Constants.GROUP_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER +
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
                     dependency.getGroupId() +
-                    Constants.JSON_OBJECT_ELEMENT_SEPERATER +
+                    Constants.JSON_OBJECT_ELEMENT_SEPARATOR +
                     Constants.ARTIFACT_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER +
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
                     dependency.getArtifactId() +
                     Constants.JSON_OBJECT_END_TAG;
 
@@ -172,11 +172,11 @@ public class MavenCentralConnector {
         try {
             String data = Constants.JSON_OBJECT_START_TAG +
                     Constants.GROUP_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER +
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
                     dependency.getGroupId() +
-                    Constants.JSON_OBJECT_ELEMENT_SEPERATER +
+                    Constants.JSON_OBJECT_ELEMENT_SEPARATOR +
                     Constants.ARTIFACT_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPERATER +
+                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
                     dependency.getArtifactId() +
                     Constants.JSON_OBJECT_END_TAG;
 

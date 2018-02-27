@@ -40,6 +40,7 @@ public class POMWriter {
 
     /**
      * Writes a org.apache.maven.model.Model to a pom.xml
+     *
      * @param updatedModel org.apache.maven.model.Model
      * @return status indicating the success or failure of process
      */
@@ -55,7 +56,7 @@ public class POMWriter {
 
         } catch (IOException e) {
             String errorMessage = "Location does not exists";
-            log.error(errorMessage,e);
+            log.error(errorMessage, e);
         } finally {
             IOUtil.close(fileWriter);
         }

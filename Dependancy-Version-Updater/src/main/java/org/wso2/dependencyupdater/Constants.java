@@ -41,27 +41,22 @@ public class Constants {
     public static final String JSON_OBJECT_END_TAG = "}";
     public static final String GROUP_ID_TAG = "groupID";
     public static final String ARTIFACT_ID_TAG = "artifactID";
-    public static final String JSON_OBJECT_KEY_VALUE_SEPERATER = ":";
-    public static final String JSON_OBJECT_ELEMENT_SEPERATER = ",";
+    public static final String JSON_OBJECT_KEY_VALUE_SEPARATOR = ":";
+    public static final String JSON_OBJECT_ELEMENT_SEPARATOR = ",";
     public static final String AVAILABLE_VERSIONS_KEY = "AvailableVersions";
     public static final String LATEST_VERSION_KEY = "NewestVersion";
     public static final String UTF_8_CHARSET_NAME = "UTF-8";
     public static final String MAVEN_INVOKE_COMMAND_WITHOUT_TESTS = "clean install -DskipTests";
     public static final String MAVEN_INVOKE_COMMAND = "clean install";
     public static final String CSV_FILE_EXTENSION = ".csv";
-    public static final String GIT_URL_PREFIX = "https://github.com/wso2/";
-    public static final String JDBC_DRIVER_NAME = "com.mysql.jdbc.Driver";
     public static final String MYSQL_DB_URL = "jdbc:mysql://127.0.0.1:3308";
     public static final String MYSQL_DB_USERNAME = "root";
     public static final String MYSQL_DB_PASSWORD = "";
     public static final String MAVEN_LOG_SUBDIRECTORY = "Error Log";
     public static final String LOG_SEPERATOR = "==============================================================";
 
-
-    public static final String[] OUTDATED_DEPENDENCY_REPORT_HEADER = {"Group ID", "Artifact ID", "Current Version", "Latest Version", "All Available Versions"};
     public static final int NOT_FOUND_STATUS_CODE = 404;
     public static final int SUCCESSFUL_STATUS_CODE = 200;
-    public static final int OUTDATED_DEPENDENCY_ELEMENT_SIZE = 5;
     public static final int BUILD_FAIL_CODE = 0;
     public static final int BUILD_SUCCESS_CODE = 1;
     public static final int BUILD_NOT_AVAILABLE_CODE = 2;

@@ -35,14 +35,15 @@ import java.io.InputStreamReader;
 /**
  * Contains methods for reading a pom.xml file
  */
-public class POMReader{
+public class POMReader {
 
     private static final Log log = LogFactory.getLog(Application.class);
 
     /**
      * This method reads pom file as a model
-     * @param path  path of the pom.xml
-     * @return  org.apache.maven.model.Model Object corresponding to the pom.xml file given;
+     *
+     * @param path path of the pom.xml
+     * @return org.apache.maven.model.Model Object corresponding to the pom.xml file given;
      */
     public static Model getPomModel(String path) {
 
@@ -55,11 +56,11 @@ public class POMReader{
             model = mavenReader.read(reader);
             model.setPomFile(pomFile);
 
-        }  catch (IOException e) {
-            String logMessage ="Pom file not found";
+        } catch (IOException e) {
+            String logMessage = "Pom file not found";
             log.error(logMessage);
         } catch (XmlPullParserException e) {
-            String logMessage ="Error occurred in XMLPullParser ";
+            String logMessage = "Error occurred in XMLPullParser ";
             log.error(logMessage);
         }
         return model;
