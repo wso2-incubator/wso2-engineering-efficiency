@@ -32,33 +32,32 @@ function showFailedComponents(){
     alert("Clicked");
 }
 function getStatusImage(i){
+    var imageFolderPath = "/portal/store/carbon.super/gadget/dependency-updater/images";
     if(i==0){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/Failed.png";
+        return imageFolderPath+"/Failed.png";
     }
     else if(i==1){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/Success.png";
+        return imageFolderPath+"/Success.png";
     }
     else if(i==2){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/na.png";
+        return imageFolderPath+"/na.png";
     }
     else if( i==11){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/Stormy.png";
+        return imageFolderPath+"/Stormy.png";
     }
     else if( i==12){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/Rainy.png";
+        return imageFolderPath+"/Rainy.png";
     }
     else if( i==13){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/Cloudy.png";
+        return imageFolderPath+"/Cloudy.png";
     }
     else if( i==14){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/PartlyCloudy.png";
+        return imageFolderPath+"/PartlyCloudy.png";
     }
     else if( i==15){
-        return "/portal/store/carbon.super/gadget/dependency-updater/images/Sunny.png";
+        return imageFolderPath+"/Sunny.png";
     }
-    else if( i==15){
-        
-    }
+    
 
 }
 function addHeader() {
@@ -93,8 +92,8 @@ function addRows(){
         +"<td><img height='25' width='25' src="+getStatusImage(buildData.day2)+" /></td>"
         +"<td><img height='25' width='25' src="+getStatusImage(buildData.day1)+" /></td>"
         +"<td><img height='25' width='25' src="+getStatusImage(buildData.day0)+" /></td>"
-        +"<td><img height='25' width='25' src="+getStatusImage(buildData.day6)+" /></td>"
-        +"<td><img height='25' width='25' src="+getStatusImage(buildData.day0)+" /></td>"
+        +"<td><img height='25' width='25' src="+getStatusImage(buildData.weekly)+" /></td>"
+        +"<td><img height='25' width='25' src="+getStatusImage(buildData.monthly)+" /></td>"
         +"<td><div class='arrow'></div></td></tr>"
        );
 
