@@ -17,12 +17,13 @@
 package org.wso2.dashboard.dataservice;
 
 import com.google.gson.JsonObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.wso2.dashboard.dataservice.Database.LocalDBConnector;
 import org.wso2.dashboard.dataservice.Model.ProductArea;
 import org.wso2.dashboard.dataservice.ProductBuildStatus.BuildStatusFinder;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +34,8 @@ import javax.ws.rs.Path;
 @Path("/service")
 public class DashboardDataService {
 
+    private static final Log log = LogFactory.getLog(DashboardDataService.class);
+
     @GET
     @Path("/getBuildStatus")
     public JSONObject get() {
@@ -42,29 +45,22 @@ public class DashboardDataService {
             productArea.setComponents(LocalDBConnector.getComponentsForArea(productArea.getName()));
         }
         JSONObject result = new JSONObject();
-        JsonObject productAreaJson = null;
+        JsonObject productAreaJson = new JsonObject();
         for (ProductArea productArea : productAreas) {
-            productAreaJson = new JsonObject();
-            JsonObject jsonObject =null;
+            JsonObject jsonObject = new JsonObject();
             for (int day = 0; day < 7; day++) {
-                jsonObject = new JsonObject();
-                int state = BuildStatusFinder.getBuildStatusForDay(productArea,System.currentTimeMillis()-(day* Constants.TWENTY_FOUR_HOURS));
-                System.out.println(state);
-                jsonObject.addProperty("day"+String.valueOf(day),state);
+
+                int state = BuildStatusFinder.getBuildStatusForDay(productArea, System.currentTimeMillis() - (day * Constants.TWENTY_FOUR_HOURS));
+                jsonObject.addProperty("day" + String.valueOf(day), state);
+                ;
             }
-            productAreaJson.add(productArea.getName(),jsonObject);
+            jsonObject.addProperty("monthly", String.valueOf(BuildStatusFinder.getMonthlyState(productArea, System.currentTimeMillis())));
+            jsonObject.addProperty("weekly", String.valueOf(BuildStatusFinder.getWeeklyState(productArea, System.currentTimeMillis())));
+            productAreaJson.add(productArea.getName(), jsonObject);
 
         }
-        result.put("data",productAreaJson);
-
-
-
-        //productArea.setComponents(components);
-        //JSONObject jsonObject = new JSONObject();
-        //jsonObject.put("status", BuildStatusFinder.getBuildStatusForDay(productArea, System.currentTimeMillis()));
-        //return jsonObject;
+        result.put("data", productAreaJson);
         return result;
     }
-
 
 }

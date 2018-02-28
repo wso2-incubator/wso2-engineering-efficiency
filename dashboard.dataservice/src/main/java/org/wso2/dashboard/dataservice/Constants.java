@@ -18,12 +18,18 @@
  */
 package org.wso2.dashboard.dataservice;
 
+import java.math.BigInteger;
+
 /**
  * This class contains constant variables used by all other classes
  */
 public class Constants {
 
     public static final int TWENTY_FOUR_HOURS = 86400000;
+    public static final BigInteger ONE_MONTH = new BigInteger("2592000000");
     public static final String DATABASE_URL = "jdbc:mysql://127.0.0.1:3308/DependencyUpdateDB";
+    public static final int BUIlD_SUCCESS_CODE = 1;
+    public static final int BUIlD_FAILED_CODE = 0;
+    public static final int BUIlD_NOT_AVAILABLE_CODE = 2;
 
 }

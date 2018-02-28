@@ -24,11 +24,13 @@ import java.util.ArrayList;
  * TODO:Class level comment
  */
 public class ProductArea {
+
     String name;
 
     ArrayList<String> components;
 
-    public ProductArea(String name){
+    public ProductArea(String name) {
+
         this.name = name;
         components = new ArrayList<>();
     }
@@ -47,6 +49,5 @@ public class ProductArea {
 
         return name;
     }
-
 
 }

@@ -18,11 +18,14 @@
  */
 package org.wso2.dashboard.dataservice.ProductBuildStatus;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.dashboard.dataservice.Constants;
 import org.wso2.dashboard.dataservice.Database.LocalDBConnector;
 import org.wso2.dashboard.dataservice.Model.BuildStat;
 import org.wso2.dashboard.dataservice.Model.ProductArea;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -30,6 +33,8 @@ import java.util.Date;
  * Contains methods for retrieving build status
  */
 public class BuildStatusFinder {
+
+    private static final Log log = LogFactory.getLog(BuildStatusFinder.class);
 
     /**
      * This method identifies the build status of a productArea for a given date
@@ -43,11 +48,11 @@ public class BuildStatusFinder {
         ArrayList<String> componentList = productArea.getComponents();
         for (String componentName : componentList) {
             int status = getLatestBuildStatisticsForDay(componentName, timeStamp);
-            if (status == 0 || status == 2) {
+            if (status == Constants.BUIlD_FAILED_CODE || status == Constants.BUIlD_NOT_AVAILABLE_CODE) {
                 return status;
             }
         }
-        return 1;
+        return Constants.BUIlD_SUCCESS_CODE;
 
     }
 
@@ -65,16 +70,16 @@ public class BuildStatusFinder {
         long endTime = timeStamp + Constants.TWENTY_FOUR_HOURS;
         ArrayList<BuildStat> buildStats = LocalDBConnector.getBuildStats(componentName, startTime, endTime);
         if (buildStats.size() == 0) {
-            return 2;
+            return Constants.BUIlD_NOT_AVAILABLE_CODE;
         } else {
             BuildStat latestBuildStat = buildStats.get(0);
-            int index = 1;
-            while (!isSameDate(latestBuildStat.getTimestamp().longValue(), timeStamp) && index < buildStats.size()) {
+            int index = 0;
+            while (index < buildStats.size() && !isSameDate(latestBuildStat.getTimestamp().longValue(), timeStamp)) {
                 latestBuildStat = buildStats.get(index);
                 index += 1;
             }
             if (index == buildStats.size()) {
-                return 2;
+                return Constants.BUIlD_NOT_AVAILABLE_CODE;
             }
             return latestBuildStat.getStatus();
         }
@@ -92,7 +97,46 @@ public class BuildStatusFinder {
 
         Date date1 = new Date(timeStamp1);
         Date date2 = new Date(timeStamp2);
-        return (date1.getDay() == date2.getDay() && date1.getMonth() == date2.getMonth() && date1.getYear() == date2.getYear());
+        boolean state = (date1.getDay() == date2.getDay() && date1.getMonth() == date2.getMonth() && date1.getYear() == date2.getYear());
+        return state;
+    }
+
+    public static int getMonthlyState(ProductArea productArea, long timestamp) {
+
+        double totalScore = 0;
+        ArrayList<String> components = productArea.getComponents();
+        for (String component : components) {
+            long startTime = (BigInteger.valueOf(timestamp).subtract(Constants.ONE_MONTH).longValue());
+            double componentScore = LocalDBConnector.getComponentScore(component, startTime, timestamp);
+            totalScore += componentScore;
+        }
+        return getStatusCodeForScore(totalScore / components.size());
+    }
+
+    private static int getStatusCodeForScore(double score) {
+
+        if (score < 0.3) {
+            return 12;
+        } else if (score < 0.6) {
+            return 13;
+        } else if (score < 0.9) {
+            return 14;
+        } else if (score == 1) {
+            return 15;
+        } else {
+            return 11;
+        }
+    }
+
+    public static int getWeeklyState(ProductArea productArea, long timestamp) {
+
+        double totalScore = 0;
+        ArrayList<String> components = productArea.getComponents();
+        for (String component : components) {
+            double componentScore = LocalDBConnector.getComponentScore(component, (timestamp - (7 * Constants.TWENTY_FOUR_HOURS)), timestamp);
+            totalScore += componentScore;
+        }
+        return getStatusCodeForScore(totalScore / components.size());
 
     }
 
