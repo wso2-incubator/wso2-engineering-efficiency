@@ -43,7 +43,7 @@ public class RepositoryHandler {
      */
     public static boolean copyProjectToTempDirectory(Component component) {
 
-        String sourcePath = Constants.ROOT_PATH + component.getName();
+        String sourcePath = ConfigFileReader.ROOT_PATH + component.getName();
         String destinationPath = sourcePath + Constants.SUFFIX_TEMP_FILE;
         File source = new File(sourcePath);
         File dest = new File(destinationPath);

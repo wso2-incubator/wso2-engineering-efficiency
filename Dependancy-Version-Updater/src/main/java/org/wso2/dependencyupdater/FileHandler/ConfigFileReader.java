@@ -40,13 +40,14 @@ public class ConfigFileReader {
     public static String MAVEN_HOME;
     public static String GITHUB_USERNAME;
     public static String GITHUB_PASSWORD;
+    public static String ROOT_PATH;
 
     /**
      * Retrieves set of values from configuration file
      */
     public static void readConfigFile() {
 
-        File configFile = new File(Constants.CONFIG_FILE_NAME);
+        File configFile = new File(Constants.RESOURCE_PATH+File.separator+Constants.CONFIG_FILE_NAME);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -55,9 +56,11 @@ public class ConfigFileReader {
             Node mavenHomeNode = doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0);
             Node githubUsernameNode = doc.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0);
             Node githubPasswordNode = doc.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0);
+            Node rootPathNode = doc.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0);
             GITHUB_USERNAME = githubUsernameNode.getTextContent();
             GITHUB_PASSWORD = githubPasswordNode.getTextContent();
             MAVEN_HOME = mavenHomeNode.getTextContent();
+            ROOT_PATH = rootPathNode.getTextContent();
         } catch (ParserConfigurationException e) {
             String errorMessage = "Error occurred in Configurations";
             log.error(errorMessage, e);

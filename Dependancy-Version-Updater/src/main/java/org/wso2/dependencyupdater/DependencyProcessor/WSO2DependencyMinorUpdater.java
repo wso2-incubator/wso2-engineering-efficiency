@@ -24,6 +24,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.Model.OutdatedDependency;
 import org.wso2.dependencyupdater.ReportGenerator.OutdatedDependencyReporter;
 
@@ -69,7 +70,7 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
         log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in " + pomLocation);
 
-        outdatedDependencyReporter.saveToCSV(Constants.ROOT_PATH + "/Reports/" + pomLocation.replace('/', '_'));
+        outdatedDependencyReporter.saveToCSV(ConfigFileReader.ROOT_PATH + "/Reports/" + pomLocation.replace('/', '_'));
         return model;
     }
 

@@ -55,7 +55,7 @@ public class GithubConnector {
         try {
             String logMessage = "Calling git pull command for component: " + component.getName();
             log.info(logMessage);
-            status = Git.open(new File(Constants.ROOT_PATH + File.separator + component.getName())).pull().call().isSuccessful();
+            status = Git.open(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName())).pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
             String errorMessage = "Branch not found in remote repository. Therefore cannot update the existing local repository" + component.getName();
@@ -86,7 +86,7 @@ public class GithubConnector {
             git = Git.cloneRepository()
                     .setCredentialsProvider(credentialsProvider)
                     .setURI(component.getUrl())
-                    .setDirectory(new File(Constants.ROOT_PATH + File.separator + component.getName())).call();
+                    .setDirectory(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName())).call();
             return true;
 
         } catch (InvalidRemoteException e) {
@@ -113,7 +113,7 @@ public class GithubConnector {
 
         log.info("Retrieving component: " + component.getName());
 
-        File repository = new File(Constants.ROOT_PATH + File.separator + component.getName());
+        File repository = new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName());
         if (repository.exists() && repository.isDirectory()) {
             String logMessage = "Existing repository found for : " + component.getName();
             log.info(logMessage);

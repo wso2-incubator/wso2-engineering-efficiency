@@ -112,7 +112,7 @@ public class Application {
     private static boolean updateComponentDependencies(DependencyUpdater dependencyUpdater, String componentDirectoryName) {
 
         boolean updateStatus = false;
-        String componentPath = Constants.ROOT_PATH + componentDirectoryName;
+        String componentPath = ConfigFileReader.ROOT_PATH + componentDirectoryName;
         ArrayList<Model> modelList = new ArrayList<Model>();
 
         POMReader pomReader = new POMReader();

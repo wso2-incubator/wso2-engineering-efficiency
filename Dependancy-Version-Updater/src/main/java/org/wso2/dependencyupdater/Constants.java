@@ -21,11 +21,12 @@ package org.wso2.dependencyupdater;
 
 public class Constants {
 
-    public static final String ROOT_PATH = "/home/dimuth/Documents/DM-Root/";
     public static final String POM_NAME = "pom.xml";
     public static final String GET_LATEST_VERSION_URL = "http://localhost:9094/aethermicroservice/getLatest";
     public static final String EMPTY_STRING = "";
     public static final String CONFIG_FILE_NAME = "config.xml";
+    public static final String RESOURCE_PATH = "Resources";
+
     public static final String GET_VERSION_LIST = "http://localhost:9094/aethermicroservice/getVersions";
     public static final String CSV_DELIMITER = ",";
     public static final String CSV_END_OF_LINE = "\n";
@@ -33,6 +34,7 @@ public class Constants {
     public static final String MAVEN_HOME_TAG = "M2_HOME";
     public static final String GITHUB_USERNAME_TAG = "GITHUB_USERNAME";
     public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";
+    public static final String ROOT_PATH_TAG ="ROOT_PATH";
 
     public static final String WSO2_GROUP_TAG = "org.wso2";
     public static final String PROPERTY_START_TAG = "${";
