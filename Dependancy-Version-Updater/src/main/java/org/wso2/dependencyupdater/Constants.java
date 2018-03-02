@@ -34,7 +34,7 @@ public class Constants {
     public static final String MAVEN_HOME_TAG = "M2_HOME";
     public static final String GITHUB_USERNAME_TAG = "GITHUB_USERNAME";
     public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";
-    public static final String ROOT_PATH_TAG ="ROOT_PATH";
+    public static final String ROOT_PATH_TAG = "ROOT_PATH";
 
     public static final String WSO2_GROUP_TAG = "org.wso2";
     public static final String PROPERTY_START_TAG = "${";
@@ -51,9 +51,7 @@ public class Constants {
     public static final String MAVEN_INVOKE_COMMAND_WITHOUT_TESTS = "clean install -DskipTests";
     public static final String MAVEN_INVOKE_COMMAND = "clean install";
     public static final String CSV_FILE_EXTENSION = ".csv";
-    public static final String MYSQL_DB_URL = "jdbc:mysql://127.0.0.1:3308";
     public static final String MYSQL_DB_USERNAME = "root";
-    public static final String MYSQL_DB_PASSWORD = "";
     public static final String MAVEN_LOG_SUBDIRECTORY = "Error Log";
     public static final String LOG_SEPERATOR = "==============================================================";
 
@@ -64,4 +62,8 @@ public class Constants {
     public static final int BUILD_NOT_AVAILABLE_CODE = 2;
 
     public static final String SUFFIX_TEMP_FILE = "-temp";
+    public static final String MYSQL_USERNAME_TAG = "MYSQL_USERNAME";
+    public static final String MYSQL_PASSWORD_TAG = "MYSQL_PASSWORD";
+    public static final String MYSQL_DATABASE_URL_TAG = "MYSQL_DATABASE_URL";
+    public static final String MYSQL_DATABASE_NAME_TAG = "MYSQL_DATABASE_NAME";
 }

@@ -56,13 +56,13 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
         for (Dependency dependency : dependencies) {
+            log.info(Constants.LOG_SEPERATOR);
             if (isValidUpdate(dependency, localProperties, globalProperties)) {
-                log.info(Constants.LOG_SEPERATOR);
                 String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
                 updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
                 outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
-                log.info(Constants.LOG_SEPERATOR);
             }
+            log.info(Constants.LOG_SEPERATOR);
         }
         localProperties = addUpdateStatus(localProperties, outdatedDependencies.size());
         model.setDependencies(updatedDependencies);

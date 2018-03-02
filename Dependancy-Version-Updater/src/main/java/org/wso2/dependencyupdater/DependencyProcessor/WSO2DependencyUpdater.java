@@ -41,9 +41,9 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
     /**
      * Rules for updating WSO2 Dependencies
      *
-     * @param model            org.apache.maven.model.Model that represent the attributes of a particular pom.xml
-     * @param globalProperties java.util.Properties object with all the properties included in the root pom.xml
-     * @return state of update operation
+     * @param model            org.apache.maven.model.Model -represent the attributes of a  pom.xml
+     * @param globalProperties java.util.Properties - all the properties in the root pom.xml
+     * @return update operation state
      */
     public boolean updateModel(Model model, Properties globalProperties) {
 
@@ -204,6 +204,7 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      */
     boolean isValidUpdate(Dependency dependency, Properties localProperties, Properties globalProperties) {
 
+        log.info(dependency.getGroupId() + ":" + dependency.getArtifactId());
         String currentVersion = dependency.getVersion();
         if (isPropertyTag(currentVersion)) {
             String propertyKey = getVersionKey(currentVersion);
@@ -214,34 +215,29 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
             dependency.setVersion(currentVersion);
 
         }
-        log.info(dependency.getGroupId() + ":" + dependency.getArtifactId() + "  " + currentVersion + "  ");
-        if (currentVersion == null) {
-            if (log.isDebugEnabled()) {
-                log.info("current version is null");
-            }
-            return false;
-        }
         if (!dependency.getGroupId().contains(Constants.WSO2_GROUP_TAG)) {
-            if (log.isDebugEnabled()) {
-                log.info("Dependency does not belongs to WSO2");
-            }
+            log.info("dependency does not belong to org.wso2");
             return false;
         }
+        if (currentVersion == null) {
+            log.info("version value not mentioned in the pom file");
+            return false;
+        }
+        if (currentVersion.toLowerCase().contains("snapshot")) {
+            log.info("current version is a snapshot version");
+            return false;
+        }
+
         String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
 
         if (latestVersion.length() == 0) {
-            if (log.isDebugEnabled()) {
-                log.info("Latest version Not Found");
-            }
-
+            log.info("latest version not found");
             return false;
         } else if (latestVersion.equals(currentVersion)) {
-            if (log.isDebugEnabled()) {
-                log.info("Already in the latest version");
-            }
+            log.info("already in the latest version");
             return false;
         }
-        log.info("Dependency " + dependency.getGroupId() + ":" + dependency.getArtifactId() + " Updated from version " + currentVersion + " to " + latestVersion);
+        log.info("dependency " + dependency.getGroupId() + ":" + dependency.getArtifactId() + " updated from version " + currentVersion + " to " + latestVersion);
         return true;
     }
 

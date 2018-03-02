@@ -48,7 +48,7 @@ public class RepositoryHandler {
         File source = new File(sourcePath);
         File dest = new File(destinationPath);
         try {
-            deleteFile(destinationPath);
+            deleteDirectory(destinationPath);
             FileUtils.copyDirectory(source, dest);
             log.info("Temporary file created for " + component.getName());
             return true;
@@ -64,11 +64,11 @@ public class RepositoryHandler {
      *
      * @param destination location of the Directory
      */
-    private static void deleteFile(String destination) {
+    private static void deleteDirectory(String destination) {
 
         try {
             FileUtils.deleteDirectory(new File(destination));
-            log.info("Existing temporary file deleted :" + destination);
+            log.info("Existing temporary folder deleted :" + destination);
         } catch (IOException e) {
             String errorMessage = "File Not Found";
             log.error(errorMessage, e);

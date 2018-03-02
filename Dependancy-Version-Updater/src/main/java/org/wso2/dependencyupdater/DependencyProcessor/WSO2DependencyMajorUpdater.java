@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.wso2.dependencyupdater.Application;
-import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.Model.OutdatedDependency;
 import org.wso2.dependencyupdater.ReportGenerator.OutdatedDependencyReporter;

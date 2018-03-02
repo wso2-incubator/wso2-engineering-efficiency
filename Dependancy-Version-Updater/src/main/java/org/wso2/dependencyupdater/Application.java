@@ -58,10 +58,14 @@ public class Application {
 
             boolean gitUpdateSuccessful = GithubConnector.retrieveComponent(component);
             long updatedTimeStamp = System.currentTimeMillis();
-            boolean copySuccessful = RepositoryHandler.copyProjectToTempDirectory(component);
+            boolean copySuccessful = false;
+            if(gitUpdateSuccessful){
+                copySuccessful = RepositoryHandler.copyProjectToTempDirectory(component);
+            }
+
             String componentTemporaryDirectoryName = component.getName() + Constants.SUFFIX_TEMP_FILE;
 
-            if (gitUpdateSuccessful && copySuccessful) {
+            if (copySuccessful) {
 
                 boolean componentUpdateStatus = updateComponentDependencies(dependencyUpdater, componentTemporaryDirectoryName);
                 if (componentUpdateStatus) {
@@ -88,6 +92,11 @@ public class Application {
                     }
 
                 }
+            }
+            else{
+                log.info("Component retrieving failed:" + component.getName());
+                component.setStatus(Constants.BUILD_FAIL_CODE);
+                DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
             }
             log.info("Component processing finished :" + component.getName());
             log.info(Constants.LOG_SEPERATOR);

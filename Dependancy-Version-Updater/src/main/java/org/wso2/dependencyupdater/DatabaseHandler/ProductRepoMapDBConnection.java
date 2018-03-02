@@ -21,6 +21,7 @@ package org.wso2.dependencyupdater.DatabaseHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,27 +32,19 @@ import java.sql.SQLException;
  */
 public class ProductRepoMapDBConnection {
 
+    private static final Log log = LogFactory.getLog(ProductRepoMapDBConnection.class);
     private static ProductRepoMapDBConnection instance;
     private Connection connection;
-    private String url = Constants.MYSQL_DB_URL + "/DependencyUpdateDB";
-    private String username = "root";
-    private String password = "";
-
-    private static final Log log = LogFactory.getLog(ProductRepoMapDBConnection.class);
+    private String url = ConfigFileReader.MYSQL_DATABASE_URL + "/"+ConfigFileReader.MYSQL_DATABASE_NAME;
 
     private ProductRepoMapDBConnection() throws SQLException {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            this.connection = DriverManager.getConnection(url, username, password);
+            this.connection = DriverManager.getConnection(url, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
         } catch (ClassNotFoundException ex) {
             log.error("Connecting to Database failed", ex);
         }
-    }
-
-    public Connection getConnection() {
-
-        return connection;
     }
 
     public static ProductRepoMapDBConnection getInstance() throws SQLException {
@@ -63,5 +56,10 @@ public class ProductRepoMapDBConnection {
         }
 
         return instance;
+    }
+
+    public Connection getConnection() {
+
+        return connection;
     }
 }
