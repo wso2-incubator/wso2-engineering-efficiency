@@ -20,7 +20,6 @@ package org.wso2.dependencyupdater.DatabaseHandler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 
 import java.sql.Connection;
@@ -35,7 +34,7 @@ public class ProductRepoMapDBConnection {
     private static final Log log = LogFactory.getLog(ProductRepoMapDBConnection.class);
     private static ProductRepoMapDBConnection instance;
     private Connection connection;
-    private String url = ConfigFileReader.MYSQL_DATABASE_URL + "/"+ConfigFileReader.MYSQL_DATABASE_NAME;
+    private String url = ConfigFileReader.MYSQL_DATABASE_URL + "/" + ConfigFileReader.MYSQL_DATABASE_NAME;
 
     private ProductRepoMapDBConnection() throws SQLException {
 

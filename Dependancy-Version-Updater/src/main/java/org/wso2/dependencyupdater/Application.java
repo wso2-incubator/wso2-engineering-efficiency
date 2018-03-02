@@ -59,7 +59,7 @@ public class Application {
             boolean gitUpdateSuccessful = GithubConnector.retrieveComponent(component);
             long updatedTimeStamp = System.currentTimeMillis();
             boolean copySuccessful = false;
-            if(gitUpdateSuccessful){
+            if (gitUpdateSuccessful) {
                 copySuccessful = RepositoryHandler.copyProjectToTempDirectory(component);
             }
 
@@ -92,8 +92,7 @@ public class Application {
                     }
 
                 }
-            }
-            else{
+            } else {
                 log.info("Component retrieving failed:" + component.getName());
                 component.setStatus(Constants.BUILD_FAIL_CODE);
                 DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
@@ -116,7 +115,7 @@ public class Application {
     /**
      * @param dependencyUpdater      DependencyUpdater Object with set of rules to update dependencies
      * @param componentDirectoryName Name of the directory that contains the component
-     * @return
+     * @return boolean value indicating update process success
      */
     private static boolean updateComponentDependencies(DependencyUpdater dependencyUpdater, String componentDirectoryName) {
 
@@ -124,9 +123,7 @@ public class Application {
         String componentPath = ConfigFileReader.ROOT_PATH + componentDirectoryName;
         ArrayList<Model> modelList = new ArrayList<Model>();
 
-        POMReader pomReader = new POMReader();
-
-        Model model = pomReader.getPomModel(componentPath); //reading the root pom as a model
+        Model model = POMReader.getPomModel(componentPath); //reading the root pom as a model
         if (model.getPomFile() != null) {
             Properties properties = model.getProperties();
             properties.setProperty(Constants.PROJECT_VERSION_STRING, model.getVersion());
@@ -134,7 +131,7 @@ public class Application {
 
             List<String> modules = model.getModules();
             for (String module : modules) {
-                model = pomReader.getPomModel(componentPath + File.separator + module); //create model for each child pom mentioned in root pom
+                model = POMReader.getPomModel(componentPath + File.separator + module); //create model for each child pom mentioned in root pom
                 modelList.add(model);
             }
             for (Model childModel : modelList) {

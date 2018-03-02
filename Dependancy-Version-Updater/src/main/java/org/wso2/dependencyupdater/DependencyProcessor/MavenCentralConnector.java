@@ -33,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.ProductRetrieve.GithubConnector;
 
 import java.io.BufferedReader;
@@ -69,7 +70,7 @@ public class MavenCentralConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(Constants.GET_LATEST_VERSION_URL);
+            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICROSERVICE_URL + "/" + "getLatest");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
 
@@ -119,7 +120,7 @@ public class MavenCentralConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(Constants.GET_VERSION_LIST);
+            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICROSERVICE_URL + "/" + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() == 200) {
@@ -184,7 +185,7 @@ public class MavenCentralConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(Constants.GET_VERSION_LIST);
+            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICROSERVICE_URL + "/" + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() == 200) {

@@ -44,7 +44,13 @@ public class MavenOutputHandler extends PrintStreamHandler {
         this(true, new PrintStream(new FileOutputStream(file, true)));
     }
 
-    public MavenOutputHandler(boolean alwaysFlush, PrintStream printStream) {
+    /**
+     * Constructor for the class
+     *
+     * @param alwaysFlush invoke write method each println
+     * @param printStream Print stream to output Maven outputs
+     */
+    private MavenOutputHandler(boolean alwaysFlush, PrintStream printStream) {
 
         this.printStream = printStream;
         this.alwaysFlush = alwaysFlush;

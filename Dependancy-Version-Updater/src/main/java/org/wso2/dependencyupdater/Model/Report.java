@@ -31,11 +31,19 @@ public abstract class Report<Type> {
 
     protected List<Type> reportEntries;
 
+    /**
+     * Constructor to create new report
+     */
     public Report() {
 
         reportEntries = new ArrayList<Type>();
     }
 
+    /**
+     * Add set of entries to outputs
+     *
+     * @param entries set of items to output
+     */
     public void setReportEntries(List<Type> entries) {
 
         this.reportEntries = entries;
@@ -44,8 +52,8 @@ public abstract class Report<Type> {
     /**
      * This method handle the reporting part based on Object type reporting
      *
-     * @param filename
-     * @return
+     * @param filename Name of the file to save outputs
+     * @return boolean value indicating output status
      */
     public abstract boolean saveToCSV(String filename);
 

@@ -28,23 +28,10 @@ public class Component {
     private int status;
     private String url;
 
-    public Component(String name, int status, String url) {
-
-        this.name = name;
-        this.status = status;
-        this.url = url;
-    }
-
     public Component(String name, String url) {
 
         this.name = name;
         this.url = url;
-    }
-
-    public Component(String name) {
-
-        this.name = name;
-
     }
 
     public String getUrl() {

@@ -31,12 +31,6 @@ public class OutdatedDependency extends org.apache.maven.model.Dependency {
     private String latestVersion;
     private List<String> newVersions;
 
-    public OutdatedDependency() {
-
-        super();
-
-    }
-
     public OutdatedDependency(Dependency dependency) {
 
         this.setGroupId(dependency.getGroupId());
