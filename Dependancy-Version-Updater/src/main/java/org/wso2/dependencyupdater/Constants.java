@@ -37,8 +37,8 @@ public class Constants {
     public static final String JSON_OBJECT_END_TAG = "}";
     public static final String JSON_OBJECT_KEY_VALUE_SEPARATOR = ":";
     public static final String JSON_OBJECT_ELEMENT_SEPARATOR = ",";
-    public static final String URL_SEPARATOR ="/";
-
+    public static final String URL_SEPARATOR = "/";
+    public static final String DOT_REGEX = "\\.";
 
     //String names
     public static final String PROJECT_VERSION_STRING = "project.version";
@@ -69,4 +69,5 @@ public class Constants {
     public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";
     public static final String ROOT_PATH_TAG = "ROOT_PATH";
 
+    public static final Object UPDATE_STATUS_TEMPORARY_PROPERTY = "update.status";
 }

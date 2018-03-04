@@ -24,7 +24,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.WriterFactory;
-import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 
 import java.io.File;
@@ -36,7 +35,7 @@ import java.io.Writer;
  */
 class POMWriter {
 
-    private static final Log log = LogFactory.getLog(Application.class);
+    private static final Log log = LogFactory.getLog(POMWriter.class);
 
     /**
      * Writes a org.apache.maven.model.Model to a pom.xml
@@ -55,8 +54,7 @@ class POMWriter {
             return true;
 
         } catch (IOException e) {
-            String errorMessage = "Location does not exists";
-            log.error(errorMessage, e);
+            log.error("Failed to locate pom.xml file ", e);
         } finally {
             IOUtil.close(fileWriter);
         }

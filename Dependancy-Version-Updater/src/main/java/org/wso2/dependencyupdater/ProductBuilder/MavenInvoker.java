@@ -19,7 +19,6 @@
 
 package org.wso2.dependencyupdater.ProductBuilder;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
@@ -30,7 +29,6 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.DatabaseHandler.ProductRepoMapDBConnection;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.FileHandler.MavenOutputHandler;
 
@@ -39,13 +37,14 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 
-
 /**
  * Contains methods for Invoking maven commands
  */
 
 public class MavenInvoker {
+
     private static final Log log = LogFactory.getLog(MavenInvoker.class);
+
     /**
      * Method to invoke maven clean install command
      *
@@ -64,8 +63,8 @@ public class MavenInvoker {
             InvocationOutputHandler outputHandler = new MavenOutputHandler(logFile);
             request.setOutputHandler(outputHandler);
         } catch (FileNotFoundException e) {
-            log.error("Location for log files not found",e);
-        }catch (UnsupportedEncodingException e){
+            log.error("Location for log files not found", e);
+        } catch (UnsupportedEncodingException e) {
             log.error("Encoding format not supported", e);
         }
 
@@ -76,17 +75,15 @@ public class MavenInvoker {
         try {
             invocationResult = invoker.execute(request);
             if (invocationResult.getExitCode() == 0) {
-                String logMessage = "Maven build Successful :" + getComponentName(directoryName);
-                log.info(logMessage);
+                log.info("Maven build Successful :" + getComponentName(directoryName));
                 return Constants.BUILD_SUCCESS_CODE;
             } else {
-                String logMessage = "Maven build Failed :" + getComponentName(directoryName);
-                log.info(logMessage, invocationResult.getExecutionException());
+                log.info("Maven build Failed :" + getComponentName(directoryName), invocationResult.getExecutionException());
             }
 
         } catch (MavenInvocationException e) {
-            String errorMessage = "Failed to invoke :" + Constants.MAVEN_INVOKE_COMMAND;
-            log.error(errorMessage);
+
+            log.error("Failed to invoke :" + Constants.MAVEN_INVOKE_COMMAND);
         }
         return Constants.BUILD_FAIL_CODE;
     }

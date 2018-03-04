@@ -53,8 +53,7 @@ public class RepositoryHandler {
             log.info("Temporary file created for " + component.getName());
             return true;
         } catch (IOException e) {
-            String errorMessage = "File Not Found";
-            log.error(errorMessage, e);
+            log.error("Directory not found for copying", e);
         }
         return false;
     }
@@ -70,8 +69,8 @@ public class RepositoryHandler {
             FileUtils.deleteDirectory(new File(destination));
             log.info("Existing temporary folder deleted :" + destination);
         } catch (IOException e) {
-            String errorMessage = "File Not Found";
-            log.error(errorMessage, e);
+
+            log.error("Directory not found for deleting", e);
         }
     }
 

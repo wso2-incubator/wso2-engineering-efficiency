@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 
 import java.io.File;
@@ -37,7 +36,7 @@ import java.io.InputStreamReader;
  */
 public class POMReader {
 
-    private static final Log log = LogFactory.getLog(Application.class);
+    private static final Log log = LogFactory.getLog(POMReader.class);
 
     /**
      * This method reads pom file as a model
@@ -57,11 +56,9 @@ public class POMReader {
             model.setPomFile(pomFile);
 
         } catch (IOException e) {
-            String logMessage = "Pom file not found";
-            log.error(logMessage);
+            log.error("Failed to locate pom.xml file ", e);
         } catch (XmlPullParserException e) {
-            String logMessage = "Error occurred in XMLPullParser ";
-            log.error(logMessage);
+            log.error("Error occurred in XMLPullParser ", e);
         }
         return model;
     }

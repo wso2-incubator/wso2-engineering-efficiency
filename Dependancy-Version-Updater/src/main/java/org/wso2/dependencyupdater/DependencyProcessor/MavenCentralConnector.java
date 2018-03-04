@@ -33,7 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
-import org.wso2.dependencyupdater.ProductRetrieve.GithubConnector;
+import org.wso2.dependencyupdater.ProductRetrieve.GitHubConnector;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +46,7 @@ import java.util.ArrayList;
  */
 public class MavenCentralConnector {
 
-    private static final Log log = LogFactory.getLog(GithubConnector.class);
+    private static final Log log = LogFactory.getLog(GitHubConnector.class);
 
     /**
      * Identify the latest available version for a given dependency
@@ -85,7 +85,7 @@ public class MavenCentralConnector {
                 return jsonObject.getString(Constants.LATEST_VERSION_KEY);
             }
         } catch (UnsupportedEncodingException e) {
-            log.error("Encoding method not supported",e);
+            log.error("Encoding method not supported", e);
         } catch (IOException e) {
             log.error("Invalid request or respond", e);
         }
@@ -141,7 +141,7 @@ public class MavenCentralConnector {
                 return versions;
             }
         } catch (UnsupportedEncodingException e) {
-            log.error("Encoding method not supported",e);
+            log.error("Encoding method not supported", e);
         } catch (IOException e) {
             log.error("Invalid request or respond", e);
         }
@@ -190,8 +190,8 @@ public class MavenCentralConnector {
                 latestVersion = getLatestMinorVersionFromJson(currentVersion, versionList);
                 return latestVersion;
             }
-        }catch (UnsupportedEncodingException e) {
-            log.error("Encoding method not supported",e);
+        } catch (UnsupportedEncodingException e) {
+            log.error("Encoding method not supported", e);
         } catch (IOException e) {
             log.error("Invalid request or respond", e);
         }
@@ -215,7 +215,7 @@ public class MavenCentralConnector {
             while (!majorVersionFound && index < versionList.length()) {
                 version = versionList.get(index).toString();
                 if (currentMajorVersionId >= getMajorFromVersion(version)) {
-                    index += 1;
+                    index++;
                 } else {
                     majorVersionFound = true;
                 }
@@ -242,7 +242,7 @@ public class MavenCentralConnector {
      */
     private static int getMajorFromVersion(String version) throws NullPointerException, NumberFormatException {
 
-        return Integer.parseInt(version.split("\\.")[0]);
+        return Integer.parseInt(version.split(Constants.DOT_REGEX)[0]);
 
     }
 }

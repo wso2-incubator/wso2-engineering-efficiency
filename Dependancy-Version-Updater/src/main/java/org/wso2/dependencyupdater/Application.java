@@ -25,13 +25,12 @@ import org.apache.maven.model.Model;
 import org.wso2.dependencyupdater.DatabaseHandler.DatabaseConnector;
 import org.wso2.dependencyupdater.DependencyProcessor.DependencyUpdater;
 import org.wso2.dependencyupdater.DependencyProcessor.POMReader;
-import org.wso2.dependencyupdater.DependencyProcessor.WSO2DependencyMajorUpdater;
 import org.wso2.dependencyupdater.DependencyProcessor.WSO2DependencyMinorUpdater;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.FileHandler.RepositoryHandler;
 import org.wso2.dependencyupdater.Model.Component;
 import org.wso2.dependencyupdater.ProductBuilder.MavenInvoker;
-import org.wso2.dependencyupdater.ProductRetrieve.GithubConnector;
+import org.wso2.dependencyupdater.ProductRetrieve.GitHubConnector;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,9 +54,9 @@ public class Application {
 
         for (Component component : components) {
             log.info(Constants.LOG_SEPARATOR);
-            log.info("Component processing started :"+component.getName());
+            log.info("Component processing started :" + component.getName());
 
-            boolean gitUpdateSuccessful = GithubConnector.retrieveComponent(component);
+            boolean gitUpdateSuccessful = GitHubConnector.retrieveComponent(component);
             long updatedTimeStamp = System.currentTimeMillis();
             boolean copySuccessful = false;
             if (gitUpdateSuccessful) {
@@ -122,7 +121,7 @@ public class Application {
 
         boolean updateStatus = false;
         String componentPath = ConfigFileReader.ROOT_PATH + componentDirectoryName;
-        ArrayList<Model> modelList = new ArrayList<Model>();
+        ArrayList<Model> modelList = new ArrayList<>();
 
         Model model = POMReader.getPomModel(componentPath); //reading the root pom as a model
         if (model.getPomFile() != null) {

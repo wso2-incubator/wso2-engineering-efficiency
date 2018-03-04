@@ -37,6 +37,7 @@ public class ProductRepoMapDBConnection {
     private Connection connection;
 
     private ProductRepoMapDBConnection() throws SQLException {
+
         String className = "com.mysql.jdbc.Driver";
         try {
 
@@ -44,7 +45,7 @@ public class ProductRepoMapDBConnection {
             String url = ConfigFileReader.MYSQL_DATABASE_URL + Constants.URL_SEPARATOR + ConfigFileReader.MYSQL_DATABASE_NAME;
             this.connection = DriverManager.getConnection(url, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
         } catch (ClassNotFoundException e) {
-            log.error("MYSQL Class not found for class "+className, e);
+            log.error("MYSQL Class not found for class " + className, e);
         }
     }
 

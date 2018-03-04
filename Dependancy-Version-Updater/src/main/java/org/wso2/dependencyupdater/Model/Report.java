@@ -36,7 +36,7 @@ public abstract class Report<Type> {
      */
     protected Report() {
 
-        reportEntries = new ArrayList<Type>();
+        reportEntries = new ArrayList<>();
     }
 
     /**

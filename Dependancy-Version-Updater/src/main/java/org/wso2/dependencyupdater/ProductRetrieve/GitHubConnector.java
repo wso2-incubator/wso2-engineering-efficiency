@@ -37,9 +37,9 @@ import java.io.IOException;
 /**
  * Contains methods for communicating with github
  */
-public class GithubConnector {
+public class GitHubConnector {
 
-    private static final Log log = LogFactory.getLog(GithubConnector.class);
+    private static final Log log = LogFactory.getLog(GitHubConnector.class);
 
     /**
      * Method for updating components from github
@@ -51,19 +51,15 @@ public class GithubConnector {
 
         boolean status = false;
         try {
-            String logMessage = "Calling git pull command for component: " + component.getName();
-            log.info(logMessage);
+            log.info("Calling git pull command for component: " + component.getName());
             status = Git.open(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName())).pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
-            String errorMessage = "Branch not found in remote repository. Therefore cannot update the existing local repository" + component.getName();
-            log.error(errorMessage);
+            log.error("Branch not found in remote repository. Therefore cannot update the existing local repository" + component.getName());
         } catch (IOException e) {
-            String errorMessage = "Component directory cannot be found :" + component.getName();
-            log.error(errorMessage);
+            log.error("Component directory cannot be found :" + component.getName());
         } catch (GitAPIException e) {
-            String errorMessage = "Failed to execute git command " + component.getName();
-            log.error(errorMessage);
+            log.error("Failed to execute git command " + component.getName());
         }
 
         return status;
@@ -79,8 +75,7 @@ public class GithubConnector {
 
         CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(ConfigFileReader.GITHUB_USERNAME, ConfigFileReader.GITHUB_PASSWORD);
         try {
-            String logMessage = "Cloning the repository to local storage: " + component.getName();
-            log.info(logMessage);
+            log.info("Cloning the repository to local storage: " + component.getName());
             Git.cloneRepository()
                     .setCredentialsProvider(credentialsProvider)
                     .setURI(component.getUrl())
@@ -88,15 +83,11 @@ public class GithubConnector {
             return true;
 
         } catch (InvalidRemoteException e) {
-            String errorMessage = "Remote repository not found :" + component.getUrl();
-            log.error(errorMessage);
-
+            log.error("Remote repository not found :" + component.getUrl());
         } catch (TransportException e) {
-            String errorMessage = "Protocol error has occurred while fetching objects " + component.getUrl();
-            log.error(errorMessage);
+            log.error("Protocol error has occurred while fetching objects " + component.getUrl());
         } catch (GitAPIException e) {
-            String errorMessage = "Error occurred in Git API " + component.getUrl();
-            log.error(errorMessage);
+            log.error("Error occurred in Git API " + component.getUrl());
         }
         return false;
     }
@@ -113,14 +104,11 @@ public class GithubConnector {
 
         File repository = new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName());
         if (repository.exists() && repository.isDirectory()) {
-            String logMessage = "Existing repository found for : " + component.getName();
-            log.info(logMessage);
+            log.info("Existing repository found for : " + component.getName());
             return update(component);
 
         } else {
-
-            String logMessage = "Existing repository not found for : " + component.getName();
-            log.info(logMessage);
+            log.info("Existing repository not found for : " + component.getName());
             return clone(component);
         }
     }

@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
-import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.Model.OutdatedDependency;
@@ -37,7 +36,7 @@ import java.util.Properties;
  */
 public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
 
-    private static final Log log = LogFactory.getLog(Application.class);
+    private static final Log log = LogFactory.getLog(WSO2DependencyMinorUpdater.class);
 
     /**
      * Retrieves the set of dependencies used in a model and set their version to latest available minor version
@@ -56,8 +55,9 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
         for (Dependency dependency : dependencies) {
+            dependency = replaceVersionFromPropertyValue(dependency, localProperties, globalProperties);
             log.info(Constants.LOG_SEPARATOR);
-            if (isValidUpdate(dependency, localProperties, globalProperties)) {
+            if (isValidUpdate(dependency)) {
                 String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
                 updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
                 outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
@@ -77,6 +77,42 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
             log.error("dependency update report saving failed");
         }
         return model;
+    }
+
+    /**
+     * This method validate a Dependency against a set of rules to identify whether dependency needs a update or not
+     *
+     * @param dependency Dependency Object
+     * @return boolean value indicating whether dependency should update or not
+     */
+    private boolean isValidUpdate(Dependency dependency) {
+
+        log.info(dependency.getGroupId() + ":" + dependency.getArtifactId());
+        String currentVersion = dependency.getVersion();
+        if (currentVersion == null) {
+            log.info("version value not mentioned in the pom file");
+            return false;
+        }
+        if (!dependency.getGroupId().contains(Constants.WSO2_GROUP_TAG)) {
+            log.info("dependency does not belong to org.wso2");
+            return false;
+        }
+        if (currentVersion.toLowerCase().contains("snapshot")) {
+            log.info("current version is a snapshot version");
+            return false;
+        }
+
+        String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
+
+        if (latestVersion.length() == 0) {
+            log.info("Latest Minor version not found");
+            return false;
+        } else if (latestVersion.equals(currentVersion)) {
+            log.info("Already in the latest Minor version");
+            return false;
+        }
+        log.info("dependency " + dependency.getGroupId() + ":" + dependency.getArtifactId() + " updated from version " + currentVersion + " to " + latestVersion);
+        return true;
     }
 
 }

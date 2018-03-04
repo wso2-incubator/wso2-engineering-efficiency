@@ -38,10 +38,10 @@ public class DatabaseConnector {
     private static final Log log = LogFactory.getLog(DatabaseConnector.class);
 
     /**
-     * This method insert build status to database
+     * Method to insert build status to database
      *
-     * @param component component object corresponding to build
-     * @param timeStamp updated timestamp
+     * @param component component object corresponding to build status
+     * @param timeStamp unix timestamp of update operation
      */
     public static void insertBuildStatus(Component component, long timeStamp) {
 

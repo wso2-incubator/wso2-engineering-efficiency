@@ -47,8 +47,7 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
     public boolean saveToCSV(String componentPath) {
         //If no entries in the entry list, report will not be generated
         if (reportEntries.isEmpty()) {
-            String logMessage = "Outdated dependency list is empty. Therefore report file will not be generated";
-            log.info(logMessage);
+            log.info("Outdated dependency list is empty. Therefore report file will not be generated");
             return false;
         }
         try {
@@ -89,8 +88,7 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
             return true;
 
         } catch (FileNotFoundException e) {
-            String errorMessage = "Directory not found to save Report :" + componentPath;
-            log.error(errorMessage);
+            log.error("Directory not found to save Report :" + componentPath);
         }
         return false;
     }

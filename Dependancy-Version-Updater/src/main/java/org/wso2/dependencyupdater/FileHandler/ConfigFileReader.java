@@ -79,14 +79,11 @@ public class ConfigFileReader {
             DEPENDENCY_UPDATE_MICRO_SERVICE_URL = dependencyUpdateMicroServiceURL.getTextContent();
 
         } catch (ParserConfigurationException e) {
-            String errorMessage = "Error occurred in Configurations";
-            log.error(errorMessage, e);
+            log.error("Error occurred in parsing Configurations ", e);
         } catch (SAXException e) {
-            String errorMessage = "Error occurred in XML Parsing";
-            log.error(errorMessage, e);
+            log.error("Error occurred in XML Parsing", e);
         } catch (IOException e) {
-            String errorMessage = "File Not Found";
-            log.error(errorMessage, e);
+            log.error("Configuration file Not Found", e);
         }
     }
 
