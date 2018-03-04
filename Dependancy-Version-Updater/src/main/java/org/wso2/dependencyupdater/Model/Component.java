@@ -24,9 +24,9 @@ package org.wso2.dependencyupdater.Model;
  */
 public class Component {
 
-    private String name;
+    private final String name;
+    private final String url;
     private int status;
-    private String url;
 
     public Component(String name, String url) {
 
@@ -37,11 +37,6 @@ public class Component {
     public String getUrl() {
 
         return url;
-    }
-
-    public void setUrl(String url) {
-
-        this.url = url;
     }
 
     public int getStatus() {
@@ -57,11 +52,6 @@ public class Component {
     public String getName() {
 
         return name;
-    }
-
-    public void setName(String name) {
-
-        this.name = name;
     }
 
 }

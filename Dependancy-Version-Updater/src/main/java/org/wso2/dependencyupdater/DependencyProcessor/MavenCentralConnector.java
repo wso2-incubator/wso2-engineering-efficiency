@@ -22,7 +22,7 @@ package org.wso2.dependencyupdater.DependencyProcessor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -30,7 +30,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.maven.model.Dependency;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
@@ -70,11 +69,11 @@ public class MavenCentralConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICROSERVICE_URL + "/" + "getLatest");
+            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICRO_SERVICE_URL + Constants.URL_SEPARATOR + "getLatest");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
 
-            if (response.getStatusLine().getStatusCode() == Constants.SUCCESSFUL_STATUS_CODE) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
@@ -86,15 +85,9 @@ public class MavenCentralConnector {
                 return jsonObject.getString(Constants.LATEST_VERSION_KEY);
             }
         } catch (UnsupportedEncodingException e) {
-            String errorMessage = "Encoding method not supported";
-            log.error(errorMessage);
-        } catch (ClientProtocolException e) {
-            String errorMessage = "Invalid request or respond";
-            log.error(errorMessage);
+            log.error("Encoding method not supported",e);
         } catch (IOException e) {
-            log.error("IOException", e);
-        } catch (JSONException e) {
-            log.error("JSONException", e);
+            log.error("Invalid request or respond", e);
         }
         return Constants.EMPTY_STRING;
     }
@@ -107,6 +100,7 @@ public class MavenCentralConnector {
      */
     public static ArrayList<String> getVersionList(Dependency dependency) {
 
+        ArrayList<String> versions = new ArrayList<>();
         try {
             String data = Constants.JSON_OBJECT_START_TAG +
                     Constants.GROUP_ID_TAG +
@@ -120,10 +114,10 @@ public class MavenCentralConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICROSERVICE_URL + "/" + "getVersions");
+            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICRO_SERVICE_URL + Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
-            if (response.getStatusLine().getStatusCode() == 200) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
@@ -132,32 +126,26 @@ public class MavenCentralConnector {
                 }
                 JSONObject jsonObject = new JSONObject(result.toString());
                 rd.close();
-                ArrayList<String> versions = new ArrayList<String>();
+
                 JSONArray versionList = jsonObject.getJSONArray(Constants.AVAILABLE_VERSIONS_KEY);
-                boolean newerVersionFound = false;
+                boolean hasNewerVersionFound = false;
                 for (int index = 0; index < versionList.length(); index++) {
                     String version = versionList.optString(index);
-                    if (newerVersionFound) {
+                    if (hasNewerVersionFound) {
                         versions.add(version);
                     }
                     if (version.equals(dependency.getVersion())) {
-                        newerVersionFound = true;
+                        hasNewerVersionFound = true;
                     }
                 }
                 return versions;
             }
         } catch (UnsupportedEncodingException e) {
-            String errorMessage = "Encoding method not supported";
-            log.error(errorMessage);
-        } catch (ClientProtocolException e) {
-            String errorMessage = "Invalid request or respond";
-            log.error(errorMessage);
+            log.error("Encoding method not supported",e);
         } catch (IOException e) {
-            log.error("IOException", e);
-        } catch (JSONException e) {
-            log.error("JSONException", e);
+            log.error("Invalid request or respond", e);
         }
-        return new ArrayList<String>();
+        return versions;
     }
 
     /**
@@ -169,7 +157,7 @@ public class MavenCentralConnector {
      */
     public static String getLatestMinorVersion(Dependency dependency) {
 
-        String latestVersion = "";
+        String latestVersion = Constants.EMPTY_STRING;
         try {
             String data = Constants.JSON_OBJECT_START_TAG +
                     Constants.GROUP_ID_TAG +
@@ -185,10 +173,10 @@ public class MavenCentralConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICROSERVICE_URL + "/" + "getVersions");
+            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICRO_SERVICE_URL + Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
-            if (response.getStatusLine().getStatusCode() == 200) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
@@ -202,16 +190,10 @@ public class MavenCentralConnector {
                 latestVersion = getLatestMinorVersionFromJson(currentVersion, versionList);
                 return latestVersion;
             }
-        } catch (UnsupportedEncodingException e) {
-            String errorMessage = "Encoding method not supported";
-            log.error(errorMessage);
-        } catch (ClientProtocolException e) {
-            String errorMessage = "Invalid request or respond";
-            log.error(errorMessage);
+        }catch (UnsupportedEncodingException e) {
+            log.error("Encoding method not supported",e);
         } catch (IOException e) {
-            log.error("IOException", e);
-        } catch (JSONException e) {
-            log.error("JSONException", e);
+            log.error("Invalid request or respond", e);
         }
         return latestVersion;
     }
@@ -242,11 +224,11 @@ public class MavenCentralConnector {
                 return versionList.get(index - 1).toString();
             } else return currentVersion;
 
-        } catch (NullPointerException nullPointerException) {
-            return currentVersion;
-        } catch (NumberFormatException numberFormatException) {
-            return currentVersion;
+        } catch (NullPointerException | NumberFormatException e) {
+            log.error("Failed to retrieve major version tag from version ", e);
         }
+        //if a problem occurs, current version kept as the latest version to avoid adding invalid strings to pom.cml
+        return currentVersion;
     }
 
     /**
@@ -261,5 +243,6 @@ public class MavenCentralConnector {
     private static int getMajorFromVersion(String version) throws NullPointerException, NumberFormatException {
 
         return Integer.parseInt(version.split("\\.")[0]);
+
     }
 }

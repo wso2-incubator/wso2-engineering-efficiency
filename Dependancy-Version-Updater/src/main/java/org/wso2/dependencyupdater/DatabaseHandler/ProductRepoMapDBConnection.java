@@ -20,6 +20,7 @@ package org.wso2.dependencyupdater.DatabaseHandler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 
 import java.sql.Connection;
@@ -34,15 +35,16 @@ public class ProductRepoMapDBConnection {
     private static final Log log = LogFactory.getLog(ProductRepoMapDBConnection.class);
     private static ProductRepoMapDBConnection instance;
     private Connection connection;
-    private String url = ConfigFileReader.MYSQL_DATABASE_URL + "/" + ConfigFileReader.MYSQL_DATABASE_NAME;
 
     private ProductRepoMapDBConnection() throws SQLException {
-
+        String className = "com.mysql.jdbc.Driver";
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+
+            Class.forName(className);
+            String url = ConfigFileReader.MYSQL_DATABASE_URL + Constants.URL_SEPARATOR + ConfigFileReader.MYSQL_DATABASE_NAME;
             this.connection = DriverManager.getConnection(url, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
-        } catch (ClassNotFoundException ex) {
-            log.error("Connecting to Database failed", ex);
+        } catch (ClassNotFoundException e) {
+            log.error("MYSQL Class not found for class "+className, e);
         }
     }
 

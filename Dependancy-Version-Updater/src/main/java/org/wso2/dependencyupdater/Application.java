@@ -25,6 +25,7 @@ import org.apache.maven.model.Model;
 import org.wso2.dependencyupdater.DatabaseHandler.DatabaseConnector;
 import org.wso2.dependencyupdater.DependencyProcessor.DependencyUpdater;
 import org.wso2.dependencyupdater.DependencyProcessor.POMReader;
+import org.wso2.dependencyupdater.DependencyProcessor.WSO2DependencyMajorUpdater;
 import org.wso2.dependencyupdater.DependencyProcessor.WSO2DependencyMinorUpdater;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.FileHandler.RepositoryHandler;
@@ -53,8 +54,8 @@ public class Application {
         //DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater(); // to update wso2 dependencies to latest available version
 
         for (Component component : components) {
-            log.info(Constants.LOG_SEPERATOR);
-            log.info("Component processing started :" + component.getName());
+            log.info(Constants.LOG_SEPARATOR);
+            log.info("Component processing started :"+component.getName());
 
             boolean gitUpdateSuccessful = GithubConnector.retrieveComponent(component);
             long updatedTimeStamp = System.currentTimeMillis();
@@ -98,7 +99,7 @@ public class Application {
                 DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
             }
             log.info("Component processing finished :" + component.getName());
-            log.info(Constants.LOG_SEPERATOR);
+            log.info(Constants.LOG_SEPARATOR);
         }
     }
 

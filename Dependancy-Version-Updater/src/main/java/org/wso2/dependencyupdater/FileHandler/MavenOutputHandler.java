@@ -19,11 +19,14 @@
 package org.wso2.dependencyupdater.FileHandler;
 
 import org.apache.maven.shared.invoker.PrintStreamHandler;
+import org.wso2.dependencyupdater.Constants;
+import sun.nio.cs.StandardCharsets;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * This method implements PrintStreamHandler class to handle maven build outputs
@@ -39,21 +42,20 @@ public class MavenOutputHandler extends PrintStreamHandler {
      * @param file File object
      * @throws FileNotFoundException Indicates file is not present in the location
      */
-    public MavenOutputHandler(File file) throws FileNotFoundException {
+    public MavenOutputHandler(File file) throws FileNotFoundException, UnsupportedEncodingException {
 
-        this(true, new PrintStream(new FileOutputStream(file, true)));
+        this(new PrintStream(new FileOutputStream(file, true),true,Constants.UTF_8_CHARSET_NAME));
     }
 
     /**
      * Constructor for the class
      *
-     * @param alwaysFlush invoke write method each println
      * @param printStream Print stream to output Maven outputs
      */
-    private MavenOutputHandler(boolean alwaysFlush, PrintStream printStream) {
+    private MavenOutputHandler(PrintStream printStream) {
 
         this.printStream = printStream;
-        this.alwaysFlush = alwaysFlush;
+        this.alwaysFlush = true;
     }
 
     /**

@@ -35,7 +35,7 @@ import java.util.ArrayList;
  */
 public class DatabaseConnector {
 
-    private static final Log log = LogFactory.getLog(ProductRepoMapDBConnection.class);
+    private static final Log log = LogFactory.getLog(DatabaseConnector.class);
 
     /**
      * This method insert build status to database
@@ -45,7 +45,7 @@ public class DatabaseConnector {
      */
     public static void insertBuildStatus(Component component, long timeStamp) {
 
-        String insertSql = "INSERT INTO ComponentBuildStatistics(Component,BuildTime,Status)  VALUES (?,?,?)";
+        String insertSql = "INSERT INTO ComponentBuildStatistics(Component,BuildTime,Status)VALUES(?,?,?)";
 
         try {
             ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
@@ -55,6 +55,7 @@ public class DatabaseConnector {
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(timeStamp));
             preparedStatement.setInt(3, component.getStatus());
             preparedStatement.execute();
+            preparedStatement.close();
         } catch (SQLException e) {
             log.error("Problem occurred in Database Connection", e);
         }
@@ -67,8 +68,8 @@ public class DatabaseConnector {
      */
     public static ArrayList<Component> getAllComponents() {
 
-        String selectSql = "SELECT REPO_NAME,REPO_URL FROM PRODUCT_COMPONENT_MAP ";
-        ArrayList<Component> components = new ArrayList<Component>();
+        String selectSql = "SELECT REPO_NAME,REPO_URL FROM PRODUCT_COMPONENT_MAP";
+        ArrayList<Component> components = new ArrayList<>();
 
         try {
             ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
@@ -76,9 +77,11 @@ public class DatabaseConnector {
             PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Component component = new Component(resultSet.getString(1), resultSet.getString(2));
+                Component component = new Component(resultSet.getString("REPO_NAME"), resultSet.getString("REPO_URL"));
                 components.add(component);
             }
+            preparedStatement.close();
+            resultSet.close();
         } catch (SQLException e) {
             log.error("Problem occurred in Database Connection", e);
         }
@@ -94,11 +97,10 @@ public class DatabaseConnector {
      */
     public static int getLatestBuild(Component component) {
 
-        String selectSql = "SELECT * FROM ComponentBuildStatistics WHERE Component=? GROUP BY BuildTime DESC limit 1";
+        String selectSql = "SELECT * FROM ComponentBuildStatistics WHERE Component=? GROUP BY BuildTime DESC LIMIT 1";
 
         try {
             ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
-
             Connection connection = productRepoMapDBConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
             preparedStatement.setString(1, component.getName());

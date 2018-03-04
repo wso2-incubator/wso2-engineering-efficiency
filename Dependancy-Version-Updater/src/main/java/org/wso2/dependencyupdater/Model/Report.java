@@ -34,7 +34,7 @@ public abstract class Report<Type> {
     /**
      * Constructor to create new report
      */
-    public Report() {
+    protected Report() {
 
         reportEntries = new ArrayList<Type>();
     }

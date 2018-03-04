@@ -34,7 +34,7 @@ import java.io.Writer;
 /**
  * Contains methods for writing a org.apache.maven.model.Model Model to a pom.xml file
  */
-public class POMWriter {
+class POMWriter {
 
     private static final Log log = LogFactory.getLog(Application.class);
 

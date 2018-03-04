@@ -40,7 +40,6 @@ import java.io.IOException;
 public class GithubConnector {
 
     private static final Log log = LogFactory.getLog(GithubConnector.class);
-    private static Git git;
 
     /**
      * Method for updating components from github
@@ -82,7 +81,7 @@ public class GithubConnector {
         try {
             String logMessage = "Cloning the repository to local storage: " + component.getName();
             log.info(logMessage);
-            git = Git.cloneRepository()
+            Git.cloneRepository()
                     .setCredentialsProvider(credentialsProvider)
                     .setURI(component.getUrl())
                     .setDirectory(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName())).call();

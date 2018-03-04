@@ -19,6 +19,7 @@
 
 package org.wso2.dependencyupdater.ProductBuilder;
 
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
@@ -29,21 +30,22 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.DatabaseHandler.ProductRepoMapDBConnection;
 import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
 import org.wso2.dependencyupdater.FileHandler.MavenOutputHandler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
+
 
 /**
  * Contains methods for Invoking maven commands
  */
 
 public class MavenInvoker {
-
     private static final Log log = LogFactory.getLog(MavenInvoker.class);
-
     /**
      * Method to invoke maven clean install command
      *
@@ -62,8 +64,9 @@ public class MavenInvoker {
             InvocationOutputHandler outputHandler = new MavenOutputHandler(logFile);
             request.setOutputHandler(outputHandler);
         } catch (FileNotFoundException e) {
-            String errorMessage = "Log File Directory Not Found " + logFile;
-            log.error(errorMessage);
+            log.error("Location for log files not found",e);
+        }catch (UnsupportedEncodingException e){
+            log.error("Encoding format not supported", e);
         }
 
         request.setGoals(Collections.singletonList(Constants.MAVEN_INVOKE_COMMAND));
@@ -89,7 +92,7 @@ public class MavenInvoker {
     }
 
     /**
-     * This method determines original component  name from the tempory file name
+     * This method determines original component  name from the temporary file name
      *
      * @param temporaryFileName Temporary file name
      * @return Component Name

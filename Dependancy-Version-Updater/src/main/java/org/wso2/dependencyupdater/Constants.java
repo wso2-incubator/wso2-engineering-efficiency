@@ -37,7 +37,8 @@ public class Constants {
     public static final String JSON_OBJECT_END_TAG = "}";
     public static final String JSON_OBJECT_KEY_VALUE_SEPARATOR = ":";
     public static final String JSON_OBJECT_ELEMENT_SEPARATOR = ",";
-    public static final String CSV_FILE_EXTENSION = ".csv";
+    public static final String URL_SEPARATOR ="/";
+
 
     //String names
     public static final String PROJECT_VERSION_STRING = "project.version";
@@ -47,13 +48,12 @@ public class Constants {
     public static final String AVAILABLE_VERSIONS_KEY = "AvailableVersions";
     public static final String LATEST_VERSION_KEY = "NewestVersion";
     public static final String UTF_8_CHARSET_NAME = "UTF-8";
-    public static final String MAVEN_INVOKE_COMMAND_WITHOUT_TESTS = "clean install -DskipTests";
     public static final String MAVEN_INVOKE_COMMAND = "clean install";
     public static final String MAVEN_LOG_SUBDIRECTORY = "Error Log";
-    public static final String LOG_SEPERATOR = "==============================================================";
+    public static final String CSV_FILE_EXTENSION = ".csv";
+    public static final String LOG_SEPARATOR = "==============================================================";
 
     //Integer status codes
-    public static final int SUCCESSFUL_STATUS_CODE = 200;
     public static final int BUILD_FAIL_CODE = 0;
     public static final int BUILD_SUCCESS_CODE = 1;
     public static final int BUILD_NOT_AVAILABLE_CODE = 2;
@@ -63,9 +63,10 @@ public class Constants {
     public static final String MYSQL_PASSWORD_TAG = "MYSQL_PASSWORD";
     public static final String MYSQL_DATABASE_URL_TAG = "MYSQL_DATABASE_URL";
     public static final String MYSQL_DATABASE_NAME_TAG = "MYSQL_DATABASE_NAME";
-    public static final String DEPENDENCY_UPDATE_MICROSERVICE_TAG = "DEPENDENCY_VERSION_MICROSERVICE_URL";
+    public static final String DEPENDENCY_UPDATE_MICRO_SERVICE_TAG = "DEPENDENCY_VERSION_MICRO_SERVICE_URL";
     public static final String MAVEN_HOME_TAG = "M2_HOME";
     public static final String GITHUB_USERNAME_TAG = "GITHUB_USERNAME";
     public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";
     public static final String ROOT_PATH_TAG = "ROOT_PATH";
+
 }

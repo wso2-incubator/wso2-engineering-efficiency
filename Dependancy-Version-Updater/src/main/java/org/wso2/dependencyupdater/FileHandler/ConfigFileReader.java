@@ -45,7 +45,7 @@ public class ConfigFileReader {
     public static String MYSQL_PASSWORD;
     public static String MYSQL_DATABASE_URL;
     public static String MYSQL_DATABASE_NAME;
-    public static String DEPENDENCY_UPDATE_MICROSERVICE_URL;
+    public static String DEPENDENCY_UPDATE_MICRO_SERVICE_URL;
 
     /**
      * Retrieves set of values from configuration file
@@ -66,7 +66,7 @@ public class ConfigFileReader {
             Node mysqlDatabaseURLNode = doc.getElementsByTagName(Constants.MYSQL_DATABASE_URL_TAG).item(0);
             Node mysqlDatabaseNameNode = doc.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0);
             Node rootPathNode = doc.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0);
-            Node dependencyUpdateMicroserviceURL = doc.getElementsByTagName(Constants.DEPENDENCY_UPDATE_MICROSERVICE_TAG).item(0);
+            Node dependencyUpdateMicroServiceURL = doc.getElementsByTagName(Constants.DEPENDENCY_UPDATE_MICRO_SERVICE_TAG).item(0);
 
             GITHUB_USERNAME = githubUsernameNode.getTextContent();
             GITHUB_PASSWORD = githubPasswordNode.getTextContent();
@@ -76,7 +76,7 @@ public class ConfigFileReader {
             MYSQL_PASSWORD = mysqlPasswordNode.getTextContent();
             MYSQL_DATABASE_URL = mysqlDatabaseURLNode.getTextContent();
             MYSQL_DATABASE_NAME = mysqlDatabaseNameNode.getTextContent();
-            DEPENDENCY_UPDATE_MICROSERVICE_URL = dependencyUpdateMicroserviceURL.getTextContent();
+            DEPENDENCY_UPDATE_MICRO_SERVICE_URL = dependencyUpdateMicroServiceURL.getTextContent();
 
         } catch (ParserConfigurationException e) {
             String errorMessage = "Error occurred in Configurations";
