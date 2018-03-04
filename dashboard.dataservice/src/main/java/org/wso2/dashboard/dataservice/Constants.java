@@ -27,9 +27,18 @@ public class Constants {
 
     public static final int TWENTY_FOUR_HOURS = 86400000;
     public static final BigInteger ONE_MONTH = new BigInteger("2592000000");
-    public static final String DATABASE_URL = "jdbc:mysql://127.0.0.1:3308/DependencyUpdateDB";
     public static final int BUIlD_SUCCESS_CODE = 1;
     public static final int BUIlD_FAILED_CODE = 0;
     public static final int BUIlD_NOT_AVAILABLE_CODE = 2;
 
+    public static final int SUNNY_STATE = 15;
+    public static final int PARTLY_CLOUDY = 14 ;
+    public static final int CLOUDY = 13;
+    public static final int RAINY = 12 ;
+    public static final int STORMY = 11;
+    public static final String MYSQL_USERNAME_TAG = "MYSQL_USERNAME";
+    public static final String MYSQL_PASSWORD_TAG = "MYSQL_PASSWORD";
+    public static final String MYSQL_DATABASE_URL_TAG ="MYSQL_DATABASE_URL" ;
+    public static String RESOURCE_PATH = "Resources";
+    public static String CONFIG_FILE_NAME ="config.xml";
 }

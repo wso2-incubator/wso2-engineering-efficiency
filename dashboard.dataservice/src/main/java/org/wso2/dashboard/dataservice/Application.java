@@ -16,6 +16,7 @@
 
 package org.wso2.dashboard.dataservice;
 
+import org.wso2.dashboard.dataservice.FileHandler.ConfigFileReader;
 import org.wso2.msf4j.MicroservicesRunner;
 
 /**
@@ -27,6 +28,7 @@ public class Application {
 
     public static void main(String[] args) {
 
+        ConfigFileReader.readConfigFile();
         new MicroservicesRunner()
                 .deploy(new DashboardDataService())
                 .start();

@@ -43,11 +43,11 @@ public class BuildStatusFinder {
      * @param timeStamp   Timestamp value for identifying the required date
      * @return build status of product area
      */
-    public static int getBuildStatusForDay(ProductArea productArea, long timeStamp) {
+    public static int getProductAreaBuildStatusForDay(ProductArea productArea, long timeStamp) {
 
         ArrayList<String> componentList = productArea.getComponents();
         for (String componentName : componentList) {
-            int status = getLatestBuildStatisticsForDay(componentName, timeStamp);
+            int status = getComponentBuildStatusForDay(componentName, timeStamp);
             if (status == Constants.BUIlD_FAILED_CODE || status == Constants.BUIlD_NOT_AVAILABLE_CODE) {
                 return status;
             }
@@ -64,7 +64,7 @@ public class BuildStatusFinder {
      * @param timeStamp     timestamp value belong to that day
      * @return latest build status of component for the given date
      */
-    private static int getLatestBuildStatisticsForDay(String componentName, long timeStamp) {
+    private static int getComponentBuildStatusForDay(String componentName, long timeStamp) {
 
         long startTime = timeStamp - Constants.TWENTY_FOUR_HOURS;
         long endTime = timeStamp + Constants.TWENTY_FOUR_HOURS;
@@ -97,15 +97,23 @@ public class BuildStatusFinder {
 
         Date date1 = new Date(timeStamp1);
         Date date2 = new Date(timeStamp2);
-        boolean state = (date1.getDay() == date2.getDay() && date1.getMonth() == date2.getMonth() && date1.getYear() == date2.getYear());
-        return state;
+        return (date1.getDay() == date2.getDay() && date1.getMonth() == date2.getMonth() && date1.getYear() == date2.getYear());
     }
 
+    /**
+     * This method returns average monthly build state for a particular product area
+     * it counts fraction of successful builds for every component and average it again and map it with getStatusCodeForScore() method
+     *
+     * @param productArea product area object
+     * @param timestamp   long value indicating the end date of timestamp
+     * @return int score value indicating level of build success
+     */
     public static int getMonthlyState(ProductArea productArea, long timestamp) {
 
         double totalScore = 0;
         ArrayList<String> components = productArea.getComponents();
         for (String component : components) {
+            //subtract one number of seconds in one month to getBuildStatus a timestamp belong to date one month ago
             long startTime = (BigInteger.valueOf(timestamp).subtract(Constants.ONE_MONTH).longValue());
             double componentScore = LocalDBConnector.getComponentScore(component, startTime, timestamp);
             totalScore += componentScore;
@@ -113,21 +121,35 @@ public class BuildStatusFinder {
         return getStatusCodeForScore(totalScore / components.size());
     }
 
+    /**
+     * This method assigns status code values for averaged monthly/weekly successful build statuses
+     *
+     * @param score average of successful build components over a defined time period
+     * @return coded values for different status to be displayed in the dashboard
+     */
     private static int getStatusCodeForScore(double score) {
 
-        if (score < 0.3) {
-            return 12;
-        } else if (score < 0.6) {
-            return 13;
-        } else if (score < 0.9) {
-            return 14;
-        } else if (score == 1) {
-            return 15;
+        if (score <= 0.2) {
+            return Constants.STORMY;
+        } else if (score <= 0.4) {
+            return Constants.RAINY;
+        } else if (score <= 0.6) {
+            return Constants.CLOUDY;
+        } else if (score < 1.0) {
+            return Constants.PARTLY_CLOUDY;
         } else {
-            return 11;
+
+            return Constants.SUNNY_STATE;
         }
     }
 
+    /**
+     * Method for retrieving fraction of successful build components for a product in a given week.
+     *
+     * @param productArea productArea component
+     * @param timestamp   unix timestamp to determine week
+     * @return state indicating the level of success
+     */
     public static int getWeeklyState(ProductArea productArea, long timestamp) {
 
         double totalScore = 0;
@@ -140,4 +162,27 @@ public class BuildStatusFinder {
 
     }
 
+    /**
+     * Method to find failing components for the current day
+     *
+     * @param productArea product area component
+     * @param currentTime unix timestamp to determine current day
+     * @return string with all the currently failing components for the given product area
+     */
+    public static String getFailingComponents(ProductArea productArea, long currentTime) {
+
+        ArrayList<String> components = productArea.getComponents();
+        ArrayList<String> failedComponents = new ArrayList<>();
+        for (String component : components) {
+            if (getComponentBuildStatusForDay(component, currentTime) == Constants.BUIlD_FAILED_CODE) {
+                failedComponents.add(component);
+            }
+        }
+        if (failedComponents.size() == 0) {
+            return "N/A";
+        }
+        String output = failedComponents.toString();
+        //removing the starting and ending curly braces
+        return output.substring(1, output.length() - 1);
+    }
 }

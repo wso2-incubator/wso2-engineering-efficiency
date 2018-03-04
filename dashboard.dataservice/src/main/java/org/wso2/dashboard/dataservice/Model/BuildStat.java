@@ -25,8 +25,8 @@ import java.math.BigDecimal;
  */
 public class BuildStat {
 
-    int status;
-    BigDecimal timestamp;
+    private int status;
+    private BigDecimal timestamp;
 
     public BuildStat(int status, BigDecimal timestamp) {
 
@@ -39,19 +39,11 @@ public class BuildStat {
         return status;
     }
 
-    public void setStatus(int status) {
-
-        this.status = status;
-    }
-
     public BigDecimal getTimestamp() {
 
         return timestamp;
     }
 
-    public void setTimestamp(BigDecimal timestamp) {
 
-        this.timestamp = timestamp;
-    }
 
 }

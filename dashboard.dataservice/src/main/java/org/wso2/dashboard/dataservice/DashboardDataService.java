@@ -29,16 +29,16 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 /**
- * Microservice for retrieving product build status
+ * Micro-service for retrieving product build status
  */
 @Path("/service")
 public class DashboardDataService {
 
     private static final Log log = LogFactory.getLog(DashboardDataService.class);
-
+    //end point for retrieving data to display in the dashboard
     @GET
     @Path("/getBuildStatus")
-    public JSONObject get() {
+    public JSONObject getBuildStatus() {
 
         ArrayList<ProductArea> productAreas = LocalDBConnector.getAllProductAreas();
         for (ProductArea productArea : productAreas) {
@@ -46,16 +46,18 @@ public class DashboardDataService {
         }
         JSONObject result = new JSONObject();
         JsonObject productAreaJson = new JsonObject();
+        long currentTime = System.currentTimeMillis();
         for (ProductArea productArea : productAreas) {
             JsonObject jsonObject = new JsonObject();
             for (int day = 0; day < 7; day++) {
 
-                int state = BuildStatusFinder.getBuildStatusForDay(productArea, System.currentTimeMillis() - (day * Constants.TWENTY_FOUR_HOURS));
+                int state = BuildStatusFinder.getProductAreaBuildStatusForDay(productArea, currentTime - (day * Constants.TWENTY_FOUR_HOURS));
                 jsonObject.addProperty("day" + String.valueOf(day), state);
-                ;
+
             }
-            jsonObject.addProperty("monthly", String.valueOf(BuildStatusFinder.getMonthlyState(productArea, System.currentTimeMillis())));
-            jsonObject.addProperty("weekly", String.valueOf(BuildStatusFinder.getWeeklyState(productArea, System.currentTimeMillis())));
+            jsonObject.addProperty("monthly", String.valueOf(BuildStatusFinder.getMonthlyState(productArea, currentTime)));
+            jsonObject.addProperty("weekly", String.valueOf(BuildStatusFinder.getWeeklyState(productArea, currentTime)));
+            jsonObject.addProperty("failed",BuildStatusFinder.getFailingComponents(productArea,currentTime));
             productAreaJson.add(productArea.getName(), jsonObject);
 
         }

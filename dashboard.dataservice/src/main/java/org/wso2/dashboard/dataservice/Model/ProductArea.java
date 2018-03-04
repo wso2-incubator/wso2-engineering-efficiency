@@ -25,9 +25,9 @@ import java.util.ArrayList;
  */
 public class ProductArea {
 
-    String name;
+    private final String name;
 
-    ArrayList<String> components;
+    private ArrayList<String> components;
 
     public ProductArea(String name) {
 

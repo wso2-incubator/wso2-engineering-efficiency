@@ -20,7 +20,7 @@ package org.wso2.dashboard.dataservice.Database;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.dashboard.dataservice.Constants;
+import org.wso2.dashboard.dataservice.FileHandler.ConfigFileReader;
 import org.wso2.dashboard.dataservice.Model.BuildStat;
 import org.wso2.dashboard.dataservice.Model.ProductArea;
 
@@ -49,44 +49,68 @@ public class LocalDBConnector {
      */
     public static ArrayList<BuildStat> getBuildStats(String componentName, long startTime, long endTime) {
 
-        ArrayList<BuildStat> productList = new ArrayList<BuildStat>();
+        ArrayList<BuildStat> productList = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         Connection connection = null;
         ResultSet resultSet = null;
 
-        String selectSQL = "select * from ComponentBuildStatistics where Component = ? AND BuildTime BETWEEN ? AND ? ORDER BY BuildTime DESC";
+        String selectSQL = "SELECT * FROM ComponentBuildStatistics WHERE Component = ? AND BuildTime BETWEEN ? AND ? ORDER BY BuildTime DESC";
         try {
-            connection = DriverManager.getConnection(Constants.DATABASE_URL, "root", "");
+            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
+
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, componentName);
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(startTime));
             preparedStatement.setBigDecimal(3, BigDecimal.valueOf(endTime));
-            // execute select SQL statement
+
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                int status = resultSet.getInt(3);
-                BigDecimal timeStamp = resultSet.getBigDecimal(2);
+                int status = resultSet.getInt("Status");
+                BigDecimal timeStamp = resultSet.getBigDecimal("BuildTime");
                 BuildStat buildStat = new BuildStat(status, timeStamp);
                 productList.add(buildStat);
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error occurred while connecting to the MYSQL database ", e);
         } finally {
-            try {
-                resultSet.close();
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnectionAttributes(preparedStatement, connection, resultSet);
 
         }
         return productList;
 
     }
 
+    /**
+     * Method for closing attributes created with a database connection
+     *
+     * @param preparedStatement prepared statement object used for executing a query
+     * @param connection        SQL Connection object
+     * @param resultSet         result set object with set of results
+     */
+    private static void closeConnectionAttributes(PreparedStatement preparedStatement, Connection connection, ResultSet resultSet) {
+
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            log.error("Error occurred while closing database connection attributes ", e);
+        }
+    }
+
+    /**
+     * Method for retrieving Product areas from database
+     *
+     * @return Array list of productArea objects
+     */
     public static ArrayList<ProductArea> getAllProductAreas() {
 
         ArrayList<ProductArea> productAreaList = new ArrayList<>();
@@ -94,12 +118,12 @@ public class LocalDBConnector {
         Connection connection = null;
         ResultSet resultSet = null;
 
-        String selectSQL = "select distinct(PRODUCT) from PRODUCT_COMPONENT_MAP where not PRODUCT = 'null' and not PRODUCT = 'unknown'";
+        String selectSQL = "SELECT DISTINCT(PRODUCT) FROM PRODUCT_COMPONENT_MAP WHERE NOT PRODUCT = 'null' AND NOT PRODUCT = 'unknown'";
         try {
-            connection = DriverManager.getConnection(Constants.DATABASE_URL, "root", "");
+            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
+
             preparedStatement = connection.prepareStatement(selectSQL);
 
-            // execute select SQL statement
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -108,20 +132,20 @@ public class LocalDBConnector {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error occurred while connecting to the MYSQL database ", e);
         } finally {
-            try {
-                resultSet.close();
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnectionAttributes(preparedStatement, connection, resultSet);
 
         }
         return productAreaList;
     }
 
+    /**
+     * Method for retrieving component names belong to a given product area
+     *
+     * @param productName name of product area
+     * @return array list of component names
+     */
     public static ArrayList<String> getComponentsForArea(String productName) {
 
         ArrayList<String> componentList = new ArrayList<>();
@@ -129,9 +153,9 @@ public class LocalDBConnector {
         Connection connection = null;
         ResultSet resultSet = null;
 
-        String selectSQL = "select REPO_NAME from PRODUCT_COMPONENT_MAP where PRODUCT =?";
+        String selectSQL = "SELECT REPO_NAME FROM PRODUCT_COMPONENT_MAP WHERE PRODUCT =?";
         try {
-            connection = DriverManager.getConnection(Constants.DATABASE_URL, "root", "");
+            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, productName);
 
@@ -139,33 +163,35 @@ public class LocalDBConnector {
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                componentList.add(resultSet.getString(1));
+                componentList.add(resultSet.getString("REPO_NAME"));
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error occurred while connecting to the MYSQL database ", e);
         } finally {
-            try {
-                resultSet.close();
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnectionAttributes(preparedStatement, connection, resultSet);
 
         }
         return componentList;
     }
 
+    /**
+     * This method determines the fraction of successful build stats in a time range
+     *
+     * @param componentName name of the component
+     * @param startTime     start time
+     * @param endTime       end time
+     * @return fraction of successful build stats. Will return 0 if no build stats found
+     */
     public static double getComponentScore(String componentName, long startTime, long endTime) {
 
         PreparedStatement preparedStatement = null;
         Connection connection = null;
         ResultSet resultSet = null;
 
-        String selectSQL = "select Status from ComponentBuildStatistics where Component = ? AND BuildTime BETWEEN ? AND ? ";
+        String selectSQL = "SELECT Status FROM ComponentBuildStatistics WHERE Component = ? AND BuildTime BETWEEN ? AND ? ";
         try {
-            connection = DriverManager.getConnection(Constants.DATABASE_URL, "root", "");
+            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, componentName);
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(startTime));
@@ -179,17 +205,14 @@ public class LocalDBConnector {
                 score += status;
                 buildStatsCount += 1;
             }
-            return score * 1.0 / buildStatsCount;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                resultSet.close();
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (buildStatsCount != 0) {
+                return score * 1.0 / buildStatsCount;
             }
+
+        } catch (SQLException e) {
+            log.error("Error occurred while connecting to the MYSQL database ", e);
+        } finally {
+            closeConnectionAttributes(preparedStatement, connection, resultSet);
 
         }
         return 0;
