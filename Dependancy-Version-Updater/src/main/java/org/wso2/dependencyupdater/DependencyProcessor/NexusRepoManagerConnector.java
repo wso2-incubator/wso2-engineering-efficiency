@@ -44,7 +44,7 @@ import java.util.ArrayList;
 /**
  * Contains methods that connect with the micro-service to resolve dependency versions
  */
-public class MavenCentralConnector {
+public class NexusRepoManagerConnector {
 
     private static final Log log = LogFactory.getLog(GitHubConnector.class);
 
@@ -209,18 +209,18 @@ public class MavenCentralConnector {
 
         try {
             int currentMajorVersionId = getMajorFromVersion(currentVersion);
-            boolean majorVersionFound = false;
+            boolean hasMajorVersionFound = false;
             int index = 0;
             String version;
-            while (!majorVersionFound && index < versionList.length()) {
+            while (!hasMajorVersionFound && index < versionList.length()) {
                 version = versionList.get(index).toString();
                 if (currentMajorVersionId >= getMajorFromVersion(version)) {
                     index++;
                 } else {
-                    majorVersionFound = true;
+                    hasMajorVersionFound = true;
                 }
             }
-            if (majorVersionFound) {
+            if (hasMajorVersionFound) {
                 return versionList.get(index - 1).toString();
             } else return currentVersion;
 

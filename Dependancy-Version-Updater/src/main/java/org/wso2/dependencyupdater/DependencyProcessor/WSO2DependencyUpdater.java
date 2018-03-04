@@ -168,7 +168,7 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      */
     List<OutdatedDependency> updateOutdatedDependencyList(List<OutdatedDependency> outdatedDependencies, Dependency dependency, String latestVersion) {
 
-        ArrayList<String> versionList = MavenCentralConnector.getVersionList(dependency);
+        ArrayList<String> versionList = NexusRepoManagerConnector.getVersionList(dependency);
         OutdatedDependency outdatedDependency = new OutdatedDependency(dependency);
         outdatedDependency.setLatestVersion(latestVersion);
         outdatedDependency.setNewVersions(versionList);

@@ -42,7 +42,7 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
 
     /**
      * Retrieves the set of dependencies used in a model and set their version to latest available version
-     * (version that returns from MavenCentralConnector.getLatestVersion(dependency) method )
+     * (version that returns from NexusRepoManagerConnector.getLatestVersion(dependency) method )
      *
      * @param pomLocation      Location of the pom file
      * @param dependencies     Set of dependencies
@@ -59,7 +59,7 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
         for (Dependency dependency : dependencies) {
             dependency = replaceVersionFromPropertyValue(dependency, localProperties, globalProperties);
             if (isValidUpdate(dependency)) {
-                String latestVersion = MavenCentralConnector.getLatestVersion(dependency);
+                String latestVersion = NexusRepoManagerConnector.getLatestVersion(dependency);
                 updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
                 outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
             }
@@ -102,7 +102,7 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
             return false;
         }
 
-        String latestVersion = MavenCentralConnector.getLatestVersion(dependency);
+        String latestVersion = NexusRepoManagerConnector.getLatestVersion(dependency);
 
         if (latestVersion.length() == 0) {
             log.info("Latest Major version not found");

@@ -40,7 +40,7 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
 
     /**
      * Retrieves the set of dependencies used in a model and set their version to latest available minor version
-     * (version that returns from MavenCentralConnector.getLatestMinorVersion(dependency) method )
+     * (version that returns from NexusRepoManagerConnector.getLatestMinorVersion(dependency) method )
      *
      * @param pomLocation      Location of the pom file
      * @param dependencies     Set of dependencies
@@ -58,7 +58,7 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
             dependency = replaceVersionFromPropertyValue(dependency, localProperties, globalProperties);
             log.info(Constants.LOG_SEPARATOR);
             if (isValidUpdate(dependency)) {
-                String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
+                String latestVersion = NexusRepoManagerConnector.getLatestMinorVersion(dependency);
                 updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
                 outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
             }
@@ -102,7 +102,7 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
             return false;
         }
 
-        String latestVersion = MavenCentralConnector.getLatestMinorVersion(dependency);
+        String latestVersion = NexusRepoManagerConnector.getLatestMinorVersion(dependency);
 
         if (latestVersion.length() == 0) {
             log.info("Latest Minor version not found");
