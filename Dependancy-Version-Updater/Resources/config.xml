@@ -8,5 +8,6 @@
     </DEPENDENCY_VERSION_MICRO_SERVICE_URL>
     <MYSQL_DATABASE_URL>jdbc:mysql://127.0.0.1:3308</MYSQL_DATABASE_URL>
     <MYSQL_DATABASE_NAME>DependencyUpdateDB</MYSQL_DATABASE_NAME>
-    <ROOT_PATH>/home/dimuth/Documents/DM-Root/</ROOT_PATH>>
+    <ROOT_PATH>/home/dimuth/Documents/DM-Root/</ROOT_PATH>
+    <REPORT_PATH>/home/dimuth/Documents/Minor-Update-Reports/</REPORT_PATH>
 </Properties>

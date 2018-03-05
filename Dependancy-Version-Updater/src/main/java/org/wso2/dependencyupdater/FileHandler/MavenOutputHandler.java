@@ -43,8 +43,7 @@ public class MavenOutputHandler extends PrintStreamHandler {
      */
     public MavenOutputHandler(File file) throws FileNotFoundException, UnsupportedEncodingException {
 
-        PrintStream printStream = new PrintStream(new FileOutputStream(file, true), true, Constants.UTF_8_CHARSET_NAME);
-        this.printStream = printStream;
+        this.printStream = new PrintStream(new FileOutputStream(file, true), true, Constants.UTF_8_CHARSET_NAME);
         this.alwaysFlush = true;
     }
 

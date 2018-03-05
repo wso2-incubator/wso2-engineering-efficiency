@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Contains methods that connect with the micro-service to resolve dependency versions
@@ -207,28 +208,40 @@ public class NexusRepoManagerConnector {
      */
     private static String getLatestMinorVersionFromJson(String currentVersion, JSONArray versionList) {
 
-        try {
-            int currentMajorVersionId = getMajorFromVersion(currentVersion);
+        Optional<Integer> optionalCurrentMajorVersionId = getMajorFromVersion(currentVersion);
+        if (optionalCurrentMajorVersionId.isPresent()) {
             boolean hasMajorVersionFound = false;
             int index = 0;
             String version;
             while (!hasMajorVersionFound && index < versionList.length()) {
                 version = versionList.get(index).toString();
-                if (currentMajorVersionId >= getMajorFromVersion(version)) {
-                    index++;
+                Optional<Integer> optionalVersion = getMajorFromVersion(version);
+                if (optionalVersion.isPresent()) {
+                    if (optionalCurrentMajorVersionId.get() >= optionalVersion.get()) {
+                        index++;
+                    } else {
+                        hasMajorVersionFound = true;
+                    }
                 } else {
-                    hasMajorVersionFound = true;
+                    index++;
                 }
             }
             if (hasMajorVersionFound) {
-                return versionList.get(index - 1).toString();
-            } else return currentVersion;
 
-        } catch (NullPointerException | NumberFormatException e) {
-            log.error("Failed to retrieve major version tag from version ", e);
+                return versionList.get(index - 1).toString();
+            } else {
+                if (versionList.length() != 0) {
+                    return versionList.get(index - 1).toString();
+                } else {
+                    return currentVersion;
+                }
+            }
+
+        } else {
+            log.info("Failed to retrieve major version tag from current version. Not possible to compare with other versions");
+            return currentVersion;
         }
-        //if a problem occurs, current version kept as the latest version to avoid adding invalid strings to pom.cml
-        return currentVersion;
+
     }
 
     /**
@@ -236,13 +249,20 @@ public class NexusRepoManagerConnector {
      * Example - version 5.3.1 -> 5 , version 4.2.5 -> 4
      *
      * @param version String indicating the version
-     * @return integer that represent the major component
+     * @return Optional<Integer> that represent the major component if it can be resolved
      * @throws NullPointerException  When the version is a null string
      * @throws NumberFormatException when the version string is not representing a number
      */
-    private static int getMajorFromVersion(String version) throws NullPointerException, NumberFormatException {
+    private static Optional<Integer> getMajorFromVersion(String version) {
 
-        return Integer.parseInt(version.split(Constants.DOT_REGEX)[0]);
+        Integer majorVersion = null;
 
+        try {
+            majorVersion = Integer.parseInt(version.split(Constants.DOT_REGEX)[0]);
+        } catch (NullPointerException | NumberFormatException e) {
+            log.error("Failed to retrieve major version tag from version ", e);
+        }
+
+        return Optional.ofNullable(majorVersion);
     }
 }

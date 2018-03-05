@@ -31,7 +31,7 @@ public abstract class DependencyUpdater {
     /**
      * Implementation of this method will include the set of rules for updating a org.apache.maven.model.Model
      *
-     * @param model      org.apache.maven.model.Model that represent the attributes of a particular pom.xml
+     * @param model      org.apache.maven.model.Model that represent the attributes of a pom.xml
      * @param properties java.util.Properties object with all the properties included in the root pom.xml
      * @return state of update operation
      */

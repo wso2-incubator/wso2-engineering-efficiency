@@ -52,11 +52,13 @@ public class Constants {
     public static final String MAVEN_LOG_SUBDIRECTORY = "Error Log";
     public static final String CSV_FILE_EXTENSION = ".csv";
     public static final String LOG_SEPARATOR = "==============================================================";
+    public static final String UPDATE_STATUS_TEMPORARY_PROPERTY = "update.status";
 
     //Integer status codes
     public static final int BUILD_FAIL_CODE = 0;
     public static final int BUILD_SUCCESS_CODE = 1;
     public static final int BUILD_NOT_AVAILABLE_CODE = 2;
+    public static final int RETRIEVE_FAILED_CODE = 3;
 
     //Tags used to read configurations from config.xml
     public static final String MYSQL_USERNAME_TAG = "MYSQL_USERNAME";
@@ -68,6 +70,6 @@ public class Constants {
     public static final String GITHUB_USERNAME_TAG = "GITHUB_USERNAME";
     public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";
     public static final String ROOT_PATH_TAG = "ROOT_PATH";
+    public static final String REPORT_PATH_TAG = "REPORT_PATH";
 
-    public static final Object UPDATE_STATUS_TEMPORARY_PROPERTY = "update.status";
 }

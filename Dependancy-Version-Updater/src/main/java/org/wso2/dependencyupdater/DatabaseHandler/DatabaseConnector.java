@@ -46,11 +46,12 @@ public class DatabaseConnector {
     public static void insertBuildStatus(Component component, long timeStamp) {
 
         String insertSql = "INSERT INTO ComponentBuildStatistics(Component,BuildTime,Status)VALUES(?,?,?)";
+        PreparedStatement preparedStatement = null;
 
         try {
-            ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
-            Connection connection = productRepoMapDBConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(insertSql);
+            ComponentDatabase componentDatabase = ComponentDatabase.getInstance();
+            Connection connection = componentDatabase.getConnection();
+            preparedStatement = connection.prepareStatement(insertSql);
             preparedStatement.setString(1, component.getName());
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(timeStamp));
             preparedStatement.setInt(3, component.getStatus());
@@ -58,6 +59,8 @@ public class DatabaseConnector {
             preparedStatement.close();
         } catch (SQLException e) {
             log.error("Problem occurred in Database Connection", e);
+        } finally {
+            closeDatabaseAttributes(preparedStatement, null);
         }
     }
 
@@ -70,12 +73,13 @@ public class DatabaseConnector {
 
         String selectSql = "SELECT REPO_NAME,REPO_URL FROM PRODUCT_COMPONENT_MAP";
         ArrayList<Component> components = new ArrayList<>();
-
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try {
-            ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
-            Connection connection = productRepoMapDBConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            ComponentDatabase componentDatabase = ComponentDatabase.getInstance();
+            Connection connection = componentDatabase.getConnection();
+            preparedStatement = connection.prepareStatement(selectSql);
+            resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Component component = new Component(resultSet.getString("REPO_NAME"), resultSet.getString("REPO_URL"));
                 components.add(component);
@@ -83,10 +87,33 @@ public class DatabaseConnector {
             preparedStatement.close();
             resultSet.close();
         } catch (SQLException e) {
-            log.error("Problem occurred in Database Connection", e);
+            log.error("Problem occurred when connecting to  database ", e);
+        } finally {
+            closeDatabaseAttributes(preparedStatement, resultSet);
+
         }
         return components;
 
+    }
+
+    /**
+     * Method used for closing database attributes such as prepared statement or result set
+     *
+     * @param preparedStatement prepared statement object that need closing
+     * @param resultSet         result set object that need closing
+     */
+    private static void closeDatabaseAttributes(PreparedStatement preparedStatement, ResultSet resultSet) {
+
+        try {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        } catch (SQLException e) {
+            log.error("Problem occurred in closing database attributes", e);
+        }
     }
 
     /**
@@ -98,20 +125,25 @@ public class DatabaseConnector {
     public static int getLatestBuild(Component component) {
 
         String selectSql = "SELECT * FROM ComponentBuildStatistics WHERE Component=? GROUP BY BuildTime DESC LIMIT 1";
-
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try {
-            ProductRepoMapDBConnection productRepoMapDBConnection = ProductRepoMapDBConnection.getInstance();
-            Connection connection = productRepoMapDBConnection.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
+            ComponentDatabase componentDatabase = ComponentDatabase.getInstance();
+            Connection connection = componentDatabase.getConnection();
+            preparedStatement = connection.prepareStatement(selectSql);
             preparedStatement.setString(1, component.getName());
-            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
                 return Constants.BUILD_NOT_AVAILABLE_CODE;
             } else {
                 return Integer.parseInt(resultSet.getString("Status"));
             }
+
         } catch (SQLException e) {
             log.error("Problem occurred in Database Connection", e);
+        } finally {
+            closeDatabaseAttributes(preparedStatement, resultSet);
+
         }
         return Constants.BUILD_NOT_AVAILABLE_CODE;
 

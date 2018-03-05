@@ -44,16 +44,21 @@ public class Application {
 
     private static final Log log = LogFactory.getLog(Application.class);
 
+    /**
+     * Main method of the application
+     *
+     * @param args  Default argument values for main method
+     */
     public static void main(String[] args) {
         //Reading the configurations from the config file
         ConfigFileReader.readConfigFile();
-        ArrayList<Component> components = getAllComponents();
+        ArrayList<Component> components = DatabaseConnector.getAllComponents();
 
         DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
         //DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater(); // to update wso2 dependencies to latest available version
 
         for (Component component : components) {
-            log.info(Constants.LOG_SEPARATOR);
+            log.info(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
             log.info("Component processing started :" + component.getName());
 
             boolean gitUpdateSuccessful = GitHubConnector.retrieveComponent(component);
@@ -69,14 +74,14 @@ public class Application {
 
                 boolean componentUpdateStatus = updateComponentDependencies(dependencyUpdater, componentTemporaryDirectoryName);
                 if (componentUpdateStatus) {
-                    //if the component is updated, invoke a maven build
+                    //if the component dependencies are updated, invoke a maven build
                     log.info("Component updated :" + component.getName());
                     int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
                     component.setStatus(buildStatus);
                     DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
 
                 } else {
-                    //if component is not updated, try to get the latest build status for the component and save it as the current status
+                    //if component dependencies are not updated, try to get the latest build status for the component and save it as the current status
                     log.info("Component not updated :" + component.getName());
                     int latestBuildStatus = DatabaseConnector.getLatestBuild(component);
                     if (latestBuildStatus == Constants.BUILD_NOT_AVAILABLE_CODE) {
@@ -94,7 +99,7 @@ public class Application {
                 }
             } else {
                 log.info("Component retrieving failed:" + component.getName());
-                component.setStatus(Constants.BUILD_FAIL_CODE);
+                component.setStatus(Constants.RETRIEVE_FAILED_CODE);
                 DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
             }
             log.info("Component processing finished :" + component.getName());
@@ -103,16 +108,8 @@ public class Application {
     }
 
     /**
-     * This method retrieves component details from database
+     * This method responsible for reading pom files as Models and calling update for each model
      *
-     * @return list of component objects
-     */
-    private static ArrayList<Component> getAllComponents() {
-
-        return DatabaseConnector.getAllComponents();
-    }
-
-    /**
      * @param dependencyUpdater      DependencyUpdater Object with set of rules to update dependencies
      * @param componentDirectoryName Name of the directory that contains the component
      * @return boolean value indicating update process success
@@ -122,8 +119,8 @@ public class Application {
         boolean updateStatus = false;
         String componentPath = ConfigFileReader.ROOT_PATH + componentDirectoryName;
         ArrayList<Model> modelList = new ArrayList<>();
-
-        Model model = POMReader.getPomModel(componentPath); //reading the root pom as a model
+        //reading the root pom.xml
+        Model model = POMReader.getPomModel(componentPath);
         if (model.getPomFile() != null) {
             Properties properties = model.getProperties();
             properties.setProperty(Constants.PROJECT_VERSION_STRING, model.getVersion());
@@ -131,6 +128,7 @@ public class Application {
 
             List<String> modules = model.getModules();
             for (String module : modules) {
+                //reading inner pom.xml
                 model = POMReader.getPomModel(componentPath + File.separator + module); //create model for each child pom mentioned in root pom
                 modelList.add(model);
             }

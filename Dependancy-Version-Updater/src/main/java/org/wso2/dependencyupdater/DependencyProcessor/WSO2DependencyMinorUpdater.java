@@ -50,9 +50,13 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
      */
     protected Model updateToLatestInLocation(String pomLocation, List<Dependency> dependencies, Properties globalProperties, Properties localProperties) {
 
+        //NOTE:- This Model object does not represent a pom.xml file. It is used to return updated dependencies with update state
+
         List<Dependency> updatedDependencies = new ArrayList<>(dependencies);
         List<OutdatedDependency> outdatedDependencies = new ArrayList<>();
+        //used for reporting
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
+
         Model model = new Model();
         for (Dependency dependency : dependencies) {
             dependency = replaceVersionFromPropertyValue(dependency, localProperties, globalProperties);
@@ -60,6 +64,7 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
             if (isValidUpdate(dependency)) {
                 String latestVersion = NexusRepoManagerConnector.getLatestMinorVersion(dependency);
                 updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
+
                 outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
             }
             log.info(Constants.LOG_SEPARATOR);
@@ -70,7 +75,7 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
         log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in " + pomLocation);
 
-        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.ROOT_PATH + "/Reports/" + pomLocation.replace('/', '_'));
+        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.REPORT_PATH + pomLocation.replace('/', '_'));
         if (written) {
             log.info("dependency update report saved successfully");
         } else {

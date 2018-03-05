@@ -52,7 +52,8 @@ public class GitHubConnector {
         boolean status = false;
         try {
             log.info("Calling git pull command for component: " + component.getName());
-            status = Git.open(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName())).pull().call().isSuccessful();
+            status = Git.open(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName()))
+                    .pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
             log.error("Branch not found in remote repository. Therefore cannot update the existing local repository" + component.getName());

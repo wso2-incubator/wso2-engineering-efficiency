@@ -30,13 +30,13 @@ import java.sql.SQLException;
 /**
  * Implements a singleton class for Database connection
  */
-public class ProductRepoMapDBConnection {
+public class ComponentDatabase {
 
-    private static final Log log = LogFactory.getLog(ProductRepoMapDBConnection.class);
-    private static ProductRepoMapDBConnection instance;
+    private static final Log log = LogFactory.getLog(ComponentDatabase.class);
+    private static ComponentDatabase instance;
     private Connection connection;
 
-    private ProductRepoMapDBConnection() throws SQLException {
+    private ComponentDatabase() throws SQLException {
 
         String className = "com.mysql.jdbc.Driver";
         try {
@@ -49,12 +49,12 @@ public class ProductRepoMapDBConnection {
         }
     }
 
-    public static ProductRepoMapDBConnection getInstance() throws SQLException {
+    public static ComponentDatabase getInstance() throws SQLException {
 
         if (instance == null) {
-            instance = new ProductRepoMapDBConnection();
+            instance = new ComponentDatabase();
         } else if (instance.getConnection().isClosed()) {
-            instance = new ProductRepoMapDBConnection();
+            instance = new ComponentDatabase();
         }
 
         return instance;

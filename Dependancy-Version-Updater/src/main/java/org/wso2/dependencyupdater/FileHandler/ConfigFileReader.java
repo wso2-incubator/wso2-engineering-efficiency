@@ -46,6 +46,7 @@ public class ConfigFileReader {
     public static String MYSQL_DATABASE_URL;
     public static String MYSQL_DATABASE_NAME;
     public static String DEPENDENCY_UPDATE_MICRO_SERVICE_URL;
+    public static String REPORT_PATH;
 
     /**
      * Retrieves set of values from configuration file
@@ -58,6 +59,7 @@ public class ConfigFileReader {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(configFile);
             doc.getDocumentElement().normalize();
+            //search for the first occurrence of each property tag
             Node mavenHomeNode = doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0);
             Node githubUsernameNode = doc.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0);
             Node githubPasswordNode = doc.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0);
@@ -67,6 +69,7 @@ public class ConfigFileReader {
             Node mysqlDatabaseNameNode = doc.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0);
             Node rootPathNode = doc.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0);
             Node dependencyUpdateMicroServiceURL = doc.getElementsByTagName(Constants.DEPENDENCY_UPDATE_MICRO_SERVICE_TAG).item(0);
+            Node reportPathNode = doc.getElementsByTagName(Constants.REPORT_PATH_TAG).item(0);
 
             GITHUB_USERNAME = githubUsernameNode.getTextContent();
             GITHUB_PASSWORD = githubPasswordNode.getTextContent();
@@ -77,6 +80,7 @@ public class ConfigFileReader {
             MYSQL_DATABASE_URL = mysqlDatabaseURLNode.getTextContent();
             MYSQL_DATABASE_NAME = mysqlDatabaseNameNode.getTextContent();
             DEPENDENCY_UPDATE_MICRO_SERVICE_URL = dependencyUpdateMicroServiceURL.getTextContent();
+            REPORT_PATH = reportPathNode.getTextContent();
 
         } catch (ParserConfigurationException e) {
             log.error("Error occurred in parsing Configurations ", e);

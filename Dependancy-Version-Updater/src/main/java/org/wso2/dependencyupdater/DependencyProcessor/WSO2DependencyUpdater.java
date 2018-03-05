@@ -46,42 +46,34 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      */
     public boolean updateModel(Model model, Properties globalProperties) {
 
-        boolean dependencyModelUpdated;
-        boolean managementModelUpdated = false;
+        boolean isDependencyModelUpdated;
+        boolean isManagementModelUpdated = false;
 
         Model modifiedModel = model.clone();
         String pomLocation = model.getProjectDirectory().toString();
         List<Dependency> modelDependencies = model.getDependencies();
-
         Properties localProperties = model.getProperties();
+        //call update method for the list of dependencies
         Model dependencyModel = updateToLatestInLocation(pomLocation, modelDependencies, globalProperties, localProperties);
 
         Properties updatedLocalProperties = dependencyModel.getProperties();
-        dependencyModelUpdated = getUpdateStatusFromProperties(updatedLocalProperties);
-        updatedLocalProperties.remove(Constants.UPDATE_STATUS_TEMPORARY_PROPERTY);
-
+        isDependencyModelUpdated = getUpdateStatusFromProperties(updatedLocalProperties);
         modifiedModel.setDependencies(dependencyModel.getDependencies());
-        modifiedModel.setProperties(updatedLocalProperties);
+
         //If there is a DependencyManagement section, update that section too
         if (model.getDependencyManagement() != null) {
             List<Dependency> managementDependencies = model.getDependencyManagement().getDependencies();
             Model dependencyManagementModel = updateToLatestInLocation(pomLocation, managementDependencies, globalProperties, localProperties);
             updatedLocalProperties = dependencyManagementModel.getProperties();
 
-            managementModelUpdated = getUpdateStatusFromProperties(updatedLocalProperties);
-            updatedLocalProperties.remove(Constants.UPDATE_STATUS_TEMPORARY_PROPERTY);
+            isManagementModelUpdated = getUpdateStatusFromProperties(updatedLocalProperties);
 
             DependencyManagement dependencyManagement = modifiedModel.getDependencyManagement();
             dependencyManagement.setDependencies(dependencyManagementModel.getDependencies());
             modifiedModel.setDependencyManagement(dependencyManagement);
 
-            Properties managementProperties = updatedLocalProperties;
-            for (Object property : managementProperties.keySet()) {
-                modifiedModel.addProperty(property.toString(), managementProperties.getProperty(property.toString()));
-            }
-
         }
-        boolean status = getUpdateStatusForModel(modifiedModel, dependencyModelUpdated, managementModelUpdated);
+        boolean status = getUpdateStatusForModel(modifiedModel, isDependencyModelUpdated, isManagementModelUpdated);
 
         return status && POMWriter.writePom(modifiedModel);
     }
@@ -112,7 +104,7 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      */
     private boolean getUpdateStatusFromProperties(Properties updatedLocalProperties) {
 
-        return Boolean.valueOf(updatedLocalProperties.getProperty("update.status"));
+        return Boolean.valueOf(updatedLocalProperties.getProperty(Constants.UPDATE_STATUS_TEMPORARY_PROPERTY));
     }
 
     protected abstract Model updateToLatestInLocation(String pomLocation, List<Dependency> managementDependencies, Properties globalProperties, Properties localProperties);
@@ -219,7 +211,7 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      * @param globalProperties properties included in the root pom.xml
      * @return updated dependency object
      */
-    protected Dependency replaceVersionFromPropertyValue(Dependency dependency, Properties localProperties, Properties globalProperties) {
+    Dependency replaceVersionFromPropertyValue(Dependency dependency, Properties localProperties, Properties globalProperties) {
 
         String currentVersion = dependency.getVersion();
         if (isPropertyTag(currentVersion)) {

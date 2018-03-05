@@ -52,6 +52,8 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
      */
     protected Model updateToLatestInLocation(String pomLocation, List<Dependency> dependencies, Properties globalProperties, Properties localProperties) {
 
+        //NOTE:- This Model object does not represent a pom.xml file. It is used to return updated dependencies with update state
+
         List<Dependency> updatedDependencies = new ArrayList<>(dependencies);
         List<OutdatedDependency> outdatedDependencies = new ArrayList<>();
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
@@ -70,7 +72,8 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
         log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in " + pomLocation);
 
-        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.ROOT_PATH + File.separator + "Reports" + File.separator + pomLocation.replace('/', '_'));
+        //report file generating
+        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.REPORT_PATH + File.separator + pomLocation.replace('/', '_'));
         if (written) {
             log.info("Dependency update report saved successfully");
         } else {
