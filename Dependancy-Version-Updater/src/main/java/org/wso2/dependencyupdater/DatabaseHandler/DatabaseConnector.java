@@ -97,26 +97,6 @@ public class DatabaseConnector {
     }
 
     /**
-     * Method used for closing database attributes such as prepared statement or result set
-     *
-     * @param preparedStatement prepared statement object that need closing
-     * @param resultSet         result set object that need closing
-     */
-    private static void closeDatabaseAttributes(PreparedStatement preparedStatement, ResultSet resultSet) {
-
-        try {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (resultSet != null) {
-                resultSet.close();
-            }
-        } catch (SQLException e) {
-            log.error("Problem occurred in closing database attributes", e);
-        }
-    }
-
-    /**
      * Method for retrieving the latest available build status data for a particular component
      *
      * @param component Component object
@@ -149,6 +129,25 @@ public class DatabaseConnector {
 
     }
 
+    /**
+     * Method used for closing database attributes such as prepared statement or result set
+     *
+     * @param preparedStatement prepared statement object that need closing
+     * @param resultSet         result set object that need closing
+     */
+    private static void closeDatabaseAttributes(PreparedStatement preparedStatement, ResultSet resultSet) {
+
+        try {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        } catch (SQLException e) {
+            log.error("Problem occurred in closing database attributes", e);
+        }
+    }
 }
 
 

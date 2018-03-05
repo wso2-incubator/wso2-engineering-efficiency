@@ -47,11 +47,13 @@ public class Application {
     /**
      * Main method of the application
      *
-     * @param args  Default argument values for main method
+     * @param args Default argument values for main method
      */
     public static void main(String[] args) {
+
         //Reading the configurations from the config file
         ConfigFileReader.readConfigFile();
+
         ArrayList<Component> components = DatabaseConnector.getAllComponents();
 
         DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
@@ -61,19 +63,19 @@ public class Application {
             log.info(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
             log.info("Component processing started :" + component.getName());
 
-            boolean gitUpdateSuccessful = GitHubConnector.retrieveComponent(component);
+            boolean isRepoUpdateSuccessful = GitHubConnector.retrieveComponent(component);
             long updatedTimeStamp = System.currentTimeMillis();
-            boolean copySuccessful = false;
-            if (gitUpdateSuccessful) {
-                copySuccessful = RepositoryHandler.copyProjectToTempDirectory(component);
+            boolean isDirectoryCopyingSuccessful = false;
+            if (isRepoUpdateSuccessful) {
+                isDirectoryCopyingSuccessful = RepositoryHandler.copyProjectToTempDirectory(component);
             }
 
             String componentTemporaryDirectoryName = component.getName() + Constants.SUFFIX_TEMP_FILE;
 
-            if (copySuccessful) {
+            if (isDirectoryCopyingSuccessful) {
 
-                boolean componentUpdateStatus = updateComponentDependencies(dependencyUpdater, componentTemporaryDirectoryName);
-                if (componentUpdateStatus) {
+                boolean isDependencyUpdateSuccessful = updateComponent(dependencyUpdater, componentTemporaryDirectoryName);
+                if (isDependencyUpdateSuccessful) {
                     //if the component dependencies are updated, invoke a maven build
                     log.info("Component updated :" + component.getName());
                     int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
@@ -103,7 +105,7 @@ public class Application {
                 DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
             }
             log.info("Component processing finished :" + component.getName());
-            log.info(Constants.LOG_SEPARATOR);
+            log.info(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
         }
     }
 
@@ -114,7 +116,7 @@ public class Application {
      * @param componentDirectoryName Name of the directory that contains the component
      * @return boolean value indicating update process success
      */
-    private static boolean updateComponentDependencies(DependencyUpdater dependencyUpdater, String componentDirectoryName) {
+    private static boolean updateComponent(DependencyUpdater dependencyUpdater, String componentDirectoryName) {
 
         boolean updateStatus = false;
         String componentPath = ConfigFileReader.ROOT_PATH + componentDirectoryName;

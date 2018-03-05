@@ -53,6 +53,7 @@ public class Constants {
     public static final String CSV_FILE_EXTENSION = ".csv";
     public static final String LOG_SEPARATOR = "==============================================================";
     public static final String UPDATE_STATUS_TEMPORARY_PROPERTY = "update.status";
+    public static final String DATABASE_CLASS_NAME = "com.mysql.jdbc.Driver";
 
     //Integer status codes
     public static final int BUILD_FAIL_CODE = 0;

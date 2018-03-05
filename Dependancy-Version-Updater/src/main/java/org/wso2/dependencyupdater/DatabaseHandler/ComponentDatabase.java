@@ -38,7 +38,7 @@ public class ComponentDatabase {
 
     private ComponentDatabase() throws SQLException {
 
-        String className = "com.mysql.jdbc.Driver";
+        String className = Constants.DATABASE_CLASS_NAME;
         try {
 
             Class.forName(className);

@@ -5,7 +5,7 @@
     <artifactId>Dependancy-Version-Updater</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>Dependancy-Version-Updater</name>
+    <name>Dependency-Version-Updater</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
