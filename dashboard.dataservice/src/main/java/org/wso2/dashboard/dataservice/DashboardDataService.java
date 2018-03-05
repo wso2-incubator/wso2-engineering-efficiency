@@ -35,6 +35,7 @@ import javax.ws.rs.Path;
 public class DashboardDataService {
 
     private static final Log log = LogFactory.getLog(DashboardDataService.class);
+
     //end point for retrieving data to display in the dashboard
     @GET
     @Path("/getBuildStatus")
@@ -51,13 +52,13 @@ public class DashboardDataService {
             JsonObject jsonObject = new JsonObject();
             for (int day = 0; day < 7; day++) {
 
-                int state = BuildStatusFinder.getProductAreaBuildStatusForDay(productArea, currentTime - (day * Constants.TWENTY_FOUR_HOURS));
+                int state = BuildStatusFinder.getProductAreaBuildStatusForDay(productArea, (currentTime - (Long.valueOf(day) * Constants.TWENTY_FOUR_HOURS)));
                 jsonObject.addProperty("day" + String.valueOf(day), state);
 
             }
             jsonObject.addProperty("monthly", String.valueOf(BuildStatusFinder.getMonthlyState(productArea, currentTime)));
             jsonObject.addProperty("weekly", String.valueOf(BuildStatusFinder.getWeeklyState(productArea, currentTime)));
-            jsonObject.addProperty("failed",BuildStatusFinder.getFailingComponents(productArea,currentTime));
+            jsonObject.addProperty("failed", BuildStatusFinder.getFailingComponents(productArea, currentTime));
             productAreaJson.add(productArea.getName(), jsonObject);
 
         }

@@ -48,7 +48,7 @@ public class BuildStatusFinder {
         ArrayList<String> componentList = productArea.getComponents();
         for (String componentName : componentList) {
             int status = getComponentBuildStatusForDay(componentName, timeStamp);
-            if (status == Constants.BUIlD_FAILED_CODE || status == Constants.BUIlD_NOT_AVAILABLE_CODE) {
+            if (status == Constants.BUIlD_FAILED_CODE || status == Constants.BUIlD_NOT_AVAILABLE_CODE || status == Constants.FAILED_TO_UPDATE) {
                 return status;
             }
         }
