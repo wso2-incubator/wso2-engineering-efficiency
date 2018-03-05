@@ -42,6 +42,9 @@ function getStatusImage(i){
     else if(i==2){
         return imageFolderPath+"/na.png";
     }
+    else if(i==3){
+        return imageFolderPath+"/na.png";
+    }
     else if( i==11){
         return imageFolderPath+"/Stormy.png";
     }
@@ -97,12 +100,7 @@ function addRows(){
         +"<td><div class='arrow'></div></td></tr>"
        );
 
-       $("#report").append("<tr class='expandable'><td colspan='11'><div>Currently Failed Components : carbon-apimgt</div></td></tr>");
-
-
-       $('#report').on('click', 'tr:nth-child(even)', function () {
-                $(this).next().toggleClass('expand');
-        });
+       $("#report").append("<tr class='expandable'><td colspan='11'><div>Currently Failed Components : "+buildData.failed+"</div></td></tr>");
 
             $(document).ready(function () {
                 $("#report tr:odd").addClass("odd");
@@ -110,8 +108,8 @@ function addRows(){
                 $("#report tr:first-child").show();
 
                 $("#report tr.odd").click(function () {
-                    
-                    $(this).next("tr").show();
+                    $(this).next("tr").toggle();
+                    alert(stringify($(this).next("tr").toggle()));
                     $(this).find(".arrow").toggleClass("up");
                 });
         
