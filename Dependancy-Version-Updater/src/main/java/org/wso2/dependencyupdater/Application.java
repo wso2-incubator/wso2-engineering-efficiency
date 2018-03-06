@@ -51,8 +51,7 @@ public class Application {
      */
     public static void main(String[] args) {
 
-        //Reading the configurations from the config file
-        ConfigFileReader.readConfigFile();
+        ConfigFileReader.loadConfigurations();
 
         ArrayList<Component> components = DatabaseConnector.getAllComponents();
 
@@ -118,8 +117,8 @@ public class Application {
      */
     private static boolean updateComponent(DependencyUpdater dependencyUpdater, String componentDirectoryName) {
 
-        boolean updateStatus = false;
-        String componentPath = ConfigFileReader.ROOT_PATH + componentDirectoryName;
+        boolean isComponentUpdated = false;
+        String componentPath = ConfigFileReader.getRootPath() + componentDirectoryName;
         ArrayList<Model> modelList = new ArrayList<>();
         //reading the root pom.xml
         Model model = POMReader.getPomModel(componentPath);
@@ -135,14 +134,14 @@ public class Application {
                 modelList.add(model);
             }
             for (Model childModel : modelList) {
-                boolean pomUpdateState = dependencyUpdater.updateModel(childModel, properties);
-                log.info("pom.xml File updated :" + pomUpdateState);
-                //If at least one pom file updated, updateState will set to true
-                if (pomUpdateState) {
-                    updateStatus = true;
+                boolean isPomUpdated = dependencyUpdater.updateModel(childModel, properties);
+                log.info("pom.xml File updated :" + isPomUpdated);
+                //If at least one pom file updated, isComponentUpdate will set to true
+                if (isPomUpdated) {
+                    isComponentUpdated = true;
                 }
             }
         }
-        return updateStatus;
+        return isComponentUpdated;
     }
 }

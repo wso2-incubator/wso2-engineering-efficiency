@@ -66,7 +66,7 @@ public class Constants {
     public static final String MYSQL_PASSWORD_TAG = "MYSQL_PASSWORD";
     public static final String MYSQL_DATABASE_URL_TAG = "MYSQL_DATABASE_URL";
     public static final String MYSQL_DATABASE_NAME_TAG = "MYSQL_DATABASE_NAME";
-    public static final String DEPENDENCY_UPDATE_MICRO_SERVICE_TAG = "DEPENDENCY_VERSION_MICRO_SERVICE_URL";
+    public static final String AETHER_MICRO_SERVICE = "AETHER_MICRO_SERVICE";
     public static final String MAVEN_HOME_TAG = "M2_HOME";
     public static final String GITHUB_USERNAME_TAG = "GITHUB_USERNAME";
     public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";

@@ -52,7 +52,7 @@ public class GitHubConnector {
         boolean status = false;
         try {
             log.info("Calling git pull command for component: " + component.getName());
-            status = Git.open(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName()))
+            status = Git.open(new File(ConfigFileReader.getRootPath() + File.separator + component.getName()))
                     .pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
@@ -74,13 +74,13 @@ public class GitHubConnector {
      */
     private static boolean clone(Component component) {
 
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(ConfigFileReader.GITHUB_USERNAME, ConfigFileReader.GITHUB_PASSWORD);
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(ConfigFileReader.getGithubUsername(), ConfigFileReader.getGithubPassword());
         try {
             log.info("Cloning the repository to local storage: " + component.getName());
             Git.cloneRepository()
                     .setCredentialsProvider(credentialsProvider)
                     .setURI(component.getUrl())
-                    .setDirectory(new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName())).call();
+                    .setDirectory(new File(ConfigFileReader.getRootPath() + File.separator + component.getName())).call();
             return true;
 
         } catch (InvalidRemoteException e) {
@@ -103,7 +103,7 @@ public class GitHubConnector {
 
         log.info("Retrieving component: " + component.getName());
 
-        File repository = new File(ConfigFileReader.ROOT_PATH + File.separator + component.getName());
+        File repository = new File(ConfigFileReader.getRootPath() + File.separator + component.getName());
         if (repository.exists() && repository.isDirectory()) {
             log.info("Existing repository found for : " + component.getName());
             return update(component);

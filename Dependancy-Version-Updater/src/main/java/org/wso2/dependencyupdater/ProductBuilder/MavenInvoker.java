@@ -53,11 +53,11 @@ public class MavenInvoker {
      */
     public static int mavenBuild(final String directoryName) {
 
-        String directoryPath = ConfigFileReader.ROOT_PATH + directoryName;
+        String directoryPath = ConfigFileReader.getRootPath() + directoryName;
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(directoryPath));
 
-        File logFile = new File(ConfigFileReader.ROOT_PATH + Constants.MAVEN_LOG_SUBDIRECTORY
+        File logFile = new File(ConfigFileReader.getRootPath() + Constants.MAVEN_LOG_SUBDIRECTORY
                 + File.separator + getComponentName(directoryName) + ".txt");
         try {
             InvocationOutputHandler outputHandler = new MavenOutputHandler(logFile);
@@ -70,7 +70,7 @@ public class MavenInvoker {
 
         request.setGoals(Collections.singletonList(Constants.MAVEN_INVOKE_COMMAND));
         Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(ConfigFileReader.MAVEN_HOME));
+        invoker.setMavenHome(new File(ConfigFileReader.getMavenHome()));
         InvocationResult invocationResult;
         try {
             invocationResult = invoker.execute(request);

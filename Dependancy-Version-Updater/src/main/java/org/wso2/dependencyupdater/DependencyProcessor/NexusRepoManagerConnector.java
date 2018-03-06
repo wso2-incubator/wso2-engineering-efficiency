@@ -70,7 +70,7 @@ public class NexusRepoManagerConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICRO_SERVICE_URL + Constants.URL_SEPARATOR + "getLatest");
+            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() + Constants.URL_SEPARATOR + "getLatest");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
 
@@ -115,7 +115,7 @@ public class NexusRepoManagerConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICRO_SERVICE_URL + Constants.URL_SEPARATOR + "getVersions");
+            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() + Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -174,7 +174,7 @@ public class NexusRepoManagerConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.DEPENDENCY_UPDATE_MICRO_SERVICE_URL + Constants.URL_SEPARATOR + "getVersions");
+            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() + Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

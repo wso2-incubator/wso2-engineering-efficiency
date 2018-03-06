@@ -42,10 +42,10 @@ public class ComponentDatabase {
         try {
 
             Class.forName(className);
-            String url = ConfigFileReader.MYSQL_DATABASE_URL + Constants.URL_SEPARATOR + ConfigFileReader.MYSQL_DATABASE_NAME;
-            this.connection = DriverManager.getConnection(url, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
+            String url = ConfigFileReader.getMysqlDatabaseUrl() + Constants.URL_SEPARATOR + ConfigFileReader.getMysqlDatabaseName();
+            this.connection = DriverManager.getConnection(url, ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
         } catch (ClassNotFoundException e) {
-            log.error("MYSQL Class not found for class " + className, e);
+            log.error("MYSQL Class not found for class" + className, e);
         }
     }
 

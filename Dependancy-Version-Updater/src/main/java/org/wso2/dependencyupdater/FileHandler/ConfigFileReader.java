@@ -21,7 +21,6 @@ package org.wso2.dependencyupdater.FileHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.wso2.dependencyupdater.Constants;
 import org.xml.sax.SAXException;
 
@@ -37,50 +36,41 @@ import javax.xml.parsers.ParserConfigurationException;
 public class ConfigFileReader {
 
     private static final Log log = LogFactory.getLog(ConfigFileReader.class);
-    public static String MAVEN_HOME;
-    public static String GITHUB_USERNAME;
-    public static String GITHUB_PASSWORD;
-    public static String ROOT_PATH;
-    public static String MYSQL_USERNAME;
-    public static String MYSQL_PASSWORD;
-    public static String MYSQL_DATABASE_URL;
-    public static String MYSQL_DATABASE_NAME;
-    public static String DEPENDENCY_UPDATE_MICRO_SERVICE_URL;
-    public static String REPORT_PATH;
+
+    private static String mavenHome;
+    private static String githubUsername;
+    private static String githubPassword;
+    private static String rootPath;
+    private static String mysqlUsername;
+    private static String mysqlPassword;
+    private static String mysqlDatabaseUrl;
+    private static String mysqlDatabaseName;
+    private static String aetherMicroServiceUrl;
+    private static String reportPath;
 
     /**
      * Retrieves set of values from configuration file
      */
-    public static void readConfigFile() {
+    public static void loadConfigurations() {
 
         File configFile = new File(Constants.RESOURCE_PATH + File.separator + Constants.CONFIG_FILE_NAME);
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         try {
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            DocumentBuilder dBuilder = documentBuilderFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(configFile);
             doc.getDocumentElement().normalize();
-            //search for the first occurrence of each property tag
-            Node mavenHomeNode = doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0);
-            Node githubUsernameNode = doc.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0);
-            Node githubPasswordNode = doc.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0);
-            Node mysqlUsernameNode = doc.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0);
-            Node mysqlPasswordNode = doc.getElementsByTagName(Constants.MYSQL_PASSWORD_TAG).item(0);
-            Node mysqlDatabaseURLNode = doc.getElementsByTagName(Constants.MYSQL_DATABASE_URL_TAG).item(0);
-            Node mysqlDatabaseNameNode = doc.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0);
-            Node rootPathNode = doc.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0);
-            Node dependencyUpdateMicroServiceURL = doc.getElementsByTagName(Constants.DEPENDENCY_UPDATE_MICRO_SERVICE_TAG).item(0);
-            Node reportPathNode = doc.getElementsByTagName(Constants.REPORT_PATH_TAG).item(0);
 
-            GITHUB_USERNAME = githubUsernameNode.getTextContent();
-            GITHUB_PASSWORD = githubPasswordNode.getTextContent();
-            MAVEN_HOME = mavenHomeNode.getTextContent();
-            ROOT_PATH = rootPathNode.getTextContent();
-            MYSQL_USERNAME = mysqlUsernameNode.getTextContent();
-            MYSQL_PASSWORD = mysqlPasswordNode.getTextContent();
-            MYSQL_DATABASE_URL = mysqlDatabaseURLNode.getTextContent();
-            MYSQL_DATABASE_NAME = mysqlDatabaseNameNode.getTextContent();
-            DEPENDENCY_UPDATE_MICRO_SERVICE_URL = dependencyUpdateMicroServiceURL.getTextContent();
-            REPORT_PATH = reportPathNode.getTextContent();
+            //search for the first occurrence of each property tag and assign its text value
+            mavenHome = doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0).getTextContent();
+            githubUsername = doc.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0).getTextContent();
+            githubPassword = doc.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0).getTextContent();
+            mysqlUsername = doc.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0).getTextContent();
+            mysqlPassword = doc.getElementsByTagName(Constants.MYSQL_PASSWORD_TAG).item(0).getTextContent();
+            mysqlDatabaseUrl = doc.getElementsByTagName(Constants.MYSQL_DATABASE_URL_TAG).item(0).getTextContent();
+            mysqlDatabaseName = doc.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0).getTextContent();
+            rootPath = doc.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0).getTextContent();
+            aetherMicroServiceUrl = doc.getElementsByTagName(Constants.AETHER_MICRO_SERVICE).item(0).getTextContent();
+            reportPath = doc.getElementsByTagName(Constants.REPORT_PATH_TAG).item(0).getTextContent();
 
         } catch (ParserConfigurationException e) {
             log.error("Error occurred in parsing Configurations ", e);
@@ -88,7 +78,60 @@ public class ConfigFileReader {
             log.error("Error occurred in XML Parsing", e);
         } catch (IOException e) {
             log.error("Configuration file Not Found", e);
+        }catch (NullPointerException e){
+            log.error("One or more required tags not found in the configurations file",e);
         }
+    }
+
+    //Set of getters for configuration variables
+    public static String getMavenHome() {
+
+        return mavenHome;
+    }
+
+    public static String getGithubUsername() {
+
+        return githubUsername;
+    }
+
+    public static String getGithubPassword() {
+
+        return githubPassword;
+    }
+
+    public static String getRootPath() {
+
+        return rootPath;
+    }
+
+    public static String getMysqlUsername() {
+
+        return mysqlUsername;
+    }
+
+    public static String getMysqlPassword() {
+
+        return mysqlPassword;
+    }
+
+    public static String getMysqlDatabaseUrl() {
+
+        return mysqlDatabaseUrl;
+    }
+
+    public static String getMysqlDatabaseName() {
+
+        return mysqlDatabaseName;
+    }
+
+    public static String getAetherMicroServiceUrl() {
+
+        return aetherMicroServiceUrl;
+    }
+
+    public static String getReportPath() {
+
+        return reportPath;
     }
 
 }
