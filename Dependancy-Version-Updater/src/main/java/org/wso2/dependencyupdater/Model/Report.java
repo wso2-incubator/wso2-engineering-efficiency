@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Contains Details about a CSV report
  *
- * @param <Type> Report may contain certain types of object.
+ * @param <Type> Different Reports may contain different types of object.
  */
 public abstract class Report<Type> {
 

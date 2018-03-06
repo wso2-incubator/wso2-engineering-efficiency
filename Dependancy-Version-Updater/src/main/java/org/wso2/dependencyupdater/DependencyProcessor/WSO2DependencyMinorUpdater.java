@@ -54,8 +54,6 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
 
         List<Dependency> updatedDependencies = new ArrayList<>(dependencies);
         List<OutdatedDependency> outdatedDependencies = new ArrayList<>();
-        //used for reporting
-        OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
 
         Model model = new Model();
         for (Dependency dependency : dependencies) {
@@ -72,6 +70,9 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         localProperties = addUpdateStatus(localProperties, outdatedDependencies.size());
         model.setDependencies(updatedDependencies);
         model.setProperties(localProperties);
+
+        //used for reporting
+        OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
         log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in " + pomLocation);
 

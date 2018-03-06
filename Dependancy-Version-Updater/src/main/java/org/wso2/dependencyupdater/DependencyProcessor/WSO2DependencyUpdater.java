@@ -73,9 +73,14 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
             modifiedModel.setDependencyManagement(dependencyManagement);
 
         }
-        boolean status = getUpdateStatusForModel(modifiedModel, isDependencyModelUpdated, isManagementModelUpdated);
+        boolean isPomModelUpdated = getUpdateStatusForModel(modifiedModel, isDependencyModelUpdated, isManagementModelUpdated);
 
-        return status && POMWriter.writePom(modifiedModel);
+        if(isPomModelUpdated){
+            return POMWriter.writePom(modifiedModel);
+        }
+        else{
+            return isPomModelUpdated;
+        }
     }
 
     /**
@@ -83,16 +88,16 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      * This method check whether the dependencies/Management dependencies updated,
      *
      * @param modifiedModel          org.apache.maven.model.Model
-     * @param dependencyModelUpdated boolean value indicating dependencies updated or not
-     * @param managementModelUpdated boolean value indicating management dependencies updated or not
+     * @param isDependencyModelUpdated boolean value indicating dependencies updated or not
+     * @param isManagementModelUpdated boolean value indicating management dependencies updated or not
      * @return boolean value indicating model updated or not
      */
-    private boolean getUpdateStatusForModel(Model modifiedModel, boolean dependencyModelUpdated, boolean managementModelUpdated) {
+    private boolean getUpdateStatusForModel(Model modifiedModel, boolean isDependencyModelUpdated, boolean isManagementModelUpdated) {
 
         if (modifiedModel.getDependencyManagement() == null) {
-            return dependencyModelUpdated;
+            return isDependencyModelUpdated;
         } else {
-            return dependencyModelUpdated || managementModelUpdated;
+            return isDependencyModelUpdated || isManagementModelUpdated;
         }
     }
 

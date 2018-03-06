@@ -56,7 +56,6 @@ public class DatabaseConnector {
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(timeStamp));
             preparedStatement.setInt(3, component.getStatus());
             preparedStatement.execute();
-            preparedStatement.close();
         } catch (SQLException e) {
             log.error("Problem occurred in Database Connection", e);
         } finally {
@@ -84,8 +83,6 @@ public class DatabaseConnector {
                 Component component = new Component(resultSet.getString("REPO_NAME"), resultSet.getString("REPO_URL"));
                 components.add(component);
             }
-            preparedStatement.close();
-            resultSet.close();
         } catch (SQLException e) {
             log.error("Problem occurred when connecting to  database ", e);
         } finally {

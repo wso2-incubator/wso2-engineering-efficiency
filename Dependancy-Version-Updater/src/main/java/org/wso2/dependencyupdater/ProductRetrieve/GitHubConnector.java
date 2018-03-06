@@ -49,10 +49,10 @@ public class GitHubConnector {
      */
     private static boolean update(Component component) {
 
-        boolean status = false;
+        boolean isUpdateSuccessful = false;
         try {
             log.info("Calling git pull command for component: " + component.getName());
-            status = Git.open(new File(ConfigFileReader.getRootPath() + File.separator + component.getName()))
+            isUpdateSuccessful = Git.open(new File(ConfigFileReader.getRootPath() + File.separator + component.getName()))
                     .pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
@@ -63,7 +63,7 @@ public class GitHubConnector {
             log.error("Failed to execute git command " + component.getName());
         }
 
-        return status;
+        return isUpdateSuccessful;
     }
 
     /**
@@ -74,7 +74,8 @@ public class GitHubConnector {
      */
     private static boolean clone(Component component) {
 
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(ConfigFileReader.getGithubUsername(), ConfigFileReader.getGithubPassword());
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
+                ConfigFileReader.getGithubUsername(), ConfigFileReader.getGithubPassword());
         try {
             log.info("Cloning the repository to local storage: " + component.getName());
             Git.cloneRepository()

@@ -51,6 +51,9 @@ public class NexusRepoManagerConnector {
 
     /**
      * Identify the latest available version for a given dependency
+     * Retrieves the latest minor version from a JSON Array of version
+     * Example :- current version 4.1.1 ,available versions { 2.1.3, 3.5.3, 4.1.0, 4.1.1, 4.5.4, 5.1.1}
+     * Select 5.1.1 as the latest minor version
      *
      * @param dependency Dependency object
      * @return String that indicates the latest available version
@@ -174,11 +177,13 @@ public class NexusRepoManagerConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() + Constants.URL_SEPARATOR + "getVersions");
+            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl()
+                    + Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
+                BufferedReader rd = new BufferedReader(new InputStreamReader(
+                        response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
                 while ((line = rd.readLine()) != null) {
@@ -201,6 +206,8 @@ public class NexusRepoManagerConnector {
 
     /**
      * Retrieves the latest minor version from a JSON Array of version
+     * Example :- current version 4.1.1 ,available versions { 2.1.3, 3.5.3, 4.1.0, 4.1.1, 4.5.4, 5.1.1}
+     * Select 4.5.4 as the latest minor version
      *
      * @param currentVersion current version used in dependency
      * @param versionList    JSON Array of Strings indicating versions
@@ -208,16 +215,16 @@ public class NexusRepoManagerConnector {
      */
     private static String getLatestMinorVersionFromJson(String currentVersion, JSONArray versionList) {
 
-        Optional<Integer> optionalCurrentMajorVersionId = getMajorFromVersion(currentVersion);
-        if (optionalCurrentMajorVersionId.isPresent()) {
+        Optional<Integer> optionalCurrentMainVersionId = getMainVersionTagFromVersion(currentVersion);
+        if (optionalCurrentMainVersionId.isPresent()) {
             boolean hasMajorVersionFound = false;
             int index = 0;
             String version;
             while (!hasMajorVersionFound && index < versionList.length()) {
                 version = versionList.get(index).toString();
-                Optional<Integer> optionalVersion = getMajorFromVersion(version);
+                Optional<Integer> optionalVersion = getMainVersionTagFromVersion(version);
                 if (optionalVersion.isPresent()) {
-                    if (optionalCurrentMajorVersionId.get() >= optionalVersion.get()) {
+                    if (optionalCurrentMainVersionId.get() >= optionalVersion.get()) {
                         index++;
                     } else {
                         hasMajorVersionFound = true;
@@ -253,7 +260,7 @@ public class NexusRepoManagerConnector {
      * @throws NullPointerException  When the version is a null string
      * @throws NumberFormatException when the version string is not representing a number
      */
-    private static Optional<Integer> getMajorFromVersion(String version) {
+    private static Optional<Integer> getMainVersionTagFromVersion(String version) {
 
         Integer majorVersion = null;
 

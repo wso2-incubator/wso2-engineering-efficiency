@@ -56,21 +56,21 @@ public class ConfigFileReader {
         File configFile = new File(Constants.RESOURCE_PATH + File.separator + Constants.CONFIG_FILE_NAME);
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         try {
-            DocumentBuilder dBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(configFile);
-            doc.getDocumentElement().normalize();
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document configuration = documentBuilder.parse(configFile);
+            configuration.getDocumentElement().normalize();
 
             //search for the first occurrence of each property tag and assign its text value
-            mavenHome = doc.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0).getTextContent();
-            githubUsername = doc.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0).getTextContent();
-            githubPassword = doc.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0).getTextContent();
-            mysqlUsername = doc.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0).getTextContent();
-            mysqlPassword = doc.getElementsByTagName(Constants.MYSQL_PASSWORD_TAG).item(0).getTextContent();
-            mysqlDatabaseUrl = doc.getElementsByTagName(Constants.MYSQL_DATABASE_URL_TAG).item(0).getTextContent();
-            mysqlDatabaseName = doc.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0).getTextContent();
-            rootPath = doc.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0).getTextContent();
-            aetherMicroServiceUrl = doc.getElementsByTagName(Constants.AETHER_MICRO_SERVICE).item(0).getTextContent();
-            reportPath = doc.getElementsByTagName(Constants.REPORT_PATH_TAG).item(0).getTextContent();
+            mavenHome = configuration.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0).getTextContent();
+            githubUsername = configuration.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0).getTextContent();
+            githubPassword = configuration.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0).getTextContent();
+            mysqlUsername = configuration.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0).getTextContent();
+            mysqlPassword = configuration.getElementsByTagName(Constants.MYSQL_PASSWORD_TAG).item(0).getTextContent();
+            mysqlDatabaseUrl = configuration.getElementsByTagName(Constants.MYSQL_DATABASE_URL_TAG).item(0).getTextContent();
+            mysqlDatabaseName = configuration.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0).getTextContent();
+            rootPath = configuration.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0).getTextContent();
+            aetherMicroServiceUrl = configuration.getElementsByTagName(Constants.AETHER_MICRO_SERVICE).item(0).getTextContent();
+            reportPath = configuration.getElementsByTagName(Constants.REPORT_PATH_TAG).item(0).getTextContent();
 
         } catch (ParserConfigurationException e) {
             log.error("Error occurred in parsing Configurations ", e);

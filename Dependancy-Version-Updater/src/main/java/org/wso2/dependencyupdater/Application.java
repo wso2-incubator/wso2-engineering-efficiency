@@ -133,8 +133,8 @@ public class Application {
                 model = POMReader.getPomModel(componentPath + File.separator + module); //create model for each child pom mentioned in root pom
                 modelList.add(model);
             }
-            for (Model childModel : modelList) {
-                boolean isPomUpdated = dependencyUpdater.updateModel(childModel, properties);
+            for (Model pomModel : modelList) {
+                boolean isPomUpdated = dependencyUpdater.updateModel(pomModel, properties);
                 log.info("pom.xml File updated :" + isPomUpdated);
                 //If at least one pom file updated, isComponentUpdate will set to true
                 if (isPomUpdated) {
