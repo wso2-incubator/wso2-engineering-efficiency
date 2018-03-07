@@ -18,8 +18,6 @@
  */
 package org.wso2.dashboard.dataservice.ProductBuildStatus;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.dashboard.dataservice.Constants;
 import org.wso2.dashboard.dataservice.Database.LocalDBConnector;
 import org.wso2.dashboard.dataservice.Model.BuildStat;
@@ -33,8 +31,6 @@ import java.util.Date;
  * Contains methods for retrieving build status
  */
 public class BuildStatusFinder {
-
-    private static final Log log = LogFactory.getLog(BuildStatusFinder.class);
 
     /**
      * This method identifies the build status of a productArea for a given date

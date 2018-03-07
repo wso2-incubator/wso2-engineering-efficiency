@@ -20,6 +20,7 @@ package org.wso2.dashboard.dataservice.Database;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.dashboard.dataservice.Constants;
 import org.wso2.dashboard.dataservice.FileHandler.ConfigFileReader;
 import org.wso2.dashboard.dataservice.Model.BuildStat;
 import org.wso2.dashboard.dataservice.Model.ProductArea;
@@ -56,7 +57,8 @@ public class LocalDBConnector {
 
         String selectSQL = "SELECT * FROM ComponentBuildStatistics WHERE Component = ? AND BuildTime BETWEEN ? AND ? ORDER BY BuildTime DESC";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
+            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
+                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
 
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, componentName);
@@ -120,7 +122,8 @@ public class LocalDBConnector {
 
         String selectSQL = "SELECT DISTINCT(PRODUCT) FROM PRODUCT_COMPONENT_MAP WHERE NOT PRODUCT = 'null' AND NOT PRODUCT = 'unknown'";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
+            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
+                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
 
             preparedStatement = connection.prepareStatement(selectSQL);
 
@@ -155,7 +158,8 @@ public class LocalDBConnector {
 
         String selectSQL = "SELECT REPO_NAME FROM PRODUCT_COMPONENT_MAP WHERE PRODUCT =?";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
+            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
+                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, productName);
 
@@ -191,7 +195,8 @@ public class LocalDBConnector {
 
         String selectSQL = "SELECT Status FROM ComponentBuildStatistics WHERE Component = ? AND BuildTime BETWEEN ? AND ? ";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.MYSQL_DATABASE_URL, ConfigFileReader.MYSQL_USERNAME, ConfigFileReader.MYSQL_PASSWORD);
+            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
+                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, componentName);
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(startTime));
@@ -202,7 +207,9 @@ public class LocalDBConnector {
             int buildStatsCount = 0;
             while (resultSet.next()) {
                 int status = resultSet.getInt("Status");
-                score += status;
+                if (status == Constants.BUIlD_SUCCESS_CODE) {
+                    score += 1;
+                }
                 buildStatsCount += 1;
             }
             if (buildStatsCount != 0) {

@@ -38,9 +38,9 @@ public class ConfigFileReader {
 
     private static final Log log = LogFactory.getLog(ConfigFileReader.class);
 
-    public static String MYSQL_USERNAME;
-    public static String MYSQL_PASSWORD;
-    public static String MYSQL_DATABASE_URL;
+    private static String MYSQL_USERNAME;
+    private static String MYSQL_PASSWORD;
+    private static String MYSQL_DATABASE_URL;
 
     /**
      * Retrieves set of values from configuration file
@@ -70,4 +70,18 @@ public class ConfigFileReader {
         }
     }
 
+    public static String getMysqlUsername() {
+
+        return MYSQL_USERNAME;
+    }
+
+    public static String getMysqlPassword() {
+
+        return MYSQL_PASSWORD;
+    }
+
+    public static String getMysqlDatabaseUrl() {
+
+        return MYSQL_DATABASE_URL;
+    }
 }

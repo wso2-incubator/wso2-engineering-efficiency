@@ -17,8 +17,6 @@
 package org.wso2.dashboard.dataservice;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.wso2.dashboard.dataservice.Database.LocalDBConnector;
 import org.wso2.dashboard.dataservice.Model.ProductArea;
@@ -33,8 +31,6 @@ import javax.ws.rs.Path;
  */
 @Path("/service")
 public class DashboardDataService {
-
-    private static final Log log = LogFactory.getLog(DashboardDataService.class);
 
     //end point for retrieving data to display in the dashboard
     @GET
