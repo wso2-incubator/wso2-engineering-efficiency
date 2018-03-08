@@ -25,16 +25,19 @@ public class DependencyUpdaterConfigurationException extends Exception {
 
     /**
      * Constructor with only a message to display
+     *
      * @param message String message about caused exception
      */
     public DependencyUpdaterConfigurationException(String message) {
 
         super(message);
     }
+
     /**
      * Constructor with both message and causing exception
+     *
      * @param message String message about caused exception
-     * @param cause caught exception
+     * @param cause   caught exception
      */
     public DependencyUpdaterConfigurationException(String message, Throwable cause) {
 

@@ -61,7 +61,7 @@ public class RepositoryManager {
             this.connection = DriverManager.getConnection(url,
                     ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
         } catch (SQLException e) {
-            log.info("SQL Exception occurred when initiating the connection",e);
+            log.info("SQL Exception occurred when initiating the connection", e);
         }
 
     }
@@ -75,7 +75,7 @@ public class RepositoryManager {
             connection.close();
 
         } catch (SQLException e) {
-            log.info("SQL Exception occurred when closing the connection",e);
+            log.info("SQL Exception occurred when closing the connection", e);
         }
     }
 
@@ -83,7 +83,7 @@ public class RepositoryManager {
      * Method to insert build status to database
      *
      * @param repository repository object corresponding to build status
-     * @param timeStamp unix timestamp of update operation
+     * @param timeStamp  unix timestamp of update operation
      */
     public void insertBuildStatus(Repository repository, long timeStamp) {
 
@@ -188,6 +188,7 @@ public class RepositoryManager {
      *
      * @param repository repository object for updating
      * @return status of update
+     * @throws DependencyUpdaterRepositoryException when error occurred in git pull command
      */
     private boolean update(Repository repository) throws DependencyUpdaterRepositoryException {
 
@@ -218,6 +219,7 @@ public class RepositoryManager {
      *
      * @param repository repository object for cloning
      * @return status of clone
+     * @throws DependencyUpdaterRepositoryException when error occurred in git clone command
      */
     private boolean clone(Repository repository) throws DependencyUpdaterRepositoryException {
 
@@ -249,6 +251,7 @@ public class RepositoryManager {
      *
      * @param component Repository for retrieving
      * @return Status of retrieving process
+     * @throws DependencyUpdaterRepositoryException when error occurred in git pull or  git clone command
      */
     public boolean retrieveComponent(Repository component) throws DependencyUpdaterRepositoryException {
 
