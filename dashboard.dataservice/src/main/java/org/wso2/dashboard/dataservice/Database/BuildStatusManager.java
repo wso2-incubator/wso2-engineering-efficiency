@@ -18,6 +18,8 @@
  */
 package org.wso2.dashboard.dataservice.Database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.dashboard.dataservice.Constants;
@@ -36,9 +38,19 @@ import java.util.ArrayList;
 /**
  * Contains methods for connecting to the database
  */
-public class LocalDBConnector {
+public class BuildStatusManager {
 
-    private static final Log log = LogFactory.getLog(LocalDBConnector.class);
+    private static final Log log = LogFactory.getLog(BuildStatusManager.class);
+    private HikariDataSource hikariDataSource;
+
+    public BuildStatusManager() {
+
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://localhost:3308/DependencyUpdateDB");
+        config.setUsername(ConfigFileReader.getMysqlUsername());
+        config.setPassword(ConfigFileReader.getMysqlPassword());
+        hikariDataSource = new HikariDataSource(config);
+    }
 
     /**
      * Retrieves build statistics from the database for a given time range and component name
@@ -48,17 +60,17 @@ public class LocalDBConnector {
      * @param endTime       ending time
      * @return Array List of Build statistics belong to that component, time range
      */
-    public static ArrayList<BuildStat> getBuildStats(String componentName, long startTime, long endTime) {
+    public ArrayList<BuildStat> getBuildStats(String componentName, long startTime, long endTime) {
 
         ArrayList<BuildStat> productList = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         Connection connection = null;
         ResultSet resultSet = null;
 
-        String selectSQL = "SELECT * FROM ComponentBuildStatistics WHERE Component = ? AND BuildTime BETWEEN ? AND ? ORDER BY BuildTime DESC";
+        String selectSQL = "SELECT * FROM ComponentBuildStatistics WHERE Component = ?" +
+                " AND BuildTime BETWEEN ? AND ? ORDER BY BuildTime DESC";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
-                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
+            connection = hikariDataSource.getConnection();
 
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, componentName);
@@ -76,10 +88,13 @@ public class LocalDBConnector {
 
         } catch (SQLException e) {
             log.error("Error occurred while connecting to the MYSQL database ", e);
+        } catch (UnsupportedOperationException e) {
+            log.info("Unsupported ", e);
         } finally {
             closeConnectionAttributes(preparedStatement, connection, resultSet);
 
         }
+
         return productList;
 
     }
@@ -91,7 +106,8 @@ public class LocalDBConnector {
      * @param connection        SQL Connection object
      * @param resultSet         result set object with set of results
      */
-    private static void closeConnectionAttributes(PreparedStatement preparedStatement, Connection connection, ResultSet resultSet) {
+    private void closeConnectionAttributes(PreparedStatement preparedStatement
+            , Connection connection, ResultSet resultSet) {
 
         try {
             if (resultSet != null) {
@@ -113,17 +129,17 @@ public class LocalDBConnector {
      *
      * @return Array list of productArea objects
      */
-    public static ArrayList<ProductArea> getAllProductAreas() {
+    public ArrayList<ProductArea> getAllProductAreas() {
 
         ArrayList<ProductArea> productAreaList = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         Connection connection = null;
         ResultSet resultSet = null;
 
-        String selectSQL = "SELECT DISTINCT(PRODUCT) FROM PRODUCT_COMPONENT_MAP WHERE NOT PRODUCT = 'null' AND NOT PRODUCT = 'unknown'";
+        String selectSQL = "SELECT DISTINCT(PRODUCT) FROM PRODUCT_COMPONENT_MAP " +
+                "WHERE NOT PRODUCT = 'null' AND NOT PRODUCT = 'unknown'";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
-                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
+            connection = hikariDataSource.getConnection();
 
             preparedStatement = connection.prepareStatement(selectSQL);
 
@@ -149,7 +165,7 @@ public class LocalDBConnector {
      * @param productName name of product area
      * @return array list of component names
      */
-    public static ArrayList<String> getComponentsForArea(String productName) {
+    public ArrayList<String> getComponentsForArea(String productName) {
 
         ArrayList<String> componentList = new ArrayList<>();
         PreparedStatement preparedStatement = null;
@@ -158,8 +174,7 @@ public class LocalDBConnector {
 
         String selectSQL = "SELECT REPO_NAME FROM PRODUCT_COMPONENT_MAP WHERE PRODUCT =?";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
-                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
+            connection = hikariDataSource.getConnection();
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, productName);
 
@@ -187,16 +202,16 @@ public class LocalDBConnector {
      * @param endTime       end time
      * @return fraction of successful build stats. Will return 0 if no build stats found
      */
-    public static double getComponentScore(String componentName, long startTime, long endTime) {
+    public double getComponentScore(String componentName, long startTime, long endTime) {
 
         PreparedStatement preparedStatement = null;
         Connection connection = null;
         ResultSet resultSet = null;
 
-        String selectSQL = "SELECT Status FROM ComponentBuildStatistics WHERE Component = ? AND BuildTime BETWEEN ? AND ? ";
+        String selectSQL = "SELECT Status FROM ComponentBuildStatistics " +
+                "WHERE Component = ? AND BuildTime BETWEEN ? AND ? ";
         try {
-            connection = DriverManager.getConnection(ConfigFileReader.getMysqlDatabaseUrl(),
-                    ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
+            connection = hikariDataSource.getConnection();
             preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, componentName);
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(startTime));

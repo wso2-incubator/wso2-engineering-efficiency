@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.dependencyupdater.Model;
+package org.wso2.dependencyupdater.model;
 
 import org.apache.maven.model.Dependency;
 
@@ -60,3 +60,14 @@ public class OutdatedDependency extends org.apache.maven.model.Dependency {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+

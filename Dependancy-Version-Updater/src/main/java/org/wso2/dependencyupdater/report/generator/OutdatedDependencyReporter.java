@@ -16,13 +16,13 @@
  * under the License.
  *
  */
-package org.wso2.dependencyupdater.ReportGenerator;
+package org.wso2.dependencyupdater.report.generator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.Model.OutdatedDependency;
-import org.wso2.dependencyupdater.Model.Report;
+import org.wso2.dependencyupdater.model.OutdatedDependency;
+import org.wso2.dependencyupdater.model.Report;
 
 import java.io.File;
 import java.io.FileNotFoundException;

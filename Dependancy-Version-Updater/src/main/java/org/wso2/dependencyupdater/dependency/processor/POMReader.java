@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.dependencyupdater.DependencyProcessor;
+package org.wso2.dependencyupdater.dependency.processor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +51,8 @@ public class POMReader {
         Model model = new Model();
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try {
-            reader = new InputStreamReader(new FileInputStream(path + File.separator + Constants.POM_NAME), Constants.UTF_8_CHARSET_NAME);
+            reader = new InputStreamReader(new FileInputStream(path + File.separator
+                    + Constants.POM_NAME), Constants.UTF_8_CHARSET_NAME);
             model = mavenReader.read(reader);
             model.setPomFile(pomFile);
 

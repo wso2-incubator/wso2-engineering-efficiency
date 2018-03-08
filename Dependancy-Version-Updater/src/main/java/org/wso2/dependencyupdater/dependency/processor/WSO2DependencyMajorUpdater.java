@@ -16,31 +16,33 @@
  * under the License.
  *
  */
-package org.wso2.dependencyupdater.DependencyProcessor;
+
+package org.wso2.dependencyupdater.dependency.processor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
-import org.wso2.dependencyupdater.Model.OutdatedDependency;
-import org.wso2.dependencyupdater.ReportGenerator.OutdatedDependencyReporter;
+import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
+import org.wso2.dependencyupdater.model.OutdatedDependency;
+import org.wso2.dependencyupdater.report.generator.OutdatedDependencyReporter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 /**
- * Updater for updating WSO2 dependencies to latest available Minor version
+ * Updater for updating WSO2 dependencies to latest available version
  */
-public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
+public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
 
-    private static final Log log = LogFactory.getLog(WSO2DependencyMinorUpdater.class);
+    private static final Log log = LogFactory.getLog(WSO2DependencyMajorUpdater.class);
 
     /**
-     * Retrieves the set of dependencies used in a model and set their version to latest available minor version
-     * (version that returns from NexusRepoManagerConnector.getLatestMinorVersion(dependency) method )
+     * Retrieves the set of dependencies used in a model and set their version to latest available version
+     * (version that returns from NexusRepoManagerConnector.getLatestVersion(dependency) method )
      *
      * @param pomLocation      Location of the pom file
      * @param dependencies     Set of dependencies
@@ -48,39 +50,38 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
      * @param localProperties  local properties (properties included in the current pom file)
      * @return org.apache.maven.model.Model with updated dependencies
      */
-    protected Model updateToLatestInLocation(String pomLocation, List<Dependency> dependencies, Properties globalProperties, Properties localProperties) {
+    protected Model updateToLatestInLocation(String pomLocation, List<Dependency> dependencies,
+                                             Properties globalProperties, Properties localProperties) {
 
-        //NOTE:- This Model object does not represent a pom.xml file. It is used to return updated dependencies with update state
+        //NOTE:- This Model object does not represent a pom.xml file.
+        // It is used to return updated dependencies with update state
 
         List<Dependency> updatedDependencies = new ArrayList<>(dependencies);
         List<OutdatedDependency> outdatedDependencies = new ArrayList<>();
-
+        OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
         for (Dependency dependency : dependencies) {
             dependency = replaceVersionFromPropertyValue(dependency, localProperties, globalProperties);
-            log.info(Constants.LOG_SEPARATOR);
             if (isValidUpdate(dependency)) {
-                String latestVersion = NexusRepoManagerConnector.getLatestMinorVersion(dependency);
+                String latestVersion = NexusRepoManagerConnector.getLatestVersion(dependency);
                 updatedDependencies = updateDependencyList(updatedDependencies, dependency, latestVersion);
-
                 outdatedDependencies = updateOutdatedDependencyList(outdatedDependencies, dependency, latestVersion);
             }
-            log.info(Constants.LOG_SEPARATOR);
         }
         localProperties = addUpdateStatus(localProperties, outdatedDependencies.size());
         model.setDependencies(updatedDependencies);
         model.setProperties(localProperties);
-
-        //used for reporting
-        OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
-        log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in " + pomLocation);
+        log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in "
+                + pomLocation.replaceAll("[\r\n]", ""));
 
-        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.getReportPath() + pomLocation.replace('/', '_'));
+        //report file generating
+        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.getReportPath()
+                + File.separator + pomLocation.replace('/', '_'));
         if (written) {
-            log.info("dependency update report saved successfully");
+            log.info("Dependency update report saved successfully");
         } else {
-            log.error("dependency update report saving failed");
+            log.error("Dependency update report saving failed");
         }
         return model;
     }
@@ -108,17 +109,22 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
             return false;
         }
 
-        String latestVersion = NexusRepoManagerConnector.getLatestMinorVersion(dependency);
+        String latestVersion = NexusRepoManagerConnector.getLatestVersion(dependency);
 
         if (latestVersion.length() == 0) {
-            log.info("Latest Minor version not found");
+            log.info("Latest Major version not found");
             return false;
         } else if (latestVersion.equals(currentVersion)) {
-            log.info("Already in the latest Minor version");
+            log.info("already in the latest Major version");
             return false;
         }
-        log.info("dependency " + dependency.getGroupId() + ":" + dependency.getArtifactId() + " updated from version " + currentVersion + " to " + latestVersion);
+        log.info("dependency " + dependency.getGroupId().replaceAll("[\r\n]", "")
+                + ":" + dependency.getArtifactId().replaceAll("[\r\n]", "")
+                + " updated from version " + currentVersion.replaceAll("[\r\n]", "")
+                + " to " + latestVersion.replaceAll("[\r\n]", ""));
         return true;
     }
 
 }
+
+

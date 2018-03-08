@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.dependencyupdater.Model;
+package org.wso2.dependencyupdater.model;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.dependencyupdater.DependencyProcessor;
+package org.wso2.dependencyupdater.dependency.processor;
 
 import org.apache.maven.model.Model;
 

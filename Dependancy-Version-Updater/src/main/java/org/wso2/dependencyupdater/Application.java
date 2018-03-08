@@ -22,15 +22,14 @@ package org.wso2.dependencyupdater;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Model;
-import org.wso2.dependencyupdater.DatabaseHandler.DatabaseConnector;
-import org.wso2.dependencyupdater.DependencyProcessor.DependencyUpdater;
-import org.wso2.dependencyupdater.DependencyProcessor.POMReader;
-import org.wso2.dependencyupdater.DependencyProcessor.WSO2DependencyMinorUpdater;
-import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
-import org.wso2.dependencyupdater.FileHandler.RepositoryHandler;
-import org.wso2.dependencyupdater.Model.Component;
-import org.wso2.dependencyupdater.ProductBuilder.MavenInvoker;
-import org.wso2.dependencyupdater.ProductRetrieve.GitHubConnector;
+import org.wso2.dependencyupdater.dependency.processor.DependencyUpdater;
+import org.wso2.dependencyupdater.dependency.processor.POMReader;
+import org.wso2.dependencyupdater.dependency.processor.WSO2DependencyMinorUpdater;
+import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
+import org.wso2.dependencyupdater.filehandler.RepositoryHandler;
+import org.wso2.dependencyupdater.model.Component;
+import org.wso2.dependencyupdater.product.builder.MavenInvoker;
+import org.wso2.dependencyupdater.repository.handler.RepositoryManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,17 +51,19 @@ public class Application {
     public static void main(String[] args) {
 
         ConfigFileReader.loadConfigurations();
+        RepositoryManager repositoryManager = new RepositoryManager();
+        ArrayList<Component> components = repositoryManager.getAllComponents();
 
-        ArrayList<Component> components = DatabaseConnector.getAllComponents();
-
-        DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater(); // to update wso2 dependencies to latest version with no major upgrades
-        //DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater(); // to update wso2 dependencies to latest available version
+        DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater();
+        // to update wso2 dependencies to latest version with no major upgrades
+        //DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater();
+        // to update wso2 dependencies to latest available version
 
         for (Component component : components) {
-            log.info(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
-            log.info("Component processing started :" + component.getName());
+            log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
+            log.debug("Component processing started :" + component.getName().replaceAll("[\r\n]", ""));
 
-            boolean isRepoUpdateSuccessful = GitHubConnector.retrieveComponent(component);
+            boolean isRepoUpdateSuccessful = repositoryManager.retrieveComponent(component);
             long updatedTimeStamp = System.currentTimeMillis();
             boolean isDirectoryCopyingSuccessful = false;
             if (isRepoUpdateSuccessful) {
@@ -73,43 +74,43 @@ public class Application {
 
             if (isDirectoryCopyingSuccessful) {
 
-                boolean isDependencyUpdateSuccessful = updateComponent(dependencyUpdater, componentTemporaryDirectoryName);
+                boolean isDependencyUpdateSuccessful = updateComponent(dependencyUpdater,
+                        componentTemporaryDirectoryName);
                 if (isDependencyUpdateSuccessful) {
                     //if the component dependencies are updated, invoke a maven build
-                    log.info("Component updated :" + component.getName());
+                    log.debug("Component updated :" + component.getName().replaceAll("[\r\n]", ""));
                     int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
                     component.setStatus(buildStatus);
-                    DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
-
+                    repositoryManager.insertBuildStatus(component, updatedTimeStamp);
                 } else {
-                    //if component dependencies are not updated, try to get the latest build status for the component and save it as the current status
-                    log.info("Component not updated :" + component.getName());
-                    int latestBuildStatus = DatabaseConnector.getLatestBuild(component);
+                    //if component dependencies are not updated, try to get the latest build status for the component
+                    // and save it as the current status
+                    log.debug("Component not updated :" + component.getName().replaceAll("[\r\n]", ""));
+                    int latestBuildStatus = repositoryManager.getLatestBuild(component);
                     if (latestBuildStatus == Constants.BUILD_NOT_AVAILABLE_CODE) {
                         int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
                         component.setStatus(buildStatus);
-                        DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
-
-                    }
-                    //if the component has never built before, build the component and save the status
-                    else {
+                        repositoryManager.insertBuildStatus(component, updatedTimeStamp);
+                    } else {
+                        //if the component has never built before, build the component and save the status
                         component.setStatus(latestBuildStatus);
-                        DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
+                        repositoryManager.insertBuildStatus(component, updatedTimeStamp);
                     }
 
                 }
             } else {
-                log.info("Component retrieving failed:" + component.getName());
+                log.debug("Component retrieving failed:" + component.getName().replaceAll("[\r\n]", ""));
                 component.setStatus(Constants.RETRIEVE_FAILED_CODE);
-                DatabaseConnector.insertBuildStatus(component, updatedTimeStamp);
+                repositoryManager.insertBuildStatus(component, updatedTimeStamp);
             }
-            log.info("Component processing finished :" + component.getName());
-            log.info(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
+            log.debug("Component processing finished :" + component.getName().replaceAll("[\r\n]", ""));
+            log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
         }
+        repositoryManager.closeConnection();
     }
 
     /**
-     * This method responsible for reading pom files as Models and calling update for each model
+     * Method contains procedure for updating a component with all of its pom files
      *
      * @param dependencyUpdater      DependencyUpdater Object with set of rules to update dependencies
      * @param componentDirectoryName Name of the directory that contains the component
@@ -130,12 +131,12 @@ public class Application {
             List<String> modules = model.getModules();
             for (String module : modules) {
                 //reading inner pom.xml
-                model = POMReader.getPomModel(componentPath + File.separator + module); //create model for each child pom mentioned in root pom
+                model = POMReader.getPomModel(componentPath + File.separator + module);
+                //create model for each child pom mentioned in root pom
                 modelList.add(model);
             }
             for (Model pomModel : modelList) {
                 boolean isPomUpdated = dependencyUpdater.updateModel(pomModel, properties);
-                log.info("pom.xml File updated :" + isPomUpdated);
                 //If at least one pom file updated, isComponentUpdate will set to true
                 if (isPomUpdated) {
                     isComponentUpdated = true;

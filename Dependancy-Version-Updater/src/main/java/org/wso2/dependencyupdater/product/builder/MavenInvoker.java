@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.dependencyupdater.ProductBuilder;
+package org.wso2.dependencyupdater.product.builder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,8 +29,8 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
-import org.wso2.dependencyupdater.FileHandler.MavenOutputHandler;
+import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
+import org.wso2.dependencyupdater.filehandler.MavenOutputHandler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -75,10 +75,13 @@ public class MavenInvoker {
         try {
             invocationResult = invoker.execute(request);
             if (invocationResult.getExitCode() == 0) {
-                log.info("Maven build Successful :" + getComponentName(directoryName));
+                log.info("Maven build Successful :"
+                        + getComponentName(directoryName).replaceAll("[\r\n]", ""));
                 return Constants.BUILD_SUCCESS_CODE;
             } else {
-                log.info("Maven build Failed :" + getComponentName(directoryName), invocationResult.getExecutionException());
+                log.info("Maven build Failed :"
+                                + getComponentName(directoryName).replaceAll("[\r\n]", ""),
+                        invocationResult.getExecutionException());
             }
 
         } catch (MavenInvocationException e) {

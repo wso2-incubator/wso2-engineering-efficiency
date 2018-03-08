@@ -16,14 +16,14 @@
  * under the License.
  *
  */
-package org.wso2.dependencyupdater.FileHandler;
+package org.wso2.dependencyupdater.filehandler;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.Model.Component;
+import org.wso2.dependencyupdater.model.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class RepositoryHandler {
         try {
             deleteDirectory(destinationPath);
             FileUtils.copyDirectory(source, dest);
-            log.info("Temporary file created for " + component.getName());
+            log.info("Temporary file created for " + component.getName().replaceAll("[\r\n]", ""));
             return true;
         } catch (IOException e) {
             log.error("Directory not found for copying", e);
@@ -67,7 +67,7 @@ public class RepositoryHandler {
 
         try {
             FileUtils.deleteDirectory(new File(destination));
-            log.info("Existing temporary folder deleted :" + destination);
+            log.info("Existing temporary folder deleted :" + destination.replaceAll("[\r\n]", ""));
         } catch (IOException e) {
 
             log.error("Directory not found for deleting", e);

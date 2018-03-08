@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.dependencyupdater.Model;
+package org.wso2.dependencyupdater.model;
 
 /**
  * Details about a Component

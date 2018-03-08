@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.wso2.dependencyupdater.DependencyProcessor;
+package org.wso2.dependencyupdater.dependency.processor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,7 +48,8 @@ class POMWriter {
         MavenXpp3Writer mavenXpp3Writer = new MavenXpp3Writer();
         Writer fileWriter = null;
         try {
-            File pomFile = new File(updatedModel.getProjectDirectory().getAbsolutePath() + File.separator + Constants.POM_NAME);
+            File pomFile = new File(updatedModel.getProjectDirectory().getAbsolutePath()
+                    + File.separator + Constants.POM_NAME);
             fileWriter = WriterFactory.newXmlWriter(pomFile);
             mavenXpp3Writer.write(fileWriter, updatedModel);
             return true;

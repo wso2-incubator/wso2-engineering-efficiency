@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.wso2.dependencyupdater.FileHandler;
+package org.wso2.dependencyupdater.filehandler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,15 +62,24 @@ public class ConfigFileReader {
 
             //search for the first occurrence of each property tag and assign its text value
             mavenHome = configuration.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0).getTextContent();
-            githubUsername = configuration.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0).getTextContent();
-            githubPassword = configuration.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0).getTextContent();
-            mysqlUsername = configuration.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0).getTextContent();
-            mysqlPassword = configuration.getElementsByTagName(Constants.MYSQL_PASSWORD_TAG).item(0).getTextContent();
-            mysqlDatabaseUrl = configuration.getElementsByTagName(Constants.MYSQL_DATABASE_URL_TAG).item(0).getTextContent();
-            mysqlDatabaseName = configuration.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0).getTextContent();
-            rootPath = configuration.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0).getTextContent();
-            aetherMicroServiceUrl = configuration.getElementsByTagName(Constants.AETHER_MICRO_SERVICE).item(0).getTextContent();
-            reportPath = configuration.getElementsByTagName(Constants.REPORT_PATH_TAG).item(0).getTextContent();
+            githubUsername = configuration.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0)
+                    .getTextContent();
+            githubPassword = configuration.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0)
+                    .getTextContent();
+            mysqlUsername = configuration.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0)
+                    .getTextContent();
+            mysqlPassword = configuration.getElementsByTagName(Constants.MYSQL_PASSWORD_TAG).item(0)
+                    .getTextContent();
+            mysqlDatabaseUrl = configuration.getElementsByTagName(Constants.MYSQL_DATABASE_URL_TAG).item(0)
+                    .getTextContent();
+            mysqlDatabaseName = configuration.getElementsByTagName(Constants.MYSQL_DATABASE_NAME_TAG).item(0)
+                    .getTextContent();
+            rootPath = configuration.getElementsByTagName(Constants.ROOT_PATH_TAG).item(0)
+                    .getTextContent();
+            aetherMicroServiceUrl = configuration.getElementsByTagName(Constants.AETHER_MICRO_SERVICE).item(0)
+                    .getTextContent();
+            reportPath = configuration.getElementsByTagName(Constants.REPORT_PATH_TAG).item(0)
+                    .getTextContent();
 
         } catch (ParserConfigurationException e) {
             log.error("Error occurred in parsing Configurations ", e);
@@ -78,8 +87,8 @@ public class ConfigFileReader {
             log.error("Error occurred in XML Parsing", e);
         } catch (IOException e) {
             log.error("Configuration file Not Found", e);
-        }catch (NullPointerException e){
-            log.error("One or more required tags not found in the configurations file",e);
+        } catch (NullPointerException e) {
+            log.error("One or more required tags not found in the configurations file", e);
         }
     }
 

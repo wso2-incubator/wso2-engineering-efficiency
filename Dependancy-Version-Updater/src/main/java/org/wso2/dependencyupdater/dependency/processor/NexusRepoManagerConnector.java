@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.dependencyupdater.DependencyProcessor;
+package org.wso2.dependencyupdater.dependency.processor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,8 +32,7 @@ import org.apache.maven.model.Dependency;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.FileHandler.ConfigFileReader;
-import org.wso2.dependencyupdater.ProductRetrieve.GitHubConnector;
+import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.Optional;
  */
 public class NexusRepoManagerConnector {
 
-    private static final Log log = LogFactory.getLog(GitHubConnector.class);
+    private static final Log log = LogFactory.getLog(NexusRepoManagerConnector.class);
 
     /**
      * Identify the latest available version for a given dependency
@@ -73,12 +72,14 @@ public class NexusRepoManagerConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() + Constants.URL_SEPARATOR + "getLatest");
+            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl()
+                    + Constants.URL_SEPARATOR + "getLatest");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(),
+                        Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
                 while ((line = rd.readLine()) != null) {
@@ -118,11 +119,13 @@ public class NexusRepoManagerConnector {
 
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() + Constants.URL_SEPARATOR + "getVersions");
+            HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() +
+                    Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(),
+                        Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
                 while ((line = rd.readLine()) != null) {
@@ -182,18 +185,19 @@ public class NexusRepoManagerConnector {
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
                         response.getEntity().getContent(), Constants.UTF_8_CHARSET_NAME));
                 StringBuilder result = new StringBuilder();
                 String line;
-                while ((line = rd.readLine()) != null) {
+                while ((line = bufferedReader.readLine()) != null) {
                     result.append(line);
                 }
                 JSONObject jsonObject = new JSONObject(result.toString());
-                rd.close();
+                bufferedReader.close();
 
                 JSONArray versionList = jsonObject.getJSONArray(Constants.AVAILABLE_VERSIONS_KEY);
                 latestVersion = getLatestMinorVersionFromJson(currentVersion, versionList);
+                bufferedReader.close();
                 return latestVersion;
             }
         } catch (UnsupportedEncodingException e) {
@@ -245,7 +249,8 @@ public class NexusRepoManagerConnector {
             }
 
         } else {
-            log.info("Failed to retrieve major version tag from current version. Not possible to compare with other versions");
+            log.info("Failed to retrieve major version tag from current version. " +
+                    "Not possible to compare with other versions");
             return currentVersion;
         }
 
@@ -257,8 +262,6 @@ public class NexusRepoManagerConnector {
      *
      * @param version String indicating the version
      * @return Optional<Integer> that represent the major component if it can be resolved
-     * @throws NullPointerException  When the version is a null string
-     * @throws NumberFormatException when the version string is not representing a number
      */
     private static Optional<Integer> getMainVersionTagFromVersion(String version) {
 

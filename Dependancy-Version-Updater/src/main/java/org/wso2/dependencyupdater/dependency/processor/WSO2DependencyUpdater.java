@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.wso2.dependencyupdater.DependencyProcessor;
+package org.wso2.dependencyupdater.dependency.processor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,7 +24,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.wso2.dependencyupdater.Constants;
-import org.wso2.dependencyupdater.Model.OutdatedDependency;
+import org.wso2.dependencyupdater.model.OutdatedDependency;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,8 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         List<Dependency> modelDependencies = model.getDependencies();
         Properties localProperties = model.getProperties();
         //call update method for the list of dependencies
-        Model dependencyModel = updateToLatestInLocation(pomLocation, modelDependencies, globalProperties, localProperties);
+        Model dependencyModel = updateToLatestInLocation(pomLocation, modelDependencies, globalProperties,
+                localProperties);
 
         Properties updatedLocalProperties = dependencyModel.getProperties();
         isDependencyModelUpdated = getUpdateStatusFromProperties(updatedLocalProperties);
@@ -63,7 +64,8 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         //If there is a DependencyManagement section, update that section too
         if (model.getDependencyManagement() != null) {
             List<Dependency> managementDependencies = model.getDependencyManagement().getDependencies();
-            Model dependencyManagementModel = updateToLatestInLocation(pomLocation, managementDependencies, globalProperties, localProperties);
+            Model dependencyManagementModel = updateToLatestInLocation(pomLocation, managementDependencies,
+                    globalProperties, localProperties);
             updatedLocalProperties = dependencyManagementModel.getProperties();
 
             isManagementModelUpdated = getUpdateStatusFromProperties(updatedLocalProperties);
@@ -73,13 +75,13 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
             modifiedModel.setDependencyManagement(dependencyManagement);
 
         }
-        boolean isPomModelUpdated = getUpdateStatusForModel(modifiedModel, isDependencyModelUpdated, isManagementModelUpdated);
+        boolean isPomModelUpdated = getUpdateStatusForModel(modifiedModel, isDependencyModelUpdated,
+                isManagementModelUpdated);
 
-        if(isPomModelUpdated){
+        if (isPomModelUpdated) {
             return POMWriter.writePom(modifiedModel);
-        }
-        else{
-            return isPomModelUpdated;
+        } else {
+            return false;
         }
     }
 
@@ -87,12 +89,13 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      * Used to identify the update state of dependencies from the model
      * This method check whether the dependencies/Management dependencies updated,
      *
-     * @param modifiedModel          org.apache.maven.model.Model
+     * @param modifiedModel            org.apache.maven.model.Model
      * @param isDependencyModelUpdated boolean value indicating dependencies updated or not
      * @param isManagementModelUpdated boolean value indicating management dependencies updated or not
      * @return boolean value indicating model updated or not
      */
-    private boolean getUpdateStatusForModel(Model modifiedModel, boolean isDependencyModelUpdated, boolean isManagementModelUpdated) {
+    private boolean getUpdateStatusForModel(Model modifiedModel, boolean isDependencyModelUpdated,
+                                            boolean isManagementModelUpdated) {
 
         if (modifiedModel.getDependencyManagement() == null) {
             return isDependencyModelUpdated;
@@ -112,7 +115,8 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
         return Boolean.valueOf(updatedLocalProperties.getProperty(Constants.UPDATE_STATUS_TEMPORARY_PROPERTY));
     }
 
-    protected abstract Model updateToLatestInLocation(String pomLocation, List<Dependency> managementDependencies, Properties globalProperties, Properties localProperties);
+    protected abstract Model updateToLatestInLocation(String pomLocation, List<Dependency> managementDependencies,
+                                                      Properties globalProperties, Properties localProperties);
 
     /**
      * Identify the value for a particular key from local or global properties (two java.util.Properties object)
@@ -152,7 +156,8 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      */
     private boolean isPropertyTag(String versionTag) {
 
-        return versionTag != null && versionTag.startsWith(Constants.PROPERTY_START_TAG) && versionTag.endsWith(Constants.PROPERTY_END_TAG);
+        return versionTag != null && versionTag.startsWith(Constants.PROPERTY_START_TAG)
+                && versionTag.endsWith(Constants.PROPERTY_END_TAG);
     }
 
     /**
@@ -163,7 +168,8 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      * @param latestVersion        Latest version available to update (Based on the DependencyUpdater implementation)
      * @return Updated list of outdated dependencies
      */
-    List<OutdatedDependency> updateOutdatedDependencyList(List<OutdatedDependency> outdatedDependencies, Dependency dependency, String latestVersion) {
+    List<OutdatedDependency> updateOutdatedDependencyList(List<OutdatedDependency> outdatedDependencies,
+                                                          Dependency dependency, String latestVersion) {
 
         ArrayList<String> versionList = NexusRepoManagerConnector.getVersionList(dependency);
         OutdatedDependency outdatedDependency = new OutdatedDependency(dependency);
@@ -208,7 +214,8 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
     }
 
     /**
-     * Some dependencies refers property values as versions, This method determines whether a given dependency is such dependency
+     * Some dependencies refers property values as versions, This method determines whether a given dependency
+     * is such dependency
      * if so, the property value will be placed as the version
      *
      * @param dependency       dependency object
@@ -216,14 +223,17 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
      * @param globalProperties properties included in the root pom.xml
      * @return updated dependency object
      */
-    Dependency replaceVersionFromPropertyValue(Dependency dependency, Properties localProperties, Properties globalProperties) {
+    Dependency replaceVersionFromPropertyValue(Dependency dependency, Properties localProperties,
+                                               Properties globalProperties) {
 
         String currentVersion = dependency.getVersion();
         if (isPropertyTag(currentVersion)) {
             String propertyKey = getVersionKey(currentVersion);
             currentVersion = getProperty(propertyKey, localProperties, globalProperties);
             if (currentVersion == null) {
-                log.info("Property value not found for " + dependency.getGroupId() + ":" + dependency.getArtifactId());
+                log.info("Property value not found for "
+                        + dependency.getGroupId().replaceAll("[\r\n]", "")
+                        + ":" + dependency.getArtifactId().replaceAll("[\r\n]", ""));
             } else {
                 dependency.setVersion(currentVersion);
             }

@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.wso2.dependencyupdater.FileHandler;
+package org.wso2.dependencyupdater.filehandler;
 
 import org.apache.maven.shared.invoker.PrintStreamHandler;
 import org.wso2.dependencyupdater.Constants;
@@ -43,7 +43,8 @@ public class MavenOutputHandler extends PrintStreamHandler {
      */
     public MavenOutputHandler(File file) throws FileNotFoundException, UnsupportedEncodingException {
 
-        this.printStream = new PrintStream(new FileOutputStream(file, true), true, Constants.UTF_8_CHARSET_NAME);
+        this.printStream = new PrintStream(new FileOutputStream(file, true), true,
+                Constants.UTF_8_CHARSET_NAME);
         this.alwaysFlush = true;
     }
 
