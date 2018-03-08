@@ -30,7 +30,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.exceptions.DependencyUpdaterRepositoryException;
 import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
-import org.wso2.dependencyupdater.model.Component;
+import org.wso2.dependencyupdater.model.Repository;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,19 +82,19 @@ public class RepositoryManager {
     /**
      * Method to insert build status to database
      *
-     * @param component component object corresponding to build status
+     * @param repository repository object corresponding to build status
      * @param timeStamp unix timestamp of update operation
      */
-    public void insertBuildStatus(Component component, long timeStamp) {
+    public void insertBuildStatus(Repository repository, long timeStamp) {
 
         String insertSql = "INSERT INTO ComponentBuildStatistics(Component,BuildTime,Status)VALUES(?,?,?)";
         PreparedStatement preparedStatement = null;
 
         try {
             preparedStatement = connection.prepareStatement(insertSql);
-            preparedStatement.setString(1, component.getName());
+            preparedStatement.setString(1, repository.getName());
             preparedStatement.setBigDecimal(2, BigDecimal.valueOf(timeStamp));
-            preparedStatement.setInt(3, component.getStatus());
+            preparedStatement.setInt(3, repository.getStatus());
             preparedStatement.execute();
         } catch (SQLException e) {
             log.error("Problem occurred in Database Connection", e);
@@ -108,19 +108,19 @@ public class RepositoryManager {
      *
      * @return list of components
      */
-    public ArrayList<Component> getAllComponents() {
+    public ArrayList<Repository> getAllComponents() {
 
         String selectSql = "SELECT REPO_NAME,REPO_URL FROM PRODUCT_COMPONENT_MAP";
-        ArrayList<Component> components = new ArrayList<>();
+        ArrayList<Repository> repositories = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
             preparedStatement = connection.prepareStatement(selectSql);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Component component = new Component(resultSet.getString("REPO_NAME"),
+                Repository repository = new Repository(resultSet.getString("REPO_NAME"),
                         resultSet.getString("REPO_URL"));
-                components.add(component);
+                repositories.add(repository);
             }
         } catch (SQLException e) {
             log.error("Problem occurred when connecting to  database ", e);
@@ -128,24 +128,24 @@ public class RepositoryManager {
             closeDatabaseAttributes(preparedStatement, resultSet);
 
         }
-        return components;
+        return repositories;
 
     }
 
     /**
-     * Method for retrieving the latest available build status data for a particular component
+     * Method for retrieving the latest available build status data for a particular repository
      *
-     * @param component Component object
+     * @param repository Repository object
      * @return integer indicating the latest build status (0 - Build Failed, 1 - Build Successful, 2 - Not available)
      */
-    public int getLatestBuild(Component component) {
+    public int getLatestBuild(Repository repository) {
 
         String selectSql = "SELECT * FROM ComponentBuildStatistics WHERE Component=? GROUP BY BuildTime DESC LIMIT 1";
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
             preparedStatement = connection.prepareStatement(selectSql);
-            preparedStatement.setString(1, component.getName());
+            preparedStatement.setString(1, repository.getName());
             resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
                 return Constants.BUILD_NOT_AVAILABLE_CODE;
@@ -186,60 +186,60 @@ public class RepositoryManager {
     /**
      * Method for updating components from github
      *
-     * @param component component object for updating
+     * @param repository repository object for updating
      * @return status of update
      */
-    private boolean update(Component component) throws DependencyUpdaterRepositoryException {
+    private boolean update(Repository repository) throws DependencyUpdaterRepositoryException {
 
         boolean isUpdateSuccessful = false;
         try {
-            log.info("Calling git pull command for component: "
-                    + component.getName().replaceAll("[\r\n]", ""));
+            log.info("Calling git pull command for repository: "
+                    + repository.getName().replaceAll("[\r\n]", ""));
             isUpdateSuccessful = Git.open(new File(ConfigFileReader.getRootPath()
-                    + File.separator + component.getName()))
+                    + File.separator + repository.getName()))
                     .pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
             throw new DependencyUpdaterRepositoryException("Branch not found in remote repository. "
-                    + component.getName());
+                    + repository.getName());
 
         } catch (IOException e) {
-            throw new DependencyUpdaterRepositoryException("Component directory cannot be found :"
-                    + component.getName());
+            throw new DependencyUpdaterRepositoryException("Repository directory cannot be found :"
+                    + repository.getName());
         } catch (GitAPIException e) {
-            throw new DependencyUpdaterRepositoryException("Failed to execute git command " + component.getName());
+            throw new DependencyUpdaterRepositoryException("Failed to execute git command " + repository.getName());
         }
 
         return isUpdateSuccessful;
     }
 
     /**
-     * Method for cloning new component to the local environment
+     * Method for cloning new repository to the local environment
      *
-     * @param component component object for cloning
+     * @param repository repository object for cloning
      * @return status of clone
      */
-    private boolean clone(Component component) throws DependencyUpdaterRepositoryException {
+    private boolean clone(Repository repository) throws DependencyUpdaterRepositoryException {
 
         CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
                 ConfigFileReader.getGithubUsername(), ConfigFileReader.getGithubPassword());
         try {
             log.debug("Cloning the repository to local storage: "
-                    + component.getName().replaceAll("[\r\n]", ""));
+                    + repository.getName().replaceAll("[\r\n]", ""));
             Git.cloneRepository()
                     .setCredentialsProvider(credentialsProvider)
-                    .setURI(component.getUrl())
+                    .setURI(repository.getUrl())
                     .setDirectory(new File(ConfigFileReader.getRootPath()
-                            + File.separator + component.getName())).call();
+                            + File.separator + repository.getName())).call();
             return true;
 
         } catch (InvalidRemoteException e) {
-            throw new DependencyUpdaterRepositoryException("Remote repository not found :" + component.getUrl());
+            throw new DependencyUpdaterRepositoryException("Remote repository not found :" + repository.getUrl());
         } catch (TransportException e) {
             throw new DependencyUpdaterRepositoryException("Protocol error has occurred while fetching objects "
-                    + component.getUrl());
+                    + repository.getUrl());
         } catch (GitAPIException e) {
-            throw new DependencyUpdaterRepositoryException("Error occurred in Git API " + component.getUrl());
+            throw new DependencyUpdaterRepositoryException("Error occurred in Git API " + repository.getUrl());
         }
     }
 
@@ -247,10 +247,10 @@ public class RepositoryManager {
      * Method responsible for retrieving components from github. Calls Update or
      * clone method based on the existence of a repository
      *
-     * @param component Component for retrieving
+     * @param component Repository for retrieving
      * @return Status of retrieving process
      */
-    public boolean retrieveComponent(Component component) throws DependencyUpdaterRepositoryException {
+    public boolean retrieveComponent(Repository component) throws DependencyUpdaterRepositoryException {
 
         log.info("Retrieving component: " + component.getName().replaceAll("[\r\n]", ""));
 

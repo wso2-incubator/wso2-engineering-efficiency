@@ -95,7 +95,7 @@ public class MavenInvoker {
      * This method determines original component  name from the temporary file name
      *
      * @param temporaryFileName Temporary file name
-     * @return Component Name
+     * @return Repository Name
      */
     private static String getComponentName(String temporaryFileName) {
         //removes the suffix string added to create the temporary file name

@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
 import org.wso2.dependencyupdater.exceptions.DependencyUpdaterRepositoryException;
-import org.wso2.dependencyupdater.model.Component;
+import org.wso2.dependencyupdater.model.Repository;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,22 +37,22 @@ public class RepositoryHandler {
     private static final Log log = LogFactory.getLog(Application.class);
 
     /**
-     * This method copy a component to a temporary location
+     * This method copy a repository to a temporary location
      *
-     * @param component Component that needs to be copied to a temporary location
+     * @param repository Repository that needs to be copied to a temporary location
      * @return boolean status indicating the success of copying process
      */
-    public static String copyProjectToTempDirectory(Component component) throws DependencyUpdaterRepositoryException {
+    public static String copyProjectToTempDirectory(Repository repository) throws DependencyUpdaterRepositoryException {
 
-        String sourcePath = ConfigFileReader.getRootPath() + component.getName();
+        String sourcePath = ConfigFileReader.getRootPath() + repository.getName();
         String destinationPath = sourcePath + Constants.SUFFIX_TEMP_FILE;
         File source = new File(sourcePath);
         File dest = new File(destinationPath);
         try {
             deleteDirectory(destinationPath);
             FileUtils.copyDirectory(source, dest);
-            log.info("Temporary file created for " + component.getName().replaceAll("[\r\n]", ""));
-            return component.getName() + Constants.SUFFIX_TEMP_FILE;
+            log.info("Temporary file created for " + repository.getName().replaceAll("[\r\n]", ""));
+            return repository.getName() + Constants.SUFFIX_TEMP_FILE;
         } catch (IOException e) {
             throw new DependencyUpdaterRepositoryException("Directory not found for copying", e);
         }

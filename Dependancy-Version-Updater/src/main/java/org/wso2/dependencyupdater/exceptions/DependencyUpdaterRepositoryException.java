@@ -19,18 +19,27 @@
 package org.wso2.dependencyupdater.exceptions;
 
 /**
- * TODO:Class level comment
+ * Exception for Repository Exceptions
  */
 public class DependencyUpdaterRepositoryException extends Throwable {
 
-    public DependencyUpdaterRepositoryException(String msg) {
+    /**
+     * Constructor with only a message to display
+     * @param message String message about caused exception
+     */
+    public DependencyUpdaterRepositoryException(String message) {
 
-        super(msg);
+        super(message);
     }
 
-    public DependencyUpdaterRepositoryException(String msg, Throwable cause) {
+    /**
+     * Constructor with both message and causing exception
+     * @param message String message about caused exception
+     * @param cause caught exception
+     */
+    public DependencyUpdaterRepositoryException(String message, Throwable cause) {
 
-        super(msg, cause);
+        super(message, cause);
 
     }
 

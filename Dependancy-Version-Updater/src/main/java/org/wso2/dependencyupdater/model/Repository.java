@@ -20,15 +20,15 @@
 package org.wso2.dependencyupdater.model;
 
 /**
- * Details about a Component
+ * Details about a Repository
  */
-public class Component {
+public class Repository {
 
     private final String name;
     private final String url;
     private int status;
 
-    public Component(String name, String url) {
+    public Repository(String name, String url) {
 
         this.name = name;
         this.url = url;

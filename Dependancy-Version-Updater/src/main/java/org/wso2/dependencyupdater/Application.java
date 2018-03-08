@@ -29,7 +29,7 @@ import org.wso2.dependencyupdater.exceptions.DependencyUpdaterConfigurationExcep
 import org.wso2.dependencyupdater.exceptions.DependencyUpdaterRepositoryException;
 import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
 import org.wso2.dependencyupdater.filehandler.RepositoryHandler;
-import org.wso2.dependencyupdater.model.Component;
+import org.wso2.dependencyupdater.model.Repository;
 import org.wso2.dependencyupdater.product.builder.MavenInvoker;
 import org.wso2.dependencyupdater.repository.handler.RepositoryManager;
 
@@ -55,7 +55,7 @@ public class Application {
         try {
             ConfigFileReader.loadConfigurations();
             RepositoryManager repositoryManager = new RepositoryManager();
-            ArrayList<Component> components = repositoryManager.getAllComponents();
+            ArrayList<Repository> repositories = repositoryManager.getAllComponents();
 
             // to update wso2 dependencies to latest version with no major upgrades
             DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater();
@@ -63,47 +63,47 @@ public class Application {
             // to update wso2 dependencies to latest available version
             //DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater();
 
-            for (Component component : components) {
+            for (Repository repository : repositories) {
                 log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
-                log.debug("Component processing started :" + component.getName().replaceAll("[\r\n]", ""));
+                log.debug("Repository processing started :" + repository.getName().replaceAll("[\r\n]", ""));
 
                 try {
-                    boolean isRepoUpdateSuccessful = repositoryManager.retrieveComponent(component);
+                    boolean isRepoUpdateSuccessful = repositoryManager.retrieveComponent(repository);
                     long updatedTimeStamp = System.currentTimeMillis();
                     if (isRepoUpdateSuccessful) {
-                        String componentTemporaryDirectoryName = RepositoryHandler.copyProjectToTempDirectory(component);
+                        String componentTemporaryDirectoryName = RepositoryHandler.copyProjectToTempDirectory(repository);
                         boolean isDependencyUpdateSuccessful = updateComponent(dependencyUpdater,
                                 componentTemporaryDirectoryName);
                         if (isDependencyUpdateSuccessful) {
-                            //if the component dependencies are updated, invoke a maven build
-                            log.debug("Component updated :" + component.getName().replaceAll("[\r\n]", ""));
+                            //if the repository dependencies are updated, invoke a maven build
+                            log.debug("Repository updated :" + repository.getName().replaceAll("[\r\n]", ""));
                             int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
-                            component.setStatus(buildStatus);
-                            repositoryManager.insertBuildStatus(component, updatedTimeStamp);
+                            repository.setStatus(buildStatus);
+                            repositoryManager.insertBuildStatus(repository, updatedTimeStamp);
                         } else {
-                            //if component dependencies are not updated, try to get the latest build status for the component
+                            //if repository dependencies are not updated, try to get the latest build status for the repository
                             // and save it as the current status
-                            log.debug("Component not updated :" + component.getName().replaceAll("[\r\n]", ""));
-                            int latestBuildStatus = repositoryManager.getLatestBuild(component);
+                            log.debug("Repository not updated :" + repository.getName().replaceAll("[\r\n]", ""));
+                            int latestBuildStatus = repositoryManager.getLatestBuild(repository);
                             if (latestBuildStatus == Constants.BUILD_NOT_AVAILABLE_CODE) {
                                 int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
-                                component.setStatus(buildStatus);
-                                repositoryManager.insertBuildStatus(component, updatedTimeStamp);
+                                repository.setStatus(buildStatus);
+                                repositoryManager.insertBuildStatus(repository, updatedTimeStamp);
                             } else {
-                                //if the component has never built before, build the component and save the status
-                                component.setStatus(latestBuildStatus);
-                                repositoryManager.insertBuildStatus(component, updatedTimeStamp);
+                                //if the repository has never built before, build the repository and save the status
+                                repository.setStatus(latestBuildStatus);
+                                repositoryManager.insertBuildStatus(repository, updatedTimeStamp);
                             }
 
                         }
                     } else {
-                        log.debug("Component retrieving failed:" + component.getName().replaceAll("[\r\n]", ""));
-                        component.setStatus(Constants.RETRIEVE_FAILED_CODE);
-                        repositoryManager.insertBuildStatus(component, updatedTimeStamp);
+                        log.debug("Repository retrieving failed:" + repository.getName().replaceAll("[\r\n]", ""));
+                        repository.setStatus(Constants.RETRIEVE_FAILED_CODE);
+                        repositoryManager.insertBuildStatus(repository, updatedTimeStamp);
                     }
-                    log.debug("Component processing finished :" + component.getName().replaceAll("[\r\n]", ""));
+                    log.debug("Repository processing finished :" + repository.getName().replaceAll("[\r\n]", ""));
                 } catch (DependencyUpdaterRepositoryException e) {
-                    log.error("Error occurred in updating the repository " + component, e);
+                    log.error("Error occurred in updating the repository " + repository, e);
                 }
 
                 log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);

@@ -23,14 +23,22 @@ package org.wso2.dependencyupdater.exceptions;
  */
 public class DependencyUpdaterConfigurationException extends Exception {
 
-    public DependencyUpdaterConfigurationException(String msg) {
+    /**
+     * Constructor with only a message to display
+     * @param message String message about caused exception
+     */
+    public DependencyUpdaterConfigurationException(String message) {
 
-        super(msg);
+        super(message);
     }
+    /**
+     * Constructor with both message and causing exception
+     * @param message String message about caused exception
+     * @param cause caught exception
+     */
+    public DependencyUpdaterConfigurationException(String message, Throwable cause) {
 
-    public DependencyUpdaterConfigurationException(String msg, Throwable cause) {
-
-        super(msg, cause);
+        super(message, cause);
 
     }
 
