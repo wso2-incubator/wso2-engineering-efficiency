@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Application;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.exceptions.DependencyUpdaterRepositoryException;
 import org.wso2.dependencyupdater.model.Component;
 
 import java.io.File;
@@ -41,7 +42,7 @@ public class RepositoryHandler {
      * @param component Component that needs to be copied to a temporary location
      * @return boolean status indicating the success of copying process
      */
-    public static boolean copyProjectToTempDirectory(Component component) {
+    public static String copyProjectToTempDirectory(Component component) throws DependencyUpdaterRepositoryException {
 
         String sourcePath = ConfigFileReader.getRootPath() + component.getName();
         String destinationPath = sourcePath + Constants.SUFFIX_TEMP_FILE;
@@ -51,11 +52,10 @@ public class RepositoryHandler {
             deleteDirectory(destinationPath);
             FileUtils.copyDirectory(source, dest);
             log.info("Temporary file created for " + component.getName().replaceAll("[\r\n]", ""));
-            return true;
+            return component.getName() + Constants.SUFFIX_TEMP_FILE;
         } catch (IOException e) {
-            log.error("Directory not found for copying", e);
+            throw new DependencyUpdaterRepositoryException("Directory not found for copying", e);
         }
-        return false;
     }
 
     /**

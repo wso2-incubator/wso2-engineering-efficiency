@@ -28,6 +28,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.exceptions.DependencyUpdaterRepositoryException;
 import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
 import org.wso2.dependencyupdater.model.Component;
 
@@ -42,13 +43,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
- *
+ * Contains methods for managing repositories
  */
 public class RepositoryManager {
 
     private static final Log log = LogFactory.getLog(RepositoryManager.class);
     private Connection connection;
 
+    /**
+     * Constructor for RepositoryManager. Initialize the database connection here
+     */
     public RepositoryManager() {
 
         try {
@@ -57,17 +61,21 @@ public class RepositoryManager {
             this.connection = DriverManager.getConnection(url,
                     ConfigFileReader.getMysqlUsername(), ConfigFileReader.getMysqlPassword());
         } catch (SQLException e) {
-            //TODO
+            log.info("SQL Exception occurred when initiating the connection",e);
         }
 
     }
 
+    /**
+     * Method for closing database connection after using
+     */
     public void closeConnection() {
 
         try {
             connection.close();
+
         } catch (SQLException e) {
-            //TODO
+            log.info("SQL Exception occurred when closing the connection",e);
         }
     }
 
@@ -181,7 +189,7 @@ public class RepositoryManager {
      * @param component component object for updating
      * @return status of update
      */
-    private boolean update(Component component) {
+    private boolean update(Component component) throws DependencyUpdaterRepositoryException {
 
         boolean isUpdateSuccessful = false;
         try {
@@ -192,14 +200,14 @@ public class RepositoryManager {
                     .pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException exception) {
-            log.error("Branch not found in remote repository. Therefore cannot update the existing local repository"
-                    + component.getName().replaceAll("[\r\n]", ""));
+            throw new DependencyUpdaterRepositoryException("Branch not found in remote repository. "
+                    + component.getName());
+
         } catch (IOException e) {
-            log.error("Component directory cannot be found :"
-                    + component.getName().replaceAll("[\r\n]", ""));
+            throw new DependencyUpdaterRepositoryException("Component directory cannot be found :"
+                    + component.getName());
         } catch (GitAPIException e) {
-            log.error("Failed to execute git command "
-                    + component.getName().replaceAll("[\r\n]", ""));
+            throw new DependencyUpdaterRepositoryException("Failed to execute git command " + component.getName());
         }
 
         return isUpdateSuccessful;
@@ -211,7 +219,7 @@ public class RepositoryManager {
      * @param component component object for cloning
      * @return status of clone
      */
-    private boolean clone(Component component) {
+    private boolean clone(Component component) throws DependencyUpdaterRepositoryException {
 
         CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
                 ConfigFileReader.getGithubUsername(), ConfigFileReader.getGithubPassword());
@@ -226,16 +234,13 @@ public class RepositoryManager {
             return true;
 
         } catch (InvalidRemoteException e) {
-            log.error("Remote repository not found :"
-                    + component.getUrl().replaceAll("[\r\n]", ""), e);
+            throw new DependencyUpdaterRepositoryException("Remote repository not found :" + component.getUrl());
         } catch (TransportException e) {
-            log.error("Protocol error has occurred while fetching objects "
-                    + component.getUrl().replaceAll("[\r\n]", ""), e);
+            throw new DependencyUpdaterRepositoryException("Protocol error has occurred while fetching objects "
+                    + component.getUrl());
         } catch (GitAPIException e) {
-            log.error("Error occurred in Git API "
-                    + component.getUrl().replaceAll("[\r\n]", ""), e);
+            throw new DependencyUpdaterRepositoryException("Error occurred in Git API " + component.getUrl());
         }
-        return false;
     }
 
     /**
@@ -245,7 +250,7 @@ public class RepositoryManager {
      * @param component Component for retrieving
      * @return Status of retrieving process
      */
-    public boolean retrieveComponent(Component component) {
+    public boolean retrieveComponent(Component component) throws DependencyUpdaterRepositoryException {
 
         log.info("Retrieving component: " + component.getName().replaceAll("[\r\n]", ""));
 

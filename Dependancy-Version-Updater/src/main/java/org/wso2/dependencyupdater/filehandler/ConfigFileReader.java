@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.exceptions.DependencyUpdaterConfigurationException;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -49,9 +50,11 @@ public class ConfigFileReader {
     private static String reportPath;
 
     /**
-     * Retrieves set of values from configuration file
+     * Retrieves required configuration values from configuration file
+     *
+     * @throws DependencyUpdaterConfigurationException When fail to read configurations
      */
-    public static void loadConfigurations() {
+    public static void loadConfigurations() throws DependencyUpdaterConfigurationException {
 
         File configFile = new File(Constants.RESOURCE_PATH + File.separator + Constants.CONFIG_FILE_NAME);
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -82,13 +85,15 @@ public class ConfigFileReader {
                     .getTextContent();
 
         } catch (ParserConfigurationException e) {
-            log.error("Error occurred in parsing Configurations ", e);
+            throw new DependencyUpdaterConfigurationException("Error occurred in parsing Configurations", e);
         } catch (SAXException e) {
-            log.error("Error occurred in XML Parsing", e);
+            throw new DependencyUpdaterConfigurationException("Error occurred in XML Parsing", e);
         } catch (IOException e) {
-            log.error("Configuration file Not Found", e);
+            throw new DependencyUpdaterConfigurationException("Configuration file Not Found", e);
         } catch (NullPointerException e) {
-            log.error("One or more required tags not found in the configurations file", e);
+            throw new DependencyUpdaterConfigurationException("One or more required tags " +
+                    "not found in the configurations file", e);
+
         }
     }
 
