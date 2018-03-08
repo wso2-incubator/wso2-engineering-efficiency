@@ -32,7 +32,6 @@ import java.util.Date;
  */
 public class BuildStatusFinder {
 
-
     /**
      * This method identifies the build status of a productArea for a given date
      *
@@ -44,7 +43,7 @@ public class BuildStatusFinder {
 
         ArrayList<String> componentList = productArea.getComponents();
         for (String componentName : componentList) {
-            int status = this.getComponentBuildStatusForDay(componentName, timeStamp,buildStatusManager);
+            int status = this.getComponentBuildStatusForDay(componentName, timeStamp, buildStatusManager);
             if (status == Constants.BUIlD_FAILED_CODE || status == Constants.BUIlD_NOT_AVAILABLE_CODE || status == Constants.FAILED_TO_UPDATE) {
                 return status;
             }
@@ -61,7 +60,7 @@ public class BuildStatusFinder {
      * @param timeStamp     timestamp value belong to that day
      * @return latest build status of component for the given date
      */
-    private int getComponentBuildStatusForDay(String componentName, long timeStamp,BuildStatusManager buildStatusManager) {
+    private int getComponentBuildStatusForDay(String componentName, long timeStamp, BuildStatusManager buildStatusManager) {
 
         long startTime = timeStamp - Constants.TWENTY_FOUR_HOURS;
         long endTime = timeStamp + Constants.TWENTY_FOUR_HOURS;
@@ -105,7 +104,7 @@ public class BuildStatusFinder {
      * @param timestamp   long value indicating the end date of timestamp
      * @return int score value indicating level of build success
      */
-    public int getMonthlyState(ProductArea productArea, long timestamp,BuildStatusManager buildStatusManager) {
+    public int getMonthlyState(ProductArea productArea, long timestamp, BuildStatusManager buildStatusManager) {
 
         double totalScore = 0;
         ArrayList<String> components = productArea.getComponents();
@@ -148,6 +147,7 @@ public class BuildStatusFinder {
      * @return state indicating the level of success
      */
     public int getWeeklyState(ProductArea productArea, long timestamp, BuildStatusManager buildStatusManager) {
+
         double totalScore = 0;
         ArrayList<String> components = productArea.getComponents();
         for (String component : components) {
@@ -171,7 +171,7 @@ public class BuildStatusFinder {
         ArrayList<String> components = productArea.getComponents();
         ArrayList<String> failedComponents = new ArrayList<>();
         for (String component : components) {
-            if (getComponentBuildStatusForDay(component, currentTime,buildStatusManager) == Constants.BUIlD_FAILED_CODE) {
+            if (getComponentBuildStatusForDay(component, currentTime, buildStatusManager) == Constants.BUIlD_FAILED_CODE) {
                 failedComponents.add(component);
             }
         }

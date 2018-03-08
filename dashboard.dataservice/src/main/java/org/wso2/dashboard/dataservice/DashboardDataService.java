@@ -31,14 +31,14 @@ import javax.ws.rs.Path;
  */
 @Path("/service")
 public class DashboardDataService {
+
     private static BuildStatusManager buildStatusManager;
     private static BuildStatusFinder buildStatusFinder;
-    static{
+
+    static {
         buildStatusManager = new BuildStatusManager();
         buildStatusFinder = new BuildStatusFinder();
     }
-
-
 
     //end point for retrieving data to display in the dashboard
     @GET
@@ -56,21 +56,18 @@ public class DashboardDataService {
             JsonObject jsonObject = new JsonObject();
             for (int day = 0; day < 7; day++) {
 
-                int state = buildStatusFinder.getProductAreaBuildStatusForDay(productArea, (currentTime - (Long.valueOf(day) * Constants.TWENTY_FOUR_HOURS)),buildStatusManager);
+                int state = buildStatusFinder.getProductAreaBuildStatusForDay(productArea, (currentTime - (Long.valueOf(day) * Constants.TWENTY_FOUR_HOURS)), buildStatusManager);
                 jsonObject.addProperty("day" + String.valueOf(day), state);
 
             }
-            jsonObject.addProperty("monthly", String.valueOf(buildStatusFinder.getMonthlyState(productArea, currentTime,buildStatusManager)));
-            jsonObject.addProperty("weekly", String.valueOf(buildStatusFinder.getWeeklyState(productArea, currentTime,buildStatusManager)));
-            jsonObject.addProperty("failed", buildStatusFinder.getFailingComponents(productArea, currentTime,buildStatusManager));
+            jsonObject.addProperty("monthly", String.valueOf(buildStatusFinder.getMonthlyState(productArea, currentTime, buildStatusManager)));
+            jsonObject.addProperty("weekly", String.valueOf(buildStatusFinder.getWeeklyState(productArea, currentTime, buildStatusManager)));
+            jsonObject.addProperty("failed", buildStatusFinder.getFailingComponents(productArea, currentTime, buildStatusManager));
             productAreaJson.add(productArea.getName(), jsonObject);
 
         }
         result.put("data", productAreaJson);
         return result;
     }
-
-
-
 
 }

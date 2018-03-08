@@ -16,6 +16,7 @@
 
 package org.wso2.dashboard.dataservice;
 
+import org.wso2.dashboard.dataservice.Authentication.UsernamePasswordSecurityInterceptor;
 import org.wso2.dashboard.dataservice.FileHandler.ConfigFileReader;
 import org.wso2.msf4j.MicroservicesRunner;
 
@@ -30,6 +31,7 @@ public class Application {
 
         ConfigFileReader.readConfigFile();
         new MicroservicesRunner()
+                .addGlobalRequestInterceptor(new UsernamePasswordSecurityInterceptor())
                 .deploy(new DashboardDataService())
                 .start();
     }
