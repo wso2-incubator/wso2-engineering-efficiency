@@ -17,8 +17,7 @@
 -->
 <Properties>
     <M2_HOME>/usr/share/maven</M2_HOME>
-    <GITHUB_USERNAME>dependencyUpdater</GITHUB_USERNAME>
-    <GITHUB_PASSWORD>updateDependencies</GITHUB_PASSWORD>
+    <GITHUB_ACCESS_TOKEN></GITHUB_ACCESS_TOKEN>
     <MYSQL_USERNAME>root</MYSQL_USERNAME>
     <MYSQL_PASSWORD></MYSQL_PASSWORD>
     <AETHER_MICRO_SERVICE>http://localhost:9094/aethermicroservice/</AETHER_MICRO_SERVICE>

@@ -24,13 +24,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Model;
 import org.wso2.dependencyupdater.dependency.processor.DependencyUpdater;
 import org.wso2.dependencyupdater.dependency.processor.POMReader;
-import org.wso2.dependencyupdater.dependency.processor.WSO2DependencyMinorUpdater;
+import org.wso2.dependencyupdater.dependency.processor.WSO2DependencyMajorUpdater;
 import org.wso2.dependencyupdater.exceptions.DependencyUpdaterConfigurationException;
 import org.wso2.dependencyupdater.exceptions.DependencyUpdaterRepositoryException;
 import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
 import org.wso2.dependencyupdater.filehandler.RepositoryHandler;
 import org.wso2.dependencyupdater.model.Repository;
 import org.wso2.dependencyupdater.product.builder.MavenInvoker;
+import org.wso2.dependencyupdater.report.generator.EmailGenerator;
 import org.wso2.dependencyupdater.repository.handler.RepositoryManager;
 
 import java.io.File;
@@ -55,35 +56,47 @@ public class Application {
         try {
             ConfigFileReader.loadConfigurations();
             RepositoryManager repositoryManager = new RepositoryManager();
+            EmailGenerator emailGenerator = new EmailGenerator();
+
             ArrayList<Repository> repositories = repositoryManager.getAllComponents();
 
             // to update wso2 dependencies to latest version with no major upgrades
-            DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater();
+            //DependencyUpdater dependencyUpdater = new WSO2DependencyMinorUpdater();
 
             // to update wso2 dependencies to latest available version
-            //DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater();
+            DependencyUpdater dependencyUpdater = new WSO2DependencyMajorUpdater();
 
             for (Repository repository : repositories) {
-                log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
-                log.debug("Repository processing started :" + repository.getName().replaceAll("[\r\n]", ""));
+                if (log.isDebugEnabled()) {
+                    log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
+                    log.debug("Repository processing started :" + repository.getName()
+                            .replaceAll("[\r\n]", ""));
+                }
 
                 try {
                     boolean isRepoUpdateSuccessful = repositoryManager.retrieveComponent(repository);
                     long updatedTimeStamp = System.currentTimeMillis();
                     if (isRepoUpdateSuccessful) {
-                        String componentTemporaryDirectoryName = RepositoryHandler.copyProjectToTempDirectory(repository);
+                        String componentTemporaryDirectoryName = RepositoryHandler
+                                .copyProjectToTempDirectory(repository);
                         boolean isDependencyUpdateSuccessful = updateComponent(dependencyUpdater,
                                 componentTemporaryDirectoryName);
                         if (isDependencyUpdateSuccessful) {
                             //if the repository dependencies are updated, invoke a maven build
-                            log.debug("Repository updated :" + repository.getName().replaceAll("[\r\n]", ""));
+                            if (log.isDebugEnabled()) {
+                                log.debug("Repository updated :" + repository.getName()
+                                        .replaceAll("[\r\n]", ""));
+                            }
                             int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
                             repository.setStatus(buildStatus);
                             repositoryManager.insertBuildStatus(repository, updatedTimeStamp);
                         } else {
-                            //if repository dependencies are not updated, try to get the latest build status for the repository
-                            // and save it as the current status
-                            log.debug("Repository not updated :" + repository.getName().replaceAll("[\r\n]", ""));
+                            //if repository dependencies are not updated,
+                            // try to get the latest build status for the repository and save it as the current status
+                            if (log.isDebugEnabled()) {
+                                log.debug("Repository not updated :" + repository.getName()
+                                        .replaceAll("[\r\n]", ""));
+                            }
                             int latestBuildStatus = repositoryManager.getLatestBuild(repository);
                             if (latestBuildStatus == Constants.BUILD_NOT_AVAILABLE_CODE) {
                                 int buildStatus = MavenInvoker.mavenBuild(componentTemporaryDirectoryName);
@@ -94,19 +107,29 @@ public class Application {
                                 repository.setStatus(latestBuildStatus);
                                 repositoryManager.insertBuildStatus(repository, updatedTimeStamp);
                             }
-
                         }
+                        RepositoryHandler.deleteDirectory(ConfigFileReader.getRootPath()
+                                +File.separator+componentTemporaryDirectoryName);
+                        emailGenerator.sendEmail("dimuthcse@gmail.com",
+                                ConfigFileReader.getReportPath()+repository.getName(),updatedTimeStamp);
                     } else {
-                        log.debug("Repository retrieving failed:" + repository.getName().replaceAll("[\r\n]", ""));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Repository retrieving failed:" + repository.getName()
+                                    .replaceAll("[\r\n]", ""));
+                        }
                         repository.setStatus(Constants.RETRIEVE_FAILED_CODE);
                         repositoryManager.insertBuildStatus(repository, updatedTimeStamp);
                     }
-                    log.debug("Repository processing finished :" + repository.getName().replaceAll("[\r\n]", ""));
+                    if (log.isDebugEnabled()) {
+                        log.debug("Repository processing finished :" + repository.getName()
+                                .replaceAll("[\r\n]", ""));
+                    }
                 } catch (DependencyUpdaterRepositoryException e) {
                     log.error("Error occurred in updating the repository " + repository, e);
                 }
-
-                log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
+                if (log.isDebugEnabled()) {
+                    log.debug(Constants.LOG_SEPARATOR + Constants.LOG_SEPARATOR);
+                }
             }
             repositoryManager.closeConnection();
         } catch (DependencyUpdaterConfigurationException e) {

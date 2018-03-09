@@ -49,7 +49,6 @@ public class RepositoryHandler {
         File source = new File(sourcePath);
         File dest = new File(destinationPath);
         try {
-            deleteDirectory(destinationPath);
             FileUtils.copyDirectory(source, dest);
             log.info("Temporary file created for " + repository.getName().replaceAll("[\r\n]", ""));
             return repository.getName() + Constants.SUFFIX_TEMP_FILE;
@@ -63,7 +62,7 @@ public class RepositoryHandler {
      *
      * @param destination location of the Directory
      */
-    private static void deleteDirectory(String destination) {
+    public static void deleteDirectory(String destination) {
 
         try {
             FileUtils.deleteDirectory(new File(destination));

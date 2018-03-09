@@ -23,10 +23,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.maven.model.Dependency;
 import org.json.JSONArray;
@@ -70,10 +74,19 @@ public class NexusRepoManagerConnector {
                     dependency.getArtifactId() +
                     Constants.JSON_OBJECT_END_TAG;
 
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials
+                    = new UsernamePasswordCredentials(System.getenv("DEPENDENCY_UPDATER_USERNAME"),
+                    System.getenv("DEPENDENCY_UPDATER_PASSWORD"));
+            provider.setCredentials(AuthScope.ANY, credentials);
+
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
-            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpClient httpClient = HttpClientBuilder.create()
+                    .setDefaultCredentialsProvider(provider)
+                    .build();
             HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl()
                     + Constants.URL_SEPARATOR + "getLatest");
+
             request.setEntity(entity);
             HttpResponse response = httpClient.execute(request);
 
@@ -117,8 +130,16 @@ public class NexusRepoManagerConnector {
                     dependency.getArtifactId() +
                     Constants.JSON_OBJECT_END_TAG;
 
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials
+                    = new UsernamePasswordCredentials(System.getenv("DEPENDENCY_UPDATER_USERNAME"),
+                    System.getenv("DEPENDENCY_UPDATER_PASSWORD"));
+            provider.setCredentials(AuthScope.ANY, credentials);
+
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
-            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpClient httpClient = HttpClientBuilder.create()
+                    .setDefaultCredentialsProvider(provider)
+                    .build();
             HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl() +
                     Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);
@@ -177,9 +198,15 @@ public class NexusRepoManagerConnector {
                     Constants.JSON_OBJECT_END_TAG;
 
             String currentVersion = dependency.getVersion();
-
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            UsernamePasswordCredentials credentials
+                    = new UsernamePasswordCredentials(System.getenv("DEPENDENCY_UPDATER_USERNAME"),
+                    System.getenv("DEPENDENCY_UPDATER_PASSWORD"));
+            provider.setCredentials(AuthScope.ANY, credentials);
             StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
-            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpClient httpClient = HttpClientBuilder.create()
+                    .setDefaultCredentialsProvider(provider)
+                    .build();
             HttpPost request = new HttpPost(ConfigFileReader.getAetherMicroServiceUrl()
                     + Constants.URL_SEPARATOR + "getVersions");
             request.setEntity(entity);

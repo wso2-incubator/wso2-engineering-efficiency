@@ -32,7 +32,6 @@ public class OutdatedDependency extends org.apache.maven.model.Dependency {
     private List<String> newVersions;
 
     public OutdatedDependency(Dependency dependency) {
-
         this.setGroupId(dependency.getGroupId());
         this.setArtifactId(dependency.getArtifactId());
         this.setVersion(dependency.getVersion());
@@ -40,17 +39,14 @@ public class OutdatedDependency extends org.apache.maven.model.Dependency {
     }
 
     public String getLatestVersion() {
-
         return latestVersion;
     }
 
     public void setLatestVersion(String latestVersion) {
-
         this.latestVersion = latestVersion;
     }
 
     public List<String> getNewVersions() {
-
         return newVersions;
     }
 
@@ -60,14 +56,3 @@ public class OutdatedDependency extends org.apache.maven.model.Dependency {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-

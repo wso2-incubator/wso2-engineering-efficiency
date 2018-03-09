@@ -39,8 +39,7 @@ public class ConfigFileReader {
     private static final Log log = LogFactory.getLog(ConfigFileReader.class);
 
     private static String mavenHome;
-    private static String githubUsername;
-    private static String githubPassword;
+    private static String githubAccesToken;
     private static String rootPath;
     private static String mysqlUsername;
     private static String mysqlPassword;
@@ -64,10 +63,10 @@ public class ConfigFileReader {
             configuration.getDocumentElement().normalize();
 
             //search for the first occurrence of each property tag and assign its text value
-            mavenHome = configuration.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0).getTextContent();
-            githubUsername = configuration.getElementsByTagName(Constants.GITHUB_USERNAME_TAG).item(0)
+
+            mavenHome = configuration.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0)
                     .getTextContent();
-            githubPassword = configuration.getElementsByTagName(Constants.GITHUB_PASSWORD_TAG).item(0)
+            githubAccesToken = configuration.getElementsByTagName(Constants.GITHUB_ACCESS_TOKEN_TAG).item(0)
                     .getTextContent();
             mysqlUsername = configuration.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0)
                     .getTextContent();
@@ -103,14 +102,9 @@ public class ConfigFileReader {
         return mavenHome;
     }
 
-    public static String getGithubUsername() {
+    public static String getGithubAccesToken() {
 
-        return githubUsername;
-    }
-
-    public static String getGithubPassword() {
-
-        return githubPassword;
+        return githubAccesToken;
     }
 
     public static String getRootPath() {

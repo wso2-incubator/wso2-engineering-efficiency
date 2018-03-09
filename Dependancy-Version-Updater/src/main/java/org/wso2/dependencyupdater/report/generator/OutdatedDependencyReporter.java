@@ -21,6 +21,7 @@ package org.wso2.dependencyupdater.report.generator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.dependencyupdater.Constants;
+import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
 import org.wso2.dependencyupdater.model.OutdatedDependency;
 import org.wso2.dependencyupdater.model.Report;
 
@@ -51,8 +52,13 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
             return false;
         }
         try {
+            String componentName = getComponentName(componentPath);
+            String moduleName = getModuleName(componentPath);
+            File reportFile = new File(ConfigFileReader.getReportPath() + componentName
+                    + File.separator + moduleName + Constants.CSV_FILE_EXTENSION);
+            reportFile.getParentFile().mkdirs();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new
-                    FileOutputStream(new File(componentPath + Constants.CSV_FILE_EXTENSION)),
+                    FileOutputStream(reportFile),
                     Charset.forName(Constants.UTF_8_CHARSET_NAME).newEncoder()
             );
             //header row for csv
@@ -88,9 +94,22 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
             return true;
 
         } catch (FileNotFoundException e) {
-            log.error("Directory not found to save Report :" + componentPath);
+            log.error("Directory not found to save Report :" + componentPath,e);
         }
         return false;
+    }
+
+    private String getComponentName(String pomLocation) {
+
+        String tempComponentName = pomLocation.split(File.separator)[0];
+        return tempComponentName.substring(0, tempComponentName.length() - Constants.SUFFIX_TEMP_FILE.length());
+    }
+
+    private String getModuleName(String pomLocation) {
+
+        String[] directories = pomLocation.split(File.separator);
+        String moduleName = directories[directories.length - 1];
+        return moduleName;
     }
 
 }

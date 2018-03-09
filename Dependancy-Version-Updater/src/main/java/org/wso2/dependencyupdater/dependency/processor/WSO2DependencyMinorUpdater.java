@@ -76,11 +76,9 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         //used for reporting
         OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         outdatedDependencyReporter.setReportEntries(outdatedDependencies);
-        log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in "
-                + pomLocation.replaceAll("[\r\n]", ""));
 
-        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.getReportPath()
-                + pomLocation.replace('/', '_'));
+        boolean written = outdatedDependencyReporter.saveToCSV(pomLocation.substring(ConfigFileReader
+                .getRootPath().length()));
         if (written) {
             log.info("dependency update report saved successfully");
         } else {

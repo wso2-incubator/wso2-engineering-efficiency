@@ -56,9 +56,10 @@ public class MavenInvoker {
         String directoryPath = ConfigFileReader.getRootPath() + directoryName;
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(directoryPath));
+        File logFile = new File(ConfigFileReader.getReportPath() +
+                getComponentName(directoryName) + File.separator + Constants.MAVEN_LOG_FILE_NAME);
+        logFile.getParentFile().mkdirs();
 
-        File logFile = new File(ConfigFileReader.getRootPath() + Constants.MAVEN_LOG_SUBDIRECTORY
-                + File.separator + getComponentName(directoryName) + ".txt");
         try {
             InvocationOutputHandler outputHandler = new MavenOutputHandler(logFile);
             request.setOutputHandler(outputHandler);
@@ -86,7 +87,7 @@ public class MavenInvoker {
 
         } catch (MavenInvocationException e) {
 
-            log.error("Failed to invoke :" + Constants.MAVEN_INVOKE_COMMAND);
+            log.error("Failed to invoke :" + Constants.MAVEN_INVOKE_COMMAND,e);
         }
         return Constants.BUILD_FAIL_CODE;
     }

@@ -52,10 +52,11 @@ public class Constants {
     public static final String LATEST_VERSION_KEY = "NewestVersion";
     public static final String UTF_8_CHARSET_NAME = "UTF-8";
     public static final String MAVEN_INVOKE_COMMAND = "clean install";
-    public static final String MAVEN_LOG_SUBDIRECTORY = "Error Log";
+    public static final String MAVEN_LOG_FILE_NAME = "maven_log.txt";
     public static final String CSV_FILE_EXTENSION = ".csv";
     public static final String LOG_SEPARATOR = "==============================================================";
     public static final String UPDATE_STATUS_TEMPORARY_PROPERTY = "update.status";
+    public static final String CSV_REPORT_PATH = "/home/dimuth/Documents/CSV";
 
     //Integer status codes
     public static final int BUILD_FAIL_CODE = 0;
@@ -70,9 +71,18 @@ public class Constants {
     public static final String MYSQL_DATABASE_NAME_TAG = "MYSQL_DATABASE_NAME";
     public static final String AETHER_MICRO_SERVICE = "AETHER_MICRO_SERVICE";
     public static final String MAVEN_HOME_TAG = "M2_HOME";
-    public static final String GITHUB_USERNAME_TAG = "GITHUB_USERNAME";
-    public static final String GITHUB_PASSWORD_TAG = "GITHUB_PASSWORD";
+    public static final String GITHUB_ACCESS_TOKEN_TAG = "GITHUB_ACCESS_TOKEN";
     public static final String ROOT_PATH_TAG = "ROOT_PATH";
     public static final String REPORT_PATH_TAG = "REPORT_PATH";
+
+    public static class EMAIL {
+        public static final String MAILSERVER = "smtp.gmail.com";
+        public static final String MAILPORT = "465";
+        public static final String MAILCLASS = "javax.net.ssl.SSLSocketFactory";
+        public static final boolean MAILAUTH = true;
+        public static final String EMAIL_USERNAME = "dimuthu.13@cse.mrt.ac.lk";
+        public static final String EMAIL_PASSWORD = "Priyadarshani@143";
+        public static final String EMAIL_TITLE = "Dependency update Report for ";
+    }
 
 }

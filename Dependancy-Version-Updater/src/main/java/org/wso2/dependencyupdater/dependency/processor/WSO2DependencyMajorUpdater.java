@@ -28,7 +28,6 @@ import org.wso2.dependencyupdater.filehandler.ConfigFileReader;
 import org.wso2.dependencyupdater.model.OutdatedDependency;
 import org.wso2.dependencyupdater.report.generator.OutdatedDependencyReporter;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -58,7 +57,6 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
 
         List<Dependency> updatedDependencies = new ArrayList<>(dependencies);
         List<OutdatedDependency> outdatedDependencies = new ArrayList<>();
-        OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
         Model model = new Model();
         for (Dependency dependency : dependencies) {
             dependency = replaceVersionFromPropertyValue(dependency, localProperties, globalProperties);
@@ -71,17 +69,17 @@ public class WSO2DependencyMajorUpdater extends WSO2DependencyUpdater {
         localProperties = addUpdateStatus(localProperties, outdatedDependencies.size());
         model.setDependencies(updatedDependencies);
         model.setProperties(localProperties);
-        outdatedDependencyReporter.setReportEntries(outdatedDependencies);
-        log.info(outdatedDependencies.size() + " Dependencies updated in the pom located in "
-                + pomLocation.replaceAll("[\r\n]", ""));
 
-        //report file generating
-        boolean written = outdatedDependencyReporter.saveToCSV(ConfigFileReader.getReportPath()
-                + File.separator + pomLocation.replace('/', '_'));
+        //used for reporting
+        OutdatedDependencyReporter outdatedDependencyReporter = new OutdatedDependencyReporter();
+        outdatedDependencyReporter.setReportEntries(outdatedDependencies);
+
+        boolean written = outdatedDependencyReporter.saveToCSV(pomLocation.substring(ConfigFileReader
+                .getRootPath().length()));
         if (written) {
-            log.info("Dependency update report saved successfully");
+            log.info("dependency update report saved successfully");
         } else {
-            log.error("Dependency update report saving failed");
+            log.error("dependency update report saving failed");
         }
         return model;
     }

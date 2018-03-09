@@ -192,7 +192,7 @@ public class RepositoryManager {
      */
     private boolean update(Repository repository) throws DependencyUpdaterRepositoryException {
 
-        boolean isUpdateSuccessful = false;
+        boolean isUpdateSuccessful;
         try {
             log.info("Calling git pull command for repository: "
                     + repository.getName().replaceAll("[\r\n]", ""));
@@ -200,15 +200,15 @@ public class RepositoryManager {
                     + File.separator + repository.getName()))
                     .pull().call().isSuccessful();
 
-        } catch (RefNotAdvertisedException exception) {
+        } catch (RefNotAdvertisedException e) {
             throw new DependencyUpdaterRepositoryException("Branch not found in remote repository. "
-                    + repository.getName());
+                    + repository.getName(),e);
 
         } catch (IOException e) {
             throw new DependencyUpdaterRepositoryException("Repository directory cannot be found :"
-                    + repository.getName());
+                    + repository.getName(),e);
         } catch (GitAPIException e) {
-            throw new DependencyUpdaterRepositoryException("Failed to execute git command " + repository.getName());
+            throw new DependencyUpdaterRepositoryException("Failed to execute git command " + repository.getName(),e);
         }
 
         return isUpdateSuccessful;
@@ -223,11 +223,13 @@ public class RepositoryManager {
      */
     private boolean clone(Repository repository) throws DependencyUpdaterRepositoryException {
 
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
-                ConfigFileReader.getGithubUsername(), ConfigFileReader.getGithubPassword());
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("token",
+                ConfigFileReader.getGithubAccesToken());
         try {
-            log.debug("Cloning the repository to local storage: "
-                    + repository.getName().replaceAll("[\r\n]", ""));
+            if (log.isDebugEnabled()) {
+                log.debug("Cloning the repository to local storage: "
+                        + repository.getName().replaceAll("[\r\n]", ""));
+            }
             Git.cloneRepository()
                     .setCredentialsProvider(credentialsProvider)
                     .setURI(repository.getUrl())
@@ -236,12 +238,12 @@ public class RepositoryManager {
             return true;
 
         } catch (InvalidRemoteException e) {
-            throw new DependencyUpdaterRepositoryException("Remote repository not found :" + repository.getUrl());
+            throw new DependencyUpdaterRepositoryException("Remote repository not found :" + repository.getUrl(), e);
         } catch (TransportException e) {
             throw new DependencyUpdaterRepositoryException("Protocol error has occurred while fetching objects "
-                    + repository.getUrl());
+                    + repository.getUrl(), e);
         } catch (GitAPIException e) {
-            throw new DependencyUpdaterRepositoryException("Error occurred in Git API " + repository.getUrl());
+            throw new DependencyUpdaterRepositoryException("Error occurred in Git API " + repository.getUrl(), e);
         }
     }
 
