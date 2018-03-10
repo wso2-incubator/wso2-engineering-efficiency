@@ -50,7 +50,9 @@ public class RepositoryHandler {
         File dest = new File(destinationPath);
         try {
             FileUtils.copyDirectory(source, dest);
-            log.info("Temporary file created for " + repository.getName().replaceAll("[\r\n]", ""));
+            if (log.isDebugEnabled()) {
+                log.debug("Temporary file created for " + repository.getName().replaceAll("[\r\n]", ""));
+            }
             return repository.getName() + Constants.SUFFIX_TEMP_FILE;
         } catch (IOException e) {
             throw new DependencyUpdaterRepositoryException("Directory not found for copying", e);
@@ -66,9 +68,7 @@ public class RepositoryHandler {
 
         try {
             FileUtils.deleteDirectory(new File(destination));
-            log.info("Existing temporary folder deleted :" + destination.replaceAll("[\r\n]", ""));
         } catch (IOException e) {
-
             log.error("Directory not found for deleting", e);
         }
     }

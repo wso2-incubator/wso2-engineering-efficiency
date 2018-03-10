@@ -42,18 +42,20 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
     /**
      * Implementation of abstract method to report set of outdated dependencies
      *
-     * @param componentPath path for csv file
+     * @param repositoryPath path for csv file
      * @return status of report generating process.
      */
-    public boolean saveToCSV(String componentPath) {
-        //If no entries in the entry list, report will not be generated
+    public boolean saveToCSV(String repositoryPath) {
+
         if (reportEntries.isEmpty()) {
-            log.info("Outdated dependency list is empty. Therefore report file will not be generated");
+            if (log.isDebugEnabled()) {
+                log.info("Outdated dependency list is empty. Therefore report file will not be generated");
+            }
             return false;
         }
         try {
-            String componentName = getComponentName(componentPath);
-            String moduleName = getModuleName(componentPath);
+            String componentName = getComponentName(repositoryPath);
+            String moduleName = getModuleName(repositoryPath);
             File reportFile = new File(ConfigFileReader.getReportPath() + componentName
                     + File.separator + moduleName + Constants.CSV_FILE_EXTENSION);
             reportFile.getParentFile().mkdirs();
@@ -94,11 +96,17 @@ public class OutdatedDependencyReporter extends Report<OutdatedDependency> {
             return true;
 
         } catch (FileNotFoundException e) {
-            log.error("Directory not found to save Report :" + componentPath,e);
+            log.error("Unable to locate the directory:" + repositoryPath, e);
         }
         return false;
     }
 
+    /**
+     * Method to retrieve repository name from pom location
+     *
+     * @param pomLocation
+     * @return
+     */
     private String getComponentName(String pomLocation) {
 
         String tempComponentName = pomLocation.split(File.separator)[0];

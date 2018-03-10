@@ -75,19 +75,25 @@ public class MavenInvoker {
         InvocationResult invocationResult;
         try {
             invocationResult = invoker.execute(request);
+
             if (invocationResult.getExitCode() == 0) {
-                log.info("Maven build Successful :"
-                        + getComponentName(directoryName).replaceAll("[\r\n]", ""));
+                if (log.isDebugEnabled()) {
+                    log.info("Maven build Successful :"
+                            + getComponentName(directoryName).replaceAll("[\r\n]", ""));
+                }
                 return Constants.BUILD_SUCCESS_CODE;
             } else {
-                log.info("Maven build Failed :"
-                                + getComponentName(directoryName).replaceAll("[\r\n]", ""),
-                        invocationResult.getExecutionException());
+                if (log.isDebugEnabled()) {
+                    log.info("Maven build Failed :"
+                                    + getComponentName(directoryName).replaceAll("[\r\n]", ""),
+                            invocationResult.getExecutionException());
+                }
             }
+
 
         } catch (MavenInvocationException e) {
 
-            log.error("Failed to invoke :" + Constants.MAVEN_INVOKE_COMMAND,e);
+            log.error("Failed to invoke :" + Constants.MAVEN_INVOKE_COMMAND, e);
         }
         return Constants.BUILD_FAIL_CODE;
     }

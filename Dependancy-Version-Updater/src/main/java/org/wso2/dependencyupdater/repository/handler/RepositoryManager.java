@@ -194,21 +194,23 @@ public class RepositoryManager {
 
         boolean isUpdateSuccessful;
         try {
-            log.info("Calling git pull command for repository: "
-                    + repository.getName().replaceAll("[\r\n]", ""));
+            if (log.isDebugEnabled()) {
+                log.debug("Calling git pull command for repository: "
+                        + repository.getName().replaceAll("[\r\n]", ""));
+            }
             isUpdateSuccessful = Git.open(new File(ConfigFileReader.getRootPath()
                     + File.separator + repository.getName()))
                     .pull().call().isSuccessful();
 
         } catch (RefNotAdvertisedException e) {
             throw new DependencyUpdaterRepositoryException("Branch not found in remote repository. "
-                    + repository.getName(),e);
+                    + repository.getName(), e);
 
         } catch (IOException e) {
             throw new DependencyUpdaterRepositoryException("Repository directory cannot be found :"
-                    + repository.getName(),e);
+                    + repository.getName(), e);
         } catch (GitAPIException e) {
-            throw new DependencyUpdaterRepositoryException("Failed to execute git command " + repository.getName(),e);
+            throw new DependencyUpdaterRepositoryException("Failed to execute git command " + repository.getName(), e);
         }
 
         return isUpdateSuccessful;
@@ -224,7 +226,7 @@ public class RepositoryManager {
     private boolean clone(Repository repository) throws DependencyUpdaterRepositoryException {
 
         CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("token",
-                ConfigFileReader.getGithubAccesToken());
+                ConfigFileReader.getGithubAccessToken());
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Cloning the repository to local storage: "

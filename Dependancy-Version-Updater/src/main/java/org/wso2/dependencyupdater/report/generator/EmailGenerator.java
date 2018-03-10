@@ -18,8 +18,8 @@
  */
 package org.wso2.dependencyupdater.report.generator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.dependencyupdater.Constants;
 
 import java.io.File;
@@ -48,7 +48,7 @@ import javax.mail.internet.MimeMultipart;
  */
 public class EmailGenerator {
 
-    private static final Log log = LogFactory.getLog(EmailGenerator.class);
+    private static final Logger log = LoggerFactory.getLogger(EmailGenerator.class);
 
     /**
      * Setting up the email connection to send report
@@ -96,30 +96,41 @@ public class EmailGenerator {
     public boolean sendEmail(String receiverEmail, String filePath, long timestamp) {
 
         Date date = new Date(timestamp);
-        try {
-            Message message = setUp();
-            message.setFrom(new InternetAddress(Constants.EMAIL.EMAIL_USERNAME));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiverEmail));
-            message.setSubject(Constants.EMAIL.EMAIL_TITLE + date.toString());
-            BodyPart messageBodyPart = new MimeBodyPart();
-            messageBodyPart.setText("Please find the attached reports.");
-            Multipart multipart = new MimeMultipart();
-            multipart.addBodyPart(messageBodyPart);
-            ArrayList<String> listOfFiles = getAllFiles(filePath);
-            for (String filename : listOfFiles) {
-                DataSource source = new FileDataSource(filePath + File.separator + filename);
-                messageBodyPart = new MimeBodyPart();
-                messageBodyPart.setDataHandler(new DataHandler(source));
-                messageBodyPart.setFileName(filename);
+        ArrayList<String> listOfFiles = getAllFiles(filePath);
+        if (listOfFiles.size() != 0) {
+            try {
+                Message message = setUp();
+                message.setFrom(new InternetAddress(Constants.EMAIL.EMAIL_USERNAME));
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiverEmail));
+                message.setSubject(Constants.EMAIL.EMAIL_TITLE + date.toString());
+                BodyPart messageBodyPart = new MimeBodyPart();
+                messageBodyPart.setText("Please find the attached reports.");
+                Multipart multipart = new MimeMultipart();
                 multipart.addBodyPart(messageBodyPart);
+
+                for (String filename : listOfFiles) {
+                    DataSource source = new FileDataSource(filePath + File.separator + filename);
+                    messageBodyPart = new MimeBodyPart();
+                    messageBodyPart.setDataHandler(new DataHandler(source));
+                    messageBodyPart.setFileName(filename);
+                    multipart.addBodyPart(messageBodyPart);
+                }
+                message.setContent(multipart);
+                Transport.send(message);
+                return true;
+            } catch (MessagingException e) {
+                log.error("Failed to sent report email using port {} ", Constants.EMAIL.MAILPORT, e);
+
             }
-            message.setContent(multipart);
-            Transport.send(message);
-            return true;
-        } catch (MessagingException e) {
-            log.error("Failed to sent report email using port " + Constants.EMAIL.MAILPORT, e);
-            return false;
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("No reports generated for the component.");
+            }
+            ;
         }
+
+        return false;
+
     }
 
     /**
@@ -133,11 +144,14 @@ public class EmailGenerator {
         File folder = new File(directory);
         File[] listOfFiles = folder.listFiles();
         ArrayList<String> fileList = new ArrayList<>();
-        for (int index = 0; index < listOfFiles.length; index++) {
-            if (listOfFiles[index].isFile()) {
-                fileList.add(listOfFiles[index].getName());
+        if (fileList.size() != 0) {
+            for (int index = 0; index < listOfFiles.length; index++) {
+                if (listOfFiles[index].isFile()) {
+                    fileList.add(listOfFiles[index].getName());
+                }
             }
         }
+
         return fileList;
     }
 

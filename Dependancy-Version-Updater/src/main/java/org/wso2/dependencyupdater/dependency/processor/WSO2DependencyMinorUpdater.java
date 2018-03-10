@@ -98,31 +98,29 @@ public class WSO2DependencyMinorUpdater extends WSO2DependencyUpdater {
         log.info(dependency.getGroupId() + ":" + dependency.getArtifactId());
         String currentVersion = dependency.getVersion();
         if (currentVersion == null) {
-            log.info("version value not mentioned in the pom file");
             return false;
         }
         if (!dependency.getGroupId().contains(Constants.WSO2_GROUP_TAG)) {
-            log.info("dependency does not belong to org.wso2");
             return false;
         }
-        if (currentVersion.toLowerCase().contains("snapshot")) {
-            log.info("current version is a snapshot version");
+        if (currentVersion.toLowerCase().contains(Constants.SNAPSHOT_NAME_TAG)) {
             return false;
         }
 
         String latestVersion = NexusRepoManagerConnector.getLatestMinorVersion(dependency);
 
         if (latestVersion.length() == 0) {
-            log.info("Latest Minor version not found");
             return false;
         } else if (latestVersion.equals(currentVersion)) {
-            log.info("Already in the latest Minor version");
             return false;
         }
-        log.info("dependency " + dependency.getGroupId().replaceAll("[\r\n]", "")
-                + ":" + dependency.getArtifactId().replaceAll("[\r\n]", "")
-                + " updated from version " + currentVersion.replaceAll("[\r\n]", "") + " to "
-                + latestVersion.replaceAll("[\r\n]", ""));
+        if (log.isDebugEnabled()) {
+            log.debug("dependency " + dependency.getGroupId().replaceAll("[\r\n]", "")
+                    + ":" + dependency.getArtifactId().replaceAll("[\r\n]", "")
+                    + " updated from version " + currentVersion.replaceAll("[\r\n]", "") + " to "
+                    + latestVersion.replaceAll("[\r\n]", ""));
+        }
+
         return true;
     }
 

@@ -39,7 +39,7 @@ public class ConfigFileReader {
     private static final Log log = LogFactory.getLog(ConfigFileReader.class);
 
     private static String mavenHome;
-    private static String githubAccesToken;
+    private static String githubAccessToken;
     private static String rootPath;
     private static String mysqlUsername;
     private static String mysqlPassword;
@@ -66,7 +66,7 @@ public class ConfigFileReader {
 
             mavenHome = configuration.getElementsByTagName(Constants.MAVEN_HOME_TAG).item(0)
                     .getTextContent();
-            githubAccesToken = configuration.getElementsByTagName(Constants.GITHUB_ACCESS_TOKEN_TAG).item(0)
+            githubAccessToken = configuration.getElementsByTagName(Constants.GITHUB_ACCESS_TOKEN_TAG).item(0)
                     .getTextContent();
             mysqlUsername = configuration.getElementsByTagName(Constants.MYSQL_USERNAME_TAG).item(0)
                     .getTextContent();
@@ -102,9 +102,9 @@ public class ConfigFileReader {
         return mavenHome;
     }
 
-    public static String getGithubAccesToken() {
+    public static String getGithubAccessToken() {
 
-        return githubAccesToken;
+        return githubAccessToken;
     }
 
     public static String getRootPath() {

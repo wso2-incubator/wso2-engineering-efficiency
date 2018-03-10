@@ -231,9 +231,11 @@ public abstract class WSO2DependencyUpdater extends DependencyUpdater {
             String propertyKey = getVersionKey(currentVersion);
             currentVersion = getProperty(propertyKey, localProperties, globalProperties);
             if (currentVersion == null) {
-                log.info("Property value not found for "
-                        + dependency.getGroupId().replaceAll("[\r\n]", "")
-                        + ":" + dependency.getArtifactId().replaceAll("[\r\n]", ""));
+                if (log.isDebugEnabled()) {
+                    log.info("Property value not found for "
+                            + dependency.getGroupId().replaceAll("[\r\n]", "")
+                            + ":" + dependency.getArtifactId().replaceAll("[\r\n]", ""));
+                }
             } else {
                 dependency.setVersion(currentVersion);
             }

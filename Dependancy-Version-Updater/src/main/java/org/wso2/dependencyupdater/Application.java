@@ -109,9 +109,9 @@ public class Application {
                             }
                         }
                         RepositoryHandler.deleteDirectory(ConfigFileReader.getRootPath()
-                                +File.separator+componentTemporaryDirectoryName);
+                                + File.separator + componentTemporaryDirectoryName);
                         emailGenerator.sendEmail("dimuthcse@gmail.com",
-                                ConfigFileReader.getReportPath()+repository.getName(),updatedTimeStamp);
+                                ConfigFileReader.getReportPath() + repository.getName(), updatedTimeStamp);
                     } else {
                         if (log.isDebugEnabled()) {
                             log.debug("Repository retrieving failed:" + repository.getName()

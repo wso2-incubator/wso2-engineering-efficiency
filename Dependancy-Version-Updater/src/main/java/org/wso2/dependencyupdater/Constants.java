@@ -46,12 +46,13 @@ public class Constants {
     //String names
     public static final String PROJECT_VERSION_STRING = "project.version";
     public static final String WSO2_GROUP_TAG = "org.wso2";
+    public static final String SNAPSHOT_NAME_TAG = "snapshot";
     public static final String GROUP_ID_TAG = "groupID";
     public static final String ARTIFACT_ID_TAG = "artifactID";
     public static final String AVAILABLE_VERSIONS_KEY = "AvailableVersions";
     public static final String LATEST_VERSION_KEY = "NewestVersion";
     public static final String UTF_8_CHARSET_NAME = "UTF-8";
-    public static final String MAVEN_INVOKE_COMMAND = "clean install";
+    public static final String MAVEN_INVOKE_COMMAND = "clean install -DskipTests";
     public static final String MAVEN_LOG_FILE_NAME = "maven_log.txt";
     public static final String CSV_FILE_EXTENSION = ".csv";
     public static final String LOG_SEPARATOR = "==============================================================";
@@ -75,13 +76,17 @@ public class Constants {
     public static final String ROOT_PATH_TAG = "ROOT_PATH";
     public static final String REPORT_PATH_TAG = "REPORT_PATH";
 
+    /**
+     * Constants used for email sending
+     */
     public static class EMAIL {
+
         public static final String MAILSERVER = "smtp.gmail.com";
         public static final String MAILPORT = "465";
         public static final String MAILCLASS = "javax.net.ssl.SSLSocketFactory";
         public static final boolean MAILAUTH = true;
         public static final String EMAIL_USERNAME = "dimuthu.13@cse.mrt.ac.lk";
-        public static final String EMAIL_PASSWORD = "Priyadarshani@143";
+        public static final String EMAIL_PASSWORD = "";
         public static final String EMAIL_TITLE = "Dependency update Report for ";
     }
 

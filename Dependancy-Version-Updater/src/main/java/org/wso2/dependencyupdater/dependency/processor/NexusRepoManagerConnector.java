@@ -187,23 +187,23 @@ public class NexusRepoManagerConnector {
 
         String latestVersion = Constants.EMPTY_STRING;
         try {
-            String data = Constants.JSON_OBJECT_START_TAG +
-                    Constants.GROUP_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
-                    dependency.getGroupId() +
-                    Constants.JSON_OBJECT_ELEMENT_SEPARATOR +
-                    Constants.ARTIFACT_ID_TAG +
-                    Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR +
-                    dependency.getArtifactId() +
-                    Constants.JSON_OBJECT_END_TAG;
+            StringBuilder data = new StringBuilder()
+                    .append(Constants.JSON_OBJECT_START_TAG).append(Constants.JSON_OBJECT_START_TAG)
+                    .append(Constants.GROUP_ID_TAG).append(Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR)
+                    .append(dependency.getGroupId())
+                    .append(Constants.JSON_OBJECT_ELEMENT_SEPARATOR)
+                    .append(Constants.ARTIFACT_ID_TAG)
+                    .append(Constants.JSON_OBJECT_KEY_VALUE_SEPARATOR)
+                    .append(dependency.getArtifactId())
+                    .append(Constants.JSON_OBJECT_END_TAG);
 
             String currentVersion = dependency.getVersion();
             CredentialsProvider provider = new BasicCredentialsProvider();
-            UsernamePasswordCredentials credentials
-                    = new UsernamePasswordCredentials(System.getenv("DEPENDENCY_UPDATER_USERNAME"),
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
+                    System.getenv("DEPENDENCY_UPDATER_USERNAME"),
                     System.getenv("DEPENDENCY_UPDATER_PASSWORD"));
             provider.setCredentials(AuthScope.ANY, credentials);
-            StringEntity entity = new StringEntity(data, ContentType.APPLICATION_JSON);
+            StringEntity entity = new StringEntity(data.toString(), ContentType.APPLICATION_JSON);
             HttpClient httpClient = HttpClientBuilder.create()
                     .setDefaultCredentialsProvider(provider)
                     .build();
