@@ -1,0 +1,16 @@
+        body { font-family:Arial, Helvetica, Sans-Serif; font-size:0.0em;}
+        #report { border-collapse:collapse;}
+        #report h4 { margin:0px; padding:0px;}
+        #report th { background:#7CB8E2 url(/portal/store/carbon.super/gadget/dependency-updater/images/header_bkg.png) repeat-x scroll center left; color:#fff; padding:7px 15px; text-align:center;}
+        #report td { background:#CEE3F6 none repeat-x scroll center left; color:#000; padding:0px 10px 2px 10px ; text-align:center;  font-weight: bold; }
+        #report tr.odd td { background:#fff url(/portal/store/carbon.super/gadget/dependency-updater/images/row_bkg.png) repeat-x scroll center left; cursor:pointer; }
+        #report div.arrow { background:transparent url(/portal/store/carbon.super/gadget/dependency-updater/images/arrows.png) no-repeat scroll 0px -16px; width:16px; height:16px; display:block;}
+        #report div.up { background-position:0px 0px;}
+
+        .styled-select {
+   width: 240px;
+   height: 34px;
+   overflow: hidden;
+   background: url(new_arrow.png) no-repeat right #ddd;
+   border: 1px solid #ccc;
+   }

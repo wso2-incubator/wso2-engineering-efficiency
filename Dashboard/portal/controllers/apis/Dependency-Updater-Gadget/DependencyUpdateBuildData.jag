@@ -1,0 +1,14 @@
+<%
+
+var action = request.getParameter("action");
+function getDataFromService(){
+    var url  = "http://0.0.0.0:8080/service/getBuildStatus";
+    var response = get(url,"json");
+    print(response);
+}
+
+if (action === "getBuild"){
+    getDataFromService();
+}
+
+%>

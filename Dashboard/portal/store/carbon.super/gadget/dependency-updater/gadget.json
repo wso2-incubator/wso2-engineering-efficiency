@@ -1,0 +1,15 @@
+{
+  "id": "Product Dependency Update Status - Last 7 Days",
+  "title": "Product Dependency Update Status - Last 7 Days",
+  "type": "gadget",
+  "thumbnail": "store://gadget/dependency-updater/index.png",
+  "data": {
+    "url": "store://gadget/dependency-updater/index.xml"
+  },
+  "listen": {
+    "listener": {
+      "type": "address",
+      "description": "Used to filter based on state"
+    }
+  }
+}

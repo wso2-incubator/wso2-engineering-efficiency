@@ -1,0 +1,5 @@
+<Properties>
+    <MYSQL_USERNAME>root</MYSQL_USERNAME>
+    <MYSQL_PASSWORD></MYSQL_PASSWORD>
+    <MYSQL_DATABASE_URL>jdbc:mysql://127.0.0.1:3308/DependencyUpdateDB</MYSQL_DATABASE_URL>
+</Properties>
