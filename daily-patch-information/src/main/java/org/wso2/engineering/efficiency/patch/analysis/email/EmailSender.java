@@ -1,22 +1,20 @@
-//
-// Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
+/*
+Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
 
-package org.wso2.patchinformation.email;
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+package org.wso2.engineering.efficiency.patch.analysis.email;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -25,14 +23,16 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
-import org.wso2.patchinformation.MainEmailSender;
-import org.wso2.patchinformation.exceptions.ConnectionException;
-import org.wso2.patchinformation.exceptions.ContentException;
-import org.wso2.patchinformation.exceptions.PatchInformationException;
+import org.wso2.engineering.efficiency.patch.analysis.EmailsSender;
+import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchInformationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,27 +46,19 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import static org.wso2.patchinformation.constants.EmailConstants.APPLICATION_NAME;
-import static org.wso2.patchinformation.constants.EmailConstants.CLIENT_SECRET_DIR;
-import static org.wso2.patchinformation.constants.EmailConstants.CREDENTIALS_FOLDER;
-import static org.wso2.patchinformation.constants.EmailConstants.EMAIL_TYPE;
-import static org.wso2.patchinformation.constants.EmailConstants.JSON_FACTORY;
-import static org.wso2.patchinformation.constants.EmailConstants.SCOPES;
-
 /**
  * Sends an email with the JIRA issues and associated patch information.
  */
 public class EmailSender {
 
-    private static EmailSender emailSender;
+    private static EmailSender emailSender = new EmailSender();
 
     private EmailSender() {
+
     }
 
     public static EmailSender getEmailSender() {
-        if (emailSender == null) {
-            emailSender = new EmailSender();
-        }
+
         return emailSender;
     }
 
@@ -79,17 +71,19 @@ public class EmailSender {
      */
     private Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
 
-        InputStream in = MainEmailSender.class.getResourceAsStream(CLIENT_SECRET_DIR);
-        GoogleClientSecrets clientSecrets;
-        clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in,
-                Charset.defaultCharset()));
-        GoogleAuthorizationCodeFlow flow;
-        flow = new GoogleAuthorizationCodeFlow.Builder(
-                httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File((CREDENTIALS_FOLDER))))
-                .setAccessType("offline")
-                .build();
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        try (InputStream in = EmailsSender.class.getResourceAsStream(Constants.Email.CLIENT_SECRET_DIR)) {
+            GoogleClientSecrets clientSecrets;
+            clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new InputStreamReader(in,
+                    Charset.defaultCharset()));
+            GoogleAuthorizationCodeFlow flow;
+            flow = new GoogleAuthorizationCodeFlow.Builder(
+                    httpTransport, JacksonFactory.getDefaultInstance(), clientSecrets, Constants.Email.SCOPES)
+                    .setDataStoreFactory(new FileDataStoreFactory(
+                            new java.io.File((Constants.Email.CREDENTIALS_FOLDER))))
+                    .setAccessType("offline")
+                    .build();
+            return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        }
     }
 
     /**
@@ -119,7 +113,7 @@ public class EmailSender {
                         new InternetAddress(aCcList));
             }
             email.setSubject(subject);
-            email.setContent(bodyText, EMAIL_TYPE);
+            email.setContent(bodyText, Constants.Email.EMAIL_TYPE);
             return email;
         } catch (MessagingException e) {
             throw new ContentException("Failed to set up email", e);
@@ -160,8 +154,9 @@ public class EmailSender {
 
         try {
             NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            Gmail service = new Gmail.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport))
-                    .setApplicationName(APPLICATION_NAME)
+            Gmail service = new Gmail.Builder(httpTransport, JacksonFactory.getDefaultInstance(),
+                    getCredentials(httpTransport))
+                    .setApplicationName(Constants.Email.APPLICATION_NAME)
                     .build();
             MimeMessage emailContent = createEmail(subject, emailBody, emailFrom, emailTo, emailCC);
             Message message = createMessageWithEmail(emailContent);

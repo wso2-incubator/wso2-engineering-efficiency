@@ -1,26 +1,26 @@
-//
-// Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-package org.wso2.patchinformation.pmt;
+/*
+Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
 
-import org.wso2.patchinformation.exceptions.ConnectionException;
-import org.wso2.patchinformation.exceptions.ContentException;
-import org.wso2.patchinformation.exceptions.PatchInformationException;
-import org.wso2.patchinformation.jira.JIRAIssue;
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+
+package org.wso2.engineering.efficiency.patch.analysis.pmt;
+
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchInformationException;
+import org.wso2.engineering.efficiency.patch.analysis.jira.JIRAIssue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,27 +29,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import static org.wso2.patchinformation.constants.Constants.DEVELOPMENT;
-import static org.wso2.patchinformation.constants.Constants.FAILED_QA;
-import static org.wso2.patchinformation.constants.Constants.IN_QUEUE;
-import static org.wso2.patchinformation.constants.Constants.JIRA_URL_PREFIX;
-import static org.wso2.patchinformation.constants.Constants.JIRA_URL_PREFIX_LENGTH;
-import static org.wso2.patchinformation.constants.Constants.NA;
-import static org.wso2.patchinformation.constants.Constants.NOT_SPECIFIED;
-import static org.wso2.patchinformation.constants.Constants.NO_ENTRY_IN_PMT;
-import static org.wso2.patchinformation.constants.Constants.OFF_QUEUE;
-import static org.wso2.patchinformation.constants.Constants.ON_HOLD;
-import static org.wso2.patchinformation.constants.Constants.PRE_QA;
-import static org.wso2.patchinformation.constants.Constants.READY_FOR_QA;
-import static org.wso2.patchinformation.constants.Constants.RELEASED_LC;
-import static org.wso2.patchinformation.constants.Constants.RELEASED_NOT_AUTOMATED;
-import static org.wso2.patchinformation.constants.Constants.RELEASED_NOT_IN_PUBLIC_SVN;
-import static org.wso2.patchinformation.constants.Constants.SELECT_PATCHES_FOR_JIRA;
-import static org.wso2.patchinformation.constants.Constants.SELECT_SUPPORT_JIRAS;
-import static org.wso2.patchinformation.constants.Constants.STAGING;
-import static org.wso2.patchinformation.constants.Constants.SUPPORT_JIRA_URL;
-import static org.wso2.patchinformation.constants.Constants.State;
-import static org.wso2.patchinformation.constants.Constants.TESTING;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.DEVELOPMENT;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.FAILED_QA;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.IN_QUEUE;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.JIRA_URL_PREFIX;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.JIRA_URL_PREFIX_LENGTH;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.NA;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.NOT_SPECIFIED;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.NO_ENTRY_IN_PMT;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.OFF_QUEUE;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.ON_HOLD;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.PRE_QA;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.READY_FOR_QA;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.RELEASED_LC;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.RELEASED_NOT_AUTOMATED;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.RELEASED_NOT_IN_PUBLIC_SVN;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.SELECT_PATCHES_FOR_JIRA;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.SELECT_SUPPORT_JIRAS;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.STAGING;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.SUPPORT_JIRA_URL;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.State;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.TESTING;
 
 /**
  * Accesses the PMT and queries it to get the JIRA issues that have a corresponding entry in the pmt and then
@@ -57,15 +57,12 @@ import static org.wso2.patchinformation.constants.Constants.TESTING;
  */
 public class PmtAccessor {
 
-    private static PmtAccessor pmtAccessor;
+    private static PmtAccessor pmtAccessor = new PmtAccessor();
 
     private PmtAccessor() {
     }
 
     public static PmtAccessor getPmtAccessor() {
-        if (pmtAccessor == null) {
-            pmtAccessor = new PmtAccessor();
-        }
         return pmtAccessor;
     }
 
@@ -84,10 +81,19 @@ public class PmtAccessor {
         }
     }
 
-    public ArrayList<JIRAIssue> filterJIRAIssues(ArrayList<JIRAIssue> jiraIssues, String url, String user,
+    /**
+     * Filters the JIRA issues so the JIRAS with a corresponding entry in the pmt are returned.
+     * @param jiraIssues JIRA issues returned by the filter
+     * @param dbConnection PMT connection.
+     * @param userName PMT username.
+     * @param password PMT password.
+     * @return JIRAS returned by the filter which are in the PMT.
+     * @throws PatchInformationException Could not access PMT and filter JIRA issues.
+     */
+    public ArrayList<JIRAIssue> filterJIRAIssues(ArrayList<JIRAIssue> jiraIssues, String dbConnection, String userName,
                                                  String password) throws PatchInformationException {
 
-        try (Connection con = DriverManager.getConnection(url, user, password);
+        try (Connection con = DriverManager.getConnection(dbConnection, userName, password);
              PreparedStatement pst = con.prepareStatement(SELECT_SUPPORT_JIRAS);
              ResultSet result = pst.executeQuery()) {
             ArrayList<String> allJIRANamesInPmt = new ArrayList<>();

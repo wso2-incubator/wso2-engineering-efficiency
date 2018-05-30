@@ -1,60 +1,55 @@
-//
-// Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-package org.wso2.patchinformation.email;
+/*
+Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
 
-import org.wso2.patchinformation.comparators.DaysInStateComparator;
-import org.wso2.patchinformation.comparators.JIRADateComparator;
-import org.wso2.patchinformation.comparators.ReleasedReportDateComparator;
-import org.wso2.patchinformation.comparators.ReportDateComparator;
-import org.wso2.patchinformation.constants.Constants;
-import org.wso2.patchinformation.jira.JIRAIssue;
-import org.wso2.patchinformation.pmt.InactivePatch;
-import org.wso2.patchinformation.pmt.OpenPatch;
-import org.wso2.patchinformation.pmt.Patch;
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+
+package org.wso2.engineering.efficiency.patch.analysis.email;
+
+import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
+import org.wso2.engineering.efficiency.patch.analysis.jira.JIRAIssue;
+import org.wso2.engineering.efficiency.patch.analysis.jira.ReportDateComparator;
+import org.wso2.engineering.efficiency.patch.analysis.pmt.InactivePatch;
+import org.wso2.engineering.efficiency.patch.analysis.pmt.OpenPatch;
+import org.wso2.engineering.efficiency.patch.analysis.pmt.Patch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
-import static org.wso2.patchinformation.constants.EmailConstants.COLUMN_NAMES;
-import static org.wso2.patchinformation.constants.EmailConstants.COLUMN_NAMES_DEV;
-import static org.wso2.patchinformation.constants.EmailConstants.COLUMN_NAMES_INACTIVE;
-import static org.wso2.patchinformation.constants.EmailConstants.COLUMN_NAMES_RELEASED;
-import static org.wso2.patchinformation.constants.EmailConstants.COLUMN_NAMES_SUMMARY;
-import static org.wso2.patchinformation.constants.EmailConstants.EMAIL_FOOTER;
-import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_DEV;
-import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_INACTIVE;
-import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_RELEASED;
-import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_SIGNING;
-import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_SUMMARY;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_DEV;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_INACTIVE;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_RELEASED;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_SUMMARY;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.EMAIL_FOOTER;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_DEV;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_INACTIVE;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_RELEASED;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_SIGNING;
+import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_SUMMARY;
 
 /**
  * Creates and returns the body of the email.
  */
 public class EmailContentCreator {
 
-    private static EmailContentCreator emailContentCreator;
+    private static EmailContentCreator emailContentCreator = new EmailContentCreator();
 
     private EmailContentCreator() {
     }
 
     public static EmailContentCreator getEmailContentCreator() {
-        if (emailContentCreator == null) {
-            emailContentCreator = new EmailContentCreator();
-        }
         return emailContentCreator;
     }
 
@@ -68,21 +63,20 @@ public class EmailContentCreator {
     public String getEmailBody(ArrayList<JIRAIssue> jiraIssues, String emailHeader) {
 
         String emailBody = emailHeader;
-
-        ArrayList<Patch> openPatches = new ArrayList<>(getAllOpenPatches(jiraIssues));
-        ArrayList<Patch> patchesInDev = new ArrayList<>();
-        ArrayList<Patch> patchesInSigning = new ArrayList<>();
+        ArrayList<OpenPatch> openPatches = new ArrayList<>(getAllOpenPatches(jiraIssues));
+        ArrayList<OpenPatch> patchesInDev = new ArrayList<>();
+        ArrayList<OpenPatch> patchesInSigning = new ArrayList<>();
         assignPatchesToStates(openPatches, patchesInSigning, patchesInDev);
 
         emailBody += getStateTable(SECTION_HEADER_DEV, COLUMN_NAMES_DEV, "Work Days Since Report Date",
-                patchesInDev);
+                new ArrayList<>(patchesInDev));
         ArrayList<Patch> inactivePatches = new ArrayList<>(getAllInactivePatches(jiraIssues));
         emailBody += getStateTable(SECTION_HEADER_INACTIVE, COLUMN_NAMES_INACTIVE, "JIRA Create Date",
                 inactivePatches);
         emailBody += getStateTable(SECTION_HEADER_SIGNING, COLUMN_NAMES, "Work Days In Signing",
-                patchesInSigning);
+                new ArrayList<>(patchesInSigning));
         emailBody += getReleasedTable(jiraIssues);
-        emailBody += getSummeryTable(jiraIssues);
+        emailBody += getSummaryTable(jiraIssues);
         emailBody += EMAIL_FOOTER;
         return emailBody;
     }
@@ -93,11 +87,11 @@ public class EmailContentCreator {
      * @param jiraIssues ArrayList of all JIRA issues
      * @return the html code for the table
      */
-    private String getSummeryTable(ArrayList<JIRAIssue> jiraIssues) {
+    private String getSummaryTable(ArrayList<JIRAIssue> jiraIssues) {
 
         String table = SECTION_HEADER_SUMMARY;
         table += COLUMN_NAMES_SUMMARY;
-        jiraIssues.sort(new ReportDateComparator());
+        Collections.sort(jiraIssues);
         ArrayList<HtmlTableRow> jirasToHtml = new ArrayList<>(jiraIssues);
         table += getTableRows(jirasToHtml);
         table += "</table>";
@@ -118,7 +112,7 @@ public class EmailContentCreator {
                 inactivePatches.addAll(jiraIssue.getInactivePatches());
             }
         }
-        inactivePatches.sort(new JIRADateComparator());
+        Collections.sort(inactivePatches);
         return inactivePatches;
     }
 
@@ -142,10 +136,10 @@ public class EmailContentCreator {
      *
      * @param openPatches ArrayList of all patches to be recorded.
      */
-    private void assignPatchesToStates(ArrayList<Patch> openPatches, ArrayList<Patch> patchesInSigning,
-                                       ArrayList<Patch> patchesInDevelopment) {
+    private void assignPatchesToStates(ArrayList<OpenPatch> openPatches, ArrayList<OpenPatch> patchesInSigning,
+                                       ArrayList<OpenPatch> patchesInDevelopment) {
 
-        for (Patch openPatch : openPatches) {
+        for (OpenPatch openPatch : openPatches) {
             switch (openPatch.getState()) {
                 case IN_DEV:
                     patchesInDevelopment.add(openPatch);
@@ -156,10 +150,12 @@ public class EmailContentCreator {
                 case IN_SIGNING:
                     patchesInSigning.add(openPatch);
                     break;
+                 default:
+                    break;
             }
         }
-        patchesInDevelopment.sort(new DaysInStateComparator());
-        patchesInSigning.sort(new DaysInStateComparator());
+        Collections.sort(patchesInDevelopment);
+        Collections.sort(patchesInSigning);
     }
 
     /**
@@ -173,7 +169,6 @@ public class EmailContentCreator {
     private String getStateTable(String header, String columnNames, String dateColumnName, ArrayList<Patch> patches) {
 
         String table = header + columnNames + dateColumnName + "</td></tr>";
-
         ArrayList<HtmlTableRow> patchesToHtml = new ArrayList<>(patches);
         table += getTableRows(patchesToHtml);
         table += "</table>";
@@ -208,7 +203,7 @@ public class EmailContentCreator {
     /**
      * Builds the html table for the released state.
      *
-     * @param jiraIssues         all JIRA issues.
+     * @param jiraIssues all JIRA issues.
      * @return html code showing the state data in a table.
      */
     private String getReleasedTable(ArrayList<JIRAIssue> jiraIssues) {
@@ -216,7 +211,7 @@ public class EmailContentCreator {
         String table = SECTION_HEADER_RELEASED;
         table += COLUMN_NAMES_RELEASED;
         ArrayList<JIRAIssue> releasedJiras = getJirasWithReleasedPatches(jiraIssues);
-        releasedJiras.sort(new ReleasedReportDateComparator());
+        releasedJiras.sort(new ReportDateComparator());
         table += getReleasedTableRows(releasedJiras);
         table += "</table>";
         return table;
@@ -264,5 +259,4 @@ public class EmailContentCreator {
         }
         return htmlRows.toString();
     }
-
 }

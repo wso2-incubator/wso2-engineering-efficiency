@@ -1,30 +1,29 @@
-//
-// Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-//
-package org.wso2.patchinformation.jira;
+/*
+Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+package org.wso2.engineering.efficiency.patch.analysis.jira;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.wso2.patchinformation.constants.Constants;
-import org.wso2.patchinformation.exceptions.ConnectionException;
-import org.wso2.patchinformation.exceptions.ContentException;
-import org.wso2.patchinformation.exceptions.PatchInformationException;
+import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchInformationException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,25 +35,17 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import javax.net.ssl.HttpsURLConnection;
 
-import static org.wso2.patchinformation.constants.Constants.DATE_CREATED;
-import static org.wso2.patchinformation.constants.Constants.NAME;
-import static org.wso2.patchinformation.constants.Constants.OK;
-import static org.wso2.patchinformation.constants.Constants.RESULTS_PER_PAGE;
-
 /**
  * Connects to JIRAIssue and extracts the data returned from the filter.
  */
 public class JIRAAccessor {
 
-    private static JIRAAccessor jiraAccessor;
+    private static JIRAAccessor jiraAccessor = new JIRAAccessor();
 
     private JIRAAccessor() {
     }
 
     public static JIRAAccessor getJiraAccessor() {
-        if (jiraAccessor == null) {
-            jiraAccessor = new JIRAAccessor();
-        }
         return jiraAccessor;
     }
 
@@ -88,7 +79,7 @@ public class JIRAAccessor {
     /**
      * Pages the JIRA response and returns an ArrayList of JIRAIssue objects.
      *
-     * @param urlToFilterResults  url to get JIRA results.
+     * @param urlToFilterResults url to get JIRA results.
      * @param totalJIRAs         Number of JIRA results returned by the filter.
      * @return ArrayList of JIRAIssues.
      * @throws PatchInformationException JIRA data not extracted successfully.
@@ -97,11 +88,12 @@ public class JIRAAccessor {
                                                      String authorizationValue) throws PatchInformationException {
 
         ArrayList<JIRAIssue> jiraIssues = new ArrayList<>();
-        for (int i = 0; i <= totalJIRAs / RESULTS_PER_PAGE; i++) { //paging the JIRAIssue response
+        for (int i = 0; i <= totalJIRAs / Constants.RESULTS_PER_PAGE; i++) { //paging the JIRAIssue response
             try {
                 String responseFromSplitSearchUrl = sendJIRARequest(new URL(urlToFilterResults +
-                        "&startAt=" + (i * RESULTS_PER_PAGE) + "&maxResults=" +
-                        (i + 1) * RESULTS_PER_PAGE + "&fields=key,assignee,created,status"), authorizationValue);
+                        "&startAt=" + (i * Constants.RESULTS_PER_PAGE) + "&maxResults=" +
+                        (i + 1) * Constants.RESULTS_PER_PAGE + "&fields=key,assignee,created,status"),
+                        authorizationValue);
                 JSONParser jsonParser = new JSONParser();
                 JSONObject jsonObjectFromSplitSearchURL = (JSONObject) jsonParser.parse(responseFromSplitSearchUrl);
 
@@ -115,7 +107,8 @@ public class JIRAAccessor {
                         //create new JIRAIssue
                         jiraIssues.add(new JIRAIssue(issueInJSON.get(Constants.JIRA_KEY).toString(),
                                 assigneeInJSON.get(Constants.EMAIL).toString(),
-                                fieldsInJSON.get(DATE_CREATED).toString(), statusInJSON.get(NAME).toString()));
+                                fieldsInJSON.get(Constants.DATE_CREATED).toString(),
+                                statusInJSON.get(Constants.NAME).toString()));
                     } catch (NullPointerException e) {
                         throw new ContentException("Failed to extract JIRA issue's field data", e);
                     }
@@ -144,7 +137,7 @@ public class JIRAAccessor {
             connection.setRequestProperty(Constants.AUTH, authorizationValue);
             connection.setRequestProperty(Constants.CONTENT, Constants.CONTENT_TYPE);
             connection.setRequestMethod(Constants.GET);
-            if (connection.getResponseCode() == OK) {
+            if (connection.getResponseCode() == Constants.OK) {
                 try (BufferedReader dataInputStream = new BufferedReader(
                         new InputStreamReader(connection.getInputStream(), Charset.defaultCharset()))) {
                     StringBuilder response = new StringBuilder();
