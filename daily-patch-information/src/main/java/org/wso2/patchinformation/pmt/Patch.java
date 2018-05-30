@@ -25,6 +25,10 @@ public class Patch implements HtmlTableRow {
         this.patchLCState = patchLCState;
     }
 
+    public Integer getDaysInState() {
+        return 0;
+    }
+
     String getName() {
         return name;
     }
@@ -33,7 +37,7 @@ public class Patch implements HtmlTableRow {
         return state;
     }
 
-    public String getPatchLCState() {
+    String getPatchLCState() {
         return this.patchLCState;
     }
 
@@ -41,7 +45,7 @@ public class Patch implements HtmlTableRow {
         return jiraLink;
     }
 
-    public String getProductName() {
+    String getProductName() {
         return productName;
     }
 

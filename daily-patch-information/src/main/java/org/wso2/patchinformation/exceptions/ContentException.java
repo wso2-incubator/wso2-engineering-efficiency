@@ -16,5 +16,3 @@ public class ContentException extends PatchInformationException {
         super(message, cause);
     }
 }
-
-

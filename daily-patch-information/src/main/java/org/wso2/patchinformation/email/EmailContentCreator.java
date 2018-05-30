@@ -17,12 +17,10 @@
 //
 package org.wso2.patchinformation.email;
 
-import org.wso2.patchinformation.comparators.DateCompatator;
-import org.wso2.patchinformation.comparators.PatchChainedComparator;
-import org.wso2.patchinformation.comparators.ProductNameComparator;
+import org.wso2.patchinformation.comparators.DaysInStateComparator;
+import org.wso2.patchinformation.comparators.JIRADateComparator;
 import org.wso2.patchinformation.comparators.ReleasedReportDateComparator;
 import org.wso2.patchinformation.comparators.ReportDateComparator;
-import org.wso2.patchinformation.comparators.StateNameComparator;
 import org.wso2.patchinformation.constants.Constants;
 import org.wso2.patchinformation.jira.JIRAIssue;
 import org.wso2.patchinformation.pmt.InactivePatch;
@@ -39,7 +37,6 @@ import static org.wso2.patchinformation.constants.EmailConstants.COLUMN_NAMES_SU
 import static org.wso2.patchinformation.constants.EmailConstants.EMAIL_FOOTER;
 import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_DEV;
 import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_INACTIVE;
-import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_QUEUE;
 import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_RELEASED;
 import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_SIGNING;
 import static org.wso2.patchinformation.constants.EmailConstants.SECTION_HEADER_SUMMARY;
@@ -71,24 +68,21 @@ public class EmailContentCreator {
     public String getEmailBody(ArrayList<JIRAIssue> jiraIssues, String emailHeader) {
 
         String emailBody = emailHeader;
-        emailBody += getSummeryTable(jiraIssues);
-        ArrayList<Patch> inactivePatches = new ArrayList<>(getAllInactivePatches(jiraIssues));
-        emailBody += getStateTable(SECTION_HEADER_INACTIVE, COLUMN_NAMES_INACTIVE, "Jira Create Date",
-                inactivePatches);
 
         ArrayList<Patch> openPatches = new ArrayList<>(getAllOpenPatches(jiraIssues));
-        ArrayList<Patch> patchesInQueue = new ArrayList<>();
         ArrayList<Patch> patchesInDev = new ArrayList<>();
         ArrayList<Patch> patchesInSigning = new ArrayList<>();
-        assignPatchesToStates(openPatches, patchesInQueue, patchesInSigning, patchesInDev);
-        emailBody += getStateTable(SECTION_HEADER_QUEUE, COLUMN_NAMES, "Work Days In Queue",
-                patchesInQueue);
-        emailBody += getStateTable(SECTION_HEADER_DEV, COLUMN_NAMES_DEV, "Work Days In Dev",
+        assignPatchesToStates(openPatches, patchesInSigning, patchesInDev);
+
+        emailBody += getStateTable(SECTION_HEADER_DEV, COLUMN_NAMES_DEV, "Work Days Since Report Date",
                 patchesInDev);
+        ArrayList<Patch> inactivePatches = new ArrayList<>(getAllInactivePatches(jiraIssues));
+        emailBody += getStateTable(SECTION_HEADER_INACTIVE, COLUMN_NAMES_INACTIVE, "JIRA Create Date",
+                inactivePatches);
         emailBody += getStateTable(SECTION_HEADER_SIGNING, COLUMN_NAMES, "Work Days In Signing",
                 patchesInSigning);
-
         emailBody += getReleasedTable(jiraIssues);
+        emailBody += getSummeryTable(jiraIssues);
         emailBody += EMAIL_FOOTER;
         return emailBody;
     }
@@ -110,7 +104,6 @@ public class EmailContentCreator {
         return table;
     }
 
-
     /**
      * Returns an ArrayList of all inactive patches.
      *
@@ -125,7 +118,7 @@ public class EmailContentCreator {
                 inactivePatches.addAll(jiraIssue.getInactivePatches());
             }
         }
-        inactivePatches.sort(new DateCompatator());
+        inactivePatches.sort(new JIRADateComparator());
         return inactivePatches;
     }
 
@@ -149,8 +142,8 @@ public class EmailContentCreator {
      *
      * @param openPatches ArrayList of all patches to be recorded.
      */
-    private void assignPatchesToStates(ArrayList<Patch> openPatches, ArrayList<Patch> patchesInQueue,
-                                       ArrayList<Patch> patchesInSigning, ArrayList<Patch> patchesInDevelopment) {
+    private void assignPatchesToStates(ArrayList<Patch> openPatches, ArrayList<Patch> patchesInSigning,
+                                       ArrayList<Patch> patchesInDevelopment) {
 
         for (Patch openPatch : openPatches) {
             switch (openPatch.getState()) {
@@ -158,13 +151,15 @@ public class EmailContentCreator {
                     patchesInDevelopment.add(openPatch);
                     break;
                 case IN_PATCH_QUEUE:
-                    patchesInQueue.add(openPatch);
+                    patchesInDevelopment.add(openPatch);
                     break;
                 case IN_SIGNING:
                     patchesInSigning.add(openPatch);
                     break;
             }
         }
+        patchesInDevelopment.sort(new DaysInStateComparator());
+        patchesInSigning.sort(new DaysInStateComparator());
     }
 
     /**
@@ -178,9 +173,7 @@ public class EmailContentCreator {
     private String getStateTable(String header, String columnNames, String dateColumnName, ArrayList<Patch> patches) {
 
         String table = header + columnNames + dateColumnName + "</td></tr>";
-        if (!SECTION_HEADER_INACTIVE.equals(header)) {
-            patches.sort(new PatchChainedComparator(new ProductNameComparator(), new StateNameComparator()));
-        }
+
         ArrayList<HtmlTableRow> patchesToHtml = new ArrayList<>(patches);
         table += getTableRows(patchesToHtml);
         table += "</table>";
@@ -273,8 +266,3 @@ public class EmailContentCreator {
     }
 
 }
-
-
-
-
-

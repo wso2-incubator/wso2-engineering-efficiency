@@ -26,4 +26,3 @@ public class PatchInformationException extends Exception {
         super(message);
     }
 }
-

@@ -15,20 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 package org.wso2.patchinformation.comparators;
 
 import org.wso2.patchinformation.pmt.Patch;
 
 import java.io.Serializable;
 import java.util.Comparator;
-
 /**
- * Implements the Comparator class to order objects of the OpenPatch class by it's "productName" attribute.
+ * Implements the Comparator class to order objects of the Patch class by it's "days in state" attribute.
  */
-public class ProductNameComparator implements Comparator<Patch>, Serializable {
+public class DaysInStateComparator implements Comparator<Patch>, Serializable {
 
-    public int compare(Patch p1, Patch p2) {
-        return p1.getProductName().compareTo(p2.getProductName());
+    public int compare(Patch patch1, Patch patch2) {
+        return patch2.getDaysInState().compareTo(patch1.getDaysInState());
     }
 }

@@ -52,7 +52,7 @@ import static org.wso2.patchinformation.constants.Constants.State;
 import static org.wso2.patchinformation.constants.Constants.TESTING;
 
 /**
- * Accesses the PMTDB and queries it to get the JIRA issues that have a corresponding entry in the pmt and then
+ * Accesses the PMT and queries it to get the JIRA issues that have a corresponding entry in the pmt and then
  * gets the patch information for each of the JIRA issues.
  */
 public class PmtAccessor {
@@ -194,7 +194,7 @@ public class PmtAccessor {
                 if (!ON_HOLD.equals(lcState)) {
                     if (((STAGING.equals(lcState)) && (signRequestSentOn != null) ||
                             (TESTING.equals(lcState)) && (signRequestSentOn != null))) {
-                        //Patch is in signing
+                        //Patch is in signing.
                         String daysInSigning = result.getString("DAYS_IN_SIGNING");
                         jiraIssue.addOpenPatch(new OpenPatch(jiraLink, patchName, productName, assignee,
                                 State.IN_SIGNING, "InSigning", daysInSigning), curReportDate);
@@ -233,8 +233,8 @@ public class PmtAccessor {
                             lcState, jiraIssue.getJiraCreateDate(), jiraIssue.getJiraState()));
                 }
             } else if (IN_QUEUE.equals(active)) {
-                jiraIssue.addOpenPatch(new OpenPatch(jiraLink, "Patch ID Not Generated", productName,
-                                assignee, State.IN_PATCH_QUEUE, "InQueue", daysSincePatchWasReported),
+                jiraIssue.addOpenPatch(new DevOpenPatch(jiraLink, "Patch ID Not Generated", productName,
+                                assignee, State.IN_PATCH_QUEUE, "InQueue", curReportDate, daysSincePatchWasReported),
                         curReportDate);
             } else {
                 //Not gone forward with Patch
@@ -245,4 +245,3 @@ public class PmtAccessor {
         }
     }
 }
-

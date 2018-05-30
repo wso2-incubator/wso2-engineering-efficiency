@@ -26,5 +26,3 @@ public class ConnectionException extends PatchInformationException {
         super(message);
     }
 }
-
-

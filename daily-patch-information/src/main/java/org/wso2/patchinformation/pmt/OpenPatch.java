@@ -27,15 +27,16 @@ public class OpenPatch extends Patch implements HtmlTableRow {
 
     private String daysInState;
 
-    public OpenPatch(String jiraLink, String name, String productName, String assignee, Constants.State state,
-                     String patchLCState, String daysInState) {
+    OpenPatch(String jiraLink, String name, String productName, String assignee, Constants.State state,
+              String patchLCState, String daysInState) {
         super(jiraLink, name, productName, assignee, state, patchLCState);
         this.daysInState = daysInState;
     }
 
 
-    String getDaysInState() {
-        return daysInState;
+    @Override
+    public Integer getDaysInState() {
+        return Integer.parseInt(daysInState);
     }
 
     /**
@@ -66,5 +67,3 @@ public class OpenPatch extends Patch implements HtmlTableRow {
                 daysInState;
     }
 }
-
-

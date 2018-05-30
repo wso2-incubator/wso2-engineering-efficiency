@@ -224,8 +224,6 @@ public final class EmailConstants {
     public static final String SECTION_HEADER_INACTIVE = "<br><p align=\"center\"style=\"font-size: 20px; " +
             "font-weight: 600; line-height: 26px; color: #000000;\">JIRAs Tagged with Patch Label Having No Ongoing " +
             "Patches</p>";
-    public static final String SECTION_HEADER_QUEUE = "<br><p align=\"center\"style=\"font-size: 20px; " +
-            "font-weight: 600; line-height: 26px; color: #000000;\">New Patches in Queue</p>";
     public static final String SECTION_HEADER_DEV = "<br><p align=\"center\"style=\"font-size: 20px; " +
             "font-weight: 600; line-height: 26px; color: #000000;\">Patches in Development</p>";
     public static final String SECTION_HEADER_SIGNING = "<br><p align=\"center\"style=\"font-size: 20px;" +

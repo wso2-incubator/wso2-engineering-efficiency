@@ -170,14 +170,3 @@ public class JIRAAccessor {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
