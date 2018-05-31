@@ -17,27 +17,27 @@ under the License.
 
 package org.wso2.engineering.efficiency.patch.analysis.email;
 
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
 import org.wso2.engineering.efficiency.patch.analysis.jira.JIRAIssue;
 import org.wso2.engineering.efficiency.patch.analysis.jira.ReportDateComparator;
 import org.wso2.engineering.efficiency.patch.analysis.pmt.InactivePatch;
 import org.wso2.engineering.efficiency.patch.analysis.pmt.OpenPatch;
 import org.wso2.engineering.efficiency.patch.analysis.pmt.Patch;
+import org.wso2.engineering.efficiency.patch.analysis.util.Constants;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_DEV;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_INACTIVE;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_RELEASED;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.COLUMN_NAMES_SUMMARY;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.EMAIL_FOOTER;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_DEV;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_INACTIVE;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_RELEASED;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_SIGNING;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.Email.SECTION_HEADER_SUMMARY;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.COLUMN_NAMES;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.COLUMN_NAMES_DEV;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.COLUMN_NAMES_INACTIVE;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.COLUMN_NAMES_RELEASED;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.COLUMN_NAMES_SUMMARY;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.EMAIL_FOOTER;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.SECTION_HEADER_DEV;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.SECTION_HEADER_INACTIVE;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.SECTION_HEADER_RELEASED;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.SECTION_HEADER_SIGNING;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Email.SECTION_HEADER_SUMMARY;
 
 /**
  * Creates and returns the body of the email.
@@ -47,9 +47,11 @@ public class EmailContentCreator {
     private static EmailContentCreator emailContentCreator = new EmailContentCreator();
 
     private EmailContentCreator() {
+
     }
 
-    public static EmailContentCreator getEmailContentCreator() {
+    public static EmailContentCreator getInstance() {
+
         return emailContentCreator;
     }
 
@@ -150,7 +152,7 @@ public class EmailContentCreator {
                 case IN_SIGNING:
                     patchesInSigning.add(openPatch);
                     break;
-                 default:
+                default:
                     break;
             }
         }

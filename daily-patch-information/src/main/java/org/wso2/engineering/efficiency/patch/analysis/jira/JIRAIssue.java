@@ -17,16 +17,20 @@ under the License.
 
 package org.wso2.engineering.efficiency.patch.analysis.jira;
 
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
 import org.wso2.engineering.efficiency.patch.analysis.email.HtmlTableRow;
 import org.wso2.engineering.efficiency.patch.analysis.pmt.InactivePatch;
 import org.wso2.engineering.efficiency.patch.analysis.pmt.OpenPatch;
+import org.wso2.engineering.efficiency.patch.analysis.util.State;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.NOT_SPECIFIED;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.JIRA_URL_PREFIX;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.NO_ENTRY_IN_PMT;
 
 /**
  * Represents a JIRA Issue.
@@ -44,11 +48,10 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
     private String reportDate; //oldest of all the patches associated with the JIRA
     private String reportDateReleasedPatches; //oldest of all the released patches associated with the JIRA
 
-
     JIRAIssue(String jiraName, String assignee, String jiraCreateDate, String jiraState) {
 
         this.name = jiraName;
-        this.jiraLink = Constants.JIRA_URL_PREFIX + jiraName;
+        this.jiraLink = JIRA_URL_PREFIX + jiraName;
         this.assignee = assignee;
         this.jiraCreateDate = stripDate(jiraCreateDate);
         this.jiraState = jiraState;
@@ -56,8 +59,8 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
         this.openPatches = new ArrayList<>();
         this.releasedPatches = new ArrayList<>();
         this.inactivePatches = new ArrayList<>();
-        this.reportDate = Constants.NO_ENTRY_IN_PMT;
-        this.reportDateReleasedPatches = Constants.NO_ENTRY_IN_PMT;
+        this.reportDate = NO_ENTRY_IN_PMT;
+        this.reportDateReleasedPatches = NO_ENTRY_IN_PMT;
     }
 
     /**
@@ -84,15 +87,18 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
     }
 
     public String getJiraState() {
+
         return jiraState;
     }
 
     private String getReportDate() {
+
         return reportDate;
     }
 
     public void setReportDate(String currentReportDate) {
-        if (Constants.NO_ENTRY_IN_PMT.equals(reportDate)) {
+
+        if (NO_ENTRY_IN_PMT.equals(reportDate)) {
             reportDate = currentReportDate;
         } else {
             reportDate = dateCompare(reportDate, currentReportDate);
@@ -100,40 +106,49 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
     }
 
     String getReportDateReleasedPatches() {
+
         return reportDateReleasedPatches;
     }
 
     public String getJiraCreateDate() {
+
         return jiraCreateDate;
     }
 
     public ArrayList<OpenPatch> getReleasedPatches() {
+
         return releasedPatches;
     }
 
     public ArrayList<OpenPatch> getOpenPatchesInJIRA() {
+
         return this.openPatches;
     }
 
     public ArrayList<InactivePatch> getInactivePatches() {
+
         return this.inactivePatches;
     }
 
     public String getName() {
+
         return name;
     }
 
     public String getAssignee() {
+
         return this.assignee;
     }
 
     public void addInactivePatch(InactivePatch patch) {
+
         this.inactivePatches.add(patch);
     }
 
     public void addOpenPatch(OpenPatch patch, String currentReportDate) {
+
         this.openPatches.add(patch);
-        if (patch.getState().equals(Constants.State.RELEASED)) {
+        if (patch.getState().equals(State.RELEASED)) {
             addReleasedPatches(patch, currentReportDate);
         }
     }
@@ -141,7 +156,7 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
     private void addReleasedPatches(OpenPatch patch, String currentReportDate) {
 
         this.releasedPatches.add(patch);
-        if (Constants.NO_ENTRY_IN_PMT.equals(reportDateReleasedPatches)) {
+        if (NO_ENTRY_IN_PMT.equals(reportDateReleasedPatches)) {
             reportDateReleasedPatches = currentReportDate;
         } else {
             reportDateReleasedPatches = dateCompare(reportDateReleasedPatches, currentReportDate);
@@ -201,8 +216,9 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
      * @return the date.
      */
     private String stripDate(String dateTime) {
+
         if (dateTime == null || !(dateTime.contains("T"))) {
-            return Constants.NOT_SPECIFIED;
+            return NOT_SPECIFIED;
         } else {
             String[] dateSplit = dateTime.split("T");
             return dateSplit[0];
@@ -211,11 +227,13 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
 
     @Override
     public int compareTo(JIRAIssue jiraIssue1) {
+
         return this.getReportDate().compareTo(jiraIssue1.getReportDate());
     }
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) {
             return true;
         }
@@ -237,6 +255,7 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
 
     @Override
     public int hashCode() {
+
         return Objects.hash(name, jiraLink, assignee, jiraCreateDate,
                 jiraState, openPatches, releasedPatches, inactivePatches, reportDate, reportDateReleasedPatches);
     }

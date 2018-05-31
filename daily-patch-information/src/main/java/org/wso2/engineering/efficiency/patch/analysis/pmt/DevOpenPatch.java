@@ -17,8 +17,8 @@ under the License.
 
 package org.wso2.engineering.efficiency.patch.analysis.pmt;
 
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
 import org.wso2.engineering.efficiency.patch.analysis.email.HtmlTableRow;
+import org.wso2.engineering.efficiency.patch.analysis.util.State;
 
 import java.util.Objects;
 
@@ -29,8 +29,9 @@ public class DevOpenPatch extends OpenPatch implements HtmlTableRow {
 
     private String reportDate;
 
-    DevOpenPatch(String url, String name, String productName, String assignee, Constants.State state,
+    DevOpenPatch(String url, String name, String productName, String assignee, State state,
                  String patchLCState, String reportDate, String daysInState) {
+
         super(url, name, productName, assignee, state, patchLCState, daysInState);
         this.reportDate = reportDate;
     }
@@ -50,7 +51,7 @@ public class DevOpenPatch extends OpenPatch implements HtmlTableRow {
                 getJiraLink();
 
         //add alert image
-        if (Constants.State.IN_PATCH_QUEUE.equals(getState())) {
+        if (State.IN_PATCH_QUEUE.equals(getState())) {
             tableBody += "<td width=\"" + "20%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                     " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; " +
                     "font-weight: 400; line-height: 20px; padding: 15px 10px 5px 10px;\"> " +
@@ -85,6 +86,7 @@ public class DevOpenPatch extends OpenPatch implements HtmlTableRow {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) {
             return true;
         }
@@ -100,6 +102,7 @@ public class DevOpenPatch extends OpenPatch implements HtmlTableRow {
 
     @Override
     public int hashCode() {
+
         return Objects.hash(super.hashCode(), reportDate);
     }
 }

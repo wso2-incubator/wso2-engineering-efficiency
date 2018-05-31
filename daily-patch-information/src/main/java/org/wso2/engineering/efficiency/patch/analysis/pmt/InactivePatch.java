@@ -17,8 +17,8 @@ under the License.
 
 package org.wso2.engineering.efficiency.patch.analysis.pmt;
 
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
 import org.wso2.engineering.efficiency.patch.analysis.email.HtmlTableRow;
+import org.wso2.engineering.efficiency.patch.analysis.util.State;
 
 import java.util.Objects;
 
@@ -33,17 +33,20 @@ public class InactivePatch extends Patch implements HtmlTableRow, Comparable<Ina
 
     InactivePatch(String jiraLink, String name, String productName, String assignee,
                   String patchLCState, String jiraCreateDate, String jiraState) {
-        super(jiraLink, name, productName, assignee, Constants.State.INACTIVE, patchLCState);
+
+        super(jiraLink, name, productName, assignee, State.INACTIVE, patchLCState);
         this.jiraCreateDate = jiraCreateDate;
         this.jiraState = jiraState;
     }
 
     @Override
     public int compareTo(InactivePatch patch1) {
+
         return this.getJiraCreateDate().compareTo(patch1.getJiraCreateDate());
     }
 
     private String getJiraCreateDate() {
+
         return jiraCreateDate;
     }
 
@@ -82,6 +85,7 @@ public class InactivePatch extends Patch implements HtmlTableRow, Comparable<Ina
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) {
             return true;
         }
@@ -95,6 +99,7 @@ public class InactivePatch extends Patch implements HtmlTableRow, Comparable<Ina
 
     @Override
     public int hashCode() {
+
         return Objects.hash(jiraCreateDate, jiraState);
     }
 }

@@ -14,12 +14,11 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
-package org.wso2.engineering.efficiency.patch.analysis.email;
+package org.wso2.engineering.efficiency.patch.analysis.util;
 
 /**
- * Interface that ensures that objects that implement this have a method that returns the object's data as an HTML
- * table row
+ * States associated with tables in email.
  */
-public interface HtmlTableRow {
-    String objectToHTML(String backgroundColor);
+public enum State {
+    IN_DEV, IN_PATCH_QUEUE, IN_SIGNING, RELEASED, INACTIVE
 }

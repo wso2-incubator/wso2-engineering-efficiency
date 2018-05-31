@@ -17,8 +17,8 @@ under the License.
 
 package org.wso2.engineering.efficiency.patch.analysis.pmt;
 
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
 import org.wso2.engineering.efficiency.patch.analysis.email.HtmlTableRow;
+import org.wso2.engineering.efficiency.patch.analysis.util.State;
 
 /**
  * A patch associated with a JIRA issue
@@ -29,11 +29,12 @@ public class Patch implements HtmlTableRow {
     private String name;
     private String productName;
     private String assignee;
-    private Constants.State state;
+    private State state;
     private String patchLCState;
 
-    Patch(String jiraLink, String name, String productName, String assignee, Constants.State state,
+    Patch(String jiraLink, String name, String productName, String assignee, State state,
           String patchLCState) {
+
         this.jiraLink = jiraLink;
         this.name = name;
         this.productName = productName;
@@ -43,35 +44,43 @@ public class Patch implements HtmlTableRow {
     }
 
     public Integer getDaysInState() {
+
         return 0;
     }
 
     String getName() {
+
         return name;
     }
 
-    public Constants.State getState() {
+    public State getState() {
+
         return state;
     }
 
     String getPatchLCState() {
+
         return this.patchLCState;
     }
 
     String getJiraLink() {
+
         return jiraLink;
     }
 
     String getProductName() {
+
         return productName;
     }
 
     String getAssignee() {
+
         return assignee;
     }
 
     @Override
     public String objectToHTML(String backgroundColor) {
+
         return null;
     }
 }

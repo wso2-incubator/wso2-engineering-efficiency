@@ -19,7 +19,7 @@ package org.wso2.engineering.efficiency.patch.analysis.exceptions;
 /**
  * Exceptions that occur while trying to make a connection
  */
-public class ConnectionException extends PatchInformationException {
+public class ConnectionException extends PatchAnalysisException {
 
     /**
      * Constructs an Exception with the specified detail message

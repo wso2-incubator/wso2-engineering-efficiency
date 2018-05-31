@@ -20,10 +20,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
-import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchInformationException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,6 +34,23 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import javax.net.ssl.HttpsURLConnection;
 
+import static com.google.api.client.http.HttpMethods.GET;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.ASSIGNEE;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.AUTH;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.CONTENT;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.CONTENT_TYPE;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.DATE_CREATED;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.EMAIL;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.FIELDS;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.ISSUES;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.JIRA_KEY;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.NAME;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.OK;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.RESULTS_PER_PAGE;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.SEARCH_URL;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.STATUS;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.TOTAL;
+
 /**
  * Connects to JIRAIssue and extracts the data returned from the filter.
  */
@@ -45,7 +61,7 @@ public class JIRAAccessor {
     private JIRAAccessor() {
     }
 
-    public static JIRAAccessor getJiraAccessor() {
+    public static JIRAAccessor getInstance() {
         return jiraAccessor;
     }
 
@@ -54,20 +70,20 @@ public class JIRAAccessor {
      *
      * @param jiraFilter url to JIRA filter results.
      * @return ArrayList of JIRA Issues.
-     * @throws PatchInformationException JIRAs not extracted successfully.
+     * @throws PatchAnalysisException JIRAs not extracted successfully.
      */
     public ArrayList<JIRAIssue> getIssues(String jiraFilter, String authorizationValue) throws
-            PatchInformationException {
+            PatchAnalysisException {
 
         try {
             String jiraResponse = sendJIRARequest(new URL(jiraFilter), authorizationValue);
             JSONParser jsonParser = new JSONParser();
             JSONObject jiraResponseInJson = (JSONObject) jsonParser.parse(jiraResponse);
             //get results from search URL and parse into Json
-            String urlToFilterResults = jiraResponseInJson.get(Constants.SEARCH_URL).toString();
+            String urlToFilterResults = jiraResponseInJson.get(SEARCH_URL).toString();
             String responseFromSearchUrl = sendJIRARequest(new URL(urlToFilterResults), authorizationValue);
             JSONObject responseFromSearchUrlInJson = (JSONObject) jsonParser.parse(responseFromSearchUrl);
-            int totalJIRAs = Integer.parseInt(responseFromSearchUrlInJson.get(Constants.TOTAL).toString());
+            int totalJIRAs = Integer.parseInt(responseFromSearchUrlInJson.get(TOTAL).toString());
             return getIssuesFromFilter(urlToFilterResults, totalJIRAs, authorizationValue);
         } catch (MalformedURLException e) {
             throw new ConnectionException("Url defined to access JIRA is malformed", e);
@@ -82,33 +98,33 @@ public class JIRAAccessor {
      * @param urlToFilterResults url to get JIRA results.
      * @param totalJIRAs         Number of JIRA results returned by the filter.
      * @return ArrayList of JIRAIssues.
-     * @throws PatchInformationException JIRA data not extracted successfully.
+     * @throws PatchAnalysisException JIRA data not extracted successfully.
      */
     private ArrayList<JIRAIssue> getIssuesFromFilter(String urlToFilterResults, int totalJIRAs,
-                                                     String authorizationValue) throws PatchInformationException {
+                                                     String authorizationValue) throws PatchAnalysisException {
 
         ArrayList<JIRAIssue> jiraIssues = new ArrayList<>();
-        for (int i = 0; i <= totalJIRAs / Constants.RESULTS_PER_PAGE; i++) { //paging the JIRAIssue response
+        for (int i = 0; i <= totalJIRAs / RESULTS_PER_PAGE; i++) { //paging the JIRAIssue response
             try {
                 String responseFromSplitSearchUrl = sendJIRARequest(new URL(urlToFilterResults +
-                        "&startAt=" + (i * Constants.RESULTS_PER_PAGE) + "&maxResults=" +
-                        (i + 1) * Constants.RESULTS_PER_PAGE + "&fields=key,assignee,created,status"),
+                        "&startAt=" + (i * RESULTS_PER_PAGE) + "&maxResults=" +
+                        (i + 1) * RESULTS_PER_PAGE + "&fields=key,assignee,created,status"),
                         authorizationValue);
                 JSONParser jsonParser = new JSONParser();
                 JSONObject jsonObjectFromSplitSearchURL = (JSONObject) jsonParser.parse(responseFromSplitSearchUrl);
 
-                JSONArray issues = (JSONArray) jsonObjectFromSplitSearchURL.get(Constants.ISSUES);
+                JSONArray issues = (JSONArray) jsonObjectFromSplitSearchURL.get(ISSUES);
                 for (Object issue : issues) {
                     try {
                         JSONObject issueInJSON = (JSONObject) issue;
-                        JSONObject fieldsInJSON = (JSONObject) issueInJSON.get(Constants.FIELDS);
-                        JSONObject assigneeInJSON = (JSONObject) fieldsInJSON.get(Constants.ASSIGNEE);
-                        JSONObject statusInJSON = (JSONObject) fieldsInJSON.get(Constants.STATUS);
+                        JSONObject fieldsInJSON = (JSONObject) issueInJSON.get(FIELDS);
+                        JSONObject assigneeInJSON = (JSONObject) fieldsInJSON.get(ASSIGNEE);
+                        JSONObject statusInJSON = (JSONObject) fieldsInJSON.get(STATUS);
                         //create new JIRAIssue
-                        jiraIssues.add(new JIRAIssue(issueInJSON.get(Constants.JIRA_KEY).toString(),
-                                assigneeInJSON.get(Constants.EMAIL).toString(),
-                                fieldsInJSON.get(Constants.DATE_CREATED).toString(),
-                                statusInJSON.get(Constants.NAME).toString()));
+                        jiraIssues.add(new JIRAIssue(issueInJSON.get(JIRA_KEY).toString(),
+                                assigneeInJSON.get(EMAIL).toString(),
+                                fieldsInJSON.get(DATE_CREATED).toString(),
+                                statusInJSON.get(NAME).toString()));
                     } catch (NullPointerException e) {
                         throw new ContentException("Failed to extract JIRA issue's field data", e);
                     }
@@ -127,17 +143,17 @@ public class JIRAAccessor {
      *
      * @param url to which the http get request is sent.
      * @return http response as a String.
-     * @throws PatchInformationException Failed to connect to JIRA and return the http response as a String.
+     * @throws PatchAnalysisException Failed to connect to JIRA and return the http response as a String.
      */
-    private String sendJIRARequest(URL url, String authorizationValue) throws PatchInformationException {
+    private String sendJIRARequest(URL url, String authorizationValue) throws PatchAnalysisException {
 
         HttpURLConnection connection = null;
         try {
             connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestProperty(Constants.AUTH, authorizationValue);
-            connection.setRequestProperty(Constants.CONTENT, Constants.CONTENT_TYPE);
-            connection.setRequestMethod(Constants.GET);
-            if (connection.getResponseCode() == Constants.OK) {
+            connection.setRequestProperty(AUTH, authorizationValue);
+            connection.setRequestProperty(CONTENT, CONTENT_TYPE);
+            connection.setRequestMethod(GET);
+            if (connection.getResponseCode() == OK) {
                 try (BufferedReader dataInputStream = new BufferedReader(
                         new InputStreamReader(connection.getInputStream(), Charset.defaultCharset()))) {
                     StringBuilder response = new StringBuilder();

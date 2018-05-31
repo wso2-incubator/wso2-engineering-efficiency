@@ -19,8 +19,9 @@ package org.wso2.engineering.efficiency.patch.analysis.pmt;
 
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
-import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchInformationException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisException;
 import org.wso2.engineering.efficiency.patch.analysis.jira.JIRAIssue;
+import org.wso2.engineering.efficiency.patch.analysis.util.State;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,40 +30,41 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.DEVELOPMENT;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.FAILED_QA;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.IN_QUEUE;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.JIRA_URL_PREFIX;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.JIRA_URL_PREFIX_LENGTH;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.NA;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.NOT_SPECIFIED;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.NO_ENTRY_IN_PMT;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.OFF_QUEUE;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.ON_HOLD;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.PRE_QA;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.READY_FOR_QA;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.RELEASED_LC;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.RELEASED_NOT_AUTOMATED;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.RELEASED_NOT_IN_PUBLIC_SVN;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.SELECT_PATCHES_FOR_JIRA;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.SELECT_SUPPORT_JIRAS;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.STAGING;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.SUPPORT_JIRA_URL;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.State;
-import static org.wso2.engineering.efficiency.patch.analysis.constants.Constants.TESTING;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.NOT_SPECIFIED;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.DEVELOPMENT;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.FAILED_QA;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.IN_QUEUE;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.JIRA_URL_PREFIX;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.JIRA_URL_PREFIX_LENGTH;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.NA;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.NO_ENTRY_IN_PMT;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.OFF_QUEUE;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.ON_HOLD;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.PRE_QA;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.READY_FOR_QA;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.RELEASED_LC;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.RELEASED_NOT_AUTOMATED;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.RELEASED_NOT_IN_PUBLIC_SVN;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.STAGING;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.SUPPORT_JIRA_URL;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.TESTING;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.SQLStatement.SELECT_PATCHES_FOR_JIRA;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.SQLStatement.SELECT_SUPPORT_JIRAS;
 
 /**
  * Accesses the PMT and queries it to get the JIRA issues that have a corresponding entry in the pmt and then
  * gets the patch information for each of the JIRA issues.
  */
-public class PmtAccessor {
+public class PMTAccessor {
 
-    private static PmtAccessor pmtAccessor = new PmtAccessor();
+    private static PMTAccessor pmtAccessor = new PMTAccessor();
 
-    private PmtAccessor() {
+    private PMTAccessor() {
+
     }
 
-    public static PmtAccessor getPmtAccessor() {
+    public static PMTAccessor getInstance() {
+
         return pmtAccessor;
     }
 
@@ -73,6 +75,7 @@ public class PmtAccessor {
      * @return Date.
      */
     private static String getDate(String dateAndTime) {
+
         if (dateAndTime == null || !(dateAndTime.contains(" "))) {
             return NOT_SPECIFIED;
         } else {
@@ -83,17 +86,18 @@ public class PmtAccessor {
 
     /**
      * Filters the JIRA issues so the JIRAS with a corresponding entry in the pmt are returned.
+     *
      * @param jiraIssues JIRA issues returned by the filter
-     * @param dbConnection PMT connection.
-     * @param userName PMT username.
-     * @param password PMT password.
+     * @param dbURL      PMT connection.
+     * @param userName   PMT username.
+     * @param password   PMT password.
      * @return JIRAS returned by the filter which are in the PMT.
-     * @throws PatchInformationException Could not access PMT and filter JIRA issues.
+     * @throws PatchAnalysisException Could not access PMT and filter JIRA issues.
      */
-    public ArrayList<JIRAIssue> filterJIRAIssues(ArrayList<JIRAIssue> jiraIssues, String dbConnection, String userName,
-                                                 String password) throws PatchInformationException {
+    public ArrayList<JIRAIssue> filterJIRAIssues(ArrayList<JIRAIssue> jiraIssues, String dbURL, String userName,
+                                                 String password) throws PatchAnalysisException {
 
-        try (Connection con = DriverManager.getConnection(dbConnection, userName, password);
+        try (Connection con = DriverManager.getConnection(dbURL, userName, password);
              PreparedStatement pst = con.prepareStatement(SELECT_SUPPORT_JIRAS);
              ResultSet result = pst.executeQuery()) {
             ArrayList<String> allJIRANamesInPmt = new ArrayList<>();
@@ -118,6 +122,7 @@ public class PmtAccessor {
      * @return the JIRA name.
      */
     private String getJiraName(String jiraUrl) {
+
         String jiraName = "";
         if (jiraUrl.length() >= JIRA_URL_PREFIX_LENGTH) {
             jiraName = jiraUrl.substring(JIRA_URL_PREFIX_LENGTH);
@@ -154,10 +159,10 @@ public class PmtAccessor {
      * @param pmtConnection          PMT connection .
      * @param user                   PMT username.
      * @param password               PMT password.
-     * @throws PatchInformationException Failed to get Patch information.
+     * @throws PatchAnalysisException Failed to get Patch information.
      */
     public void populatePatches(ArrayList<JIRAIssue> jiraIssuesInPmtAndJira, String pmtConnection, String user,
-                                String password) throws PatchInformationException {
+                                String password) throws PatchAnalysisException {
 
         try (Connection con = DriverManager.getConnection(pmtConnection, user, password)) {
             for (JIRAIssue jiraIssue : jiraIssuesInPmtAndJira) {

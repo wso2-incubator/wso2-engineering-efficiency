@@ -17,8 +17,8 @@ under the License.
 
 package org.wso2.engineering.efficiency.patch.analysis.pmt;
 
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
 import org.wso2.engineering.efficiency.patch.analysis.email.HtmlTableRow;
+import org.wso2.engineering.efficiency.patch.analysis.util.State;
 
 import java.util.Objects;
 
@@ -29,14 +29,16 @@ public class OpenPatch extends Patch implements HtmlTableRow, Comparable<OpenPat
 
     private String daysInState;
 
-    OpenPatch(String jiraLink, String name, String productName, String assignee, Constants.State state,
+    OpenPatch(String jiraLink, String name, String productName, String assignee, State state,
               String patchLCState, String daysInState) {
+
         super(jiraLink, name, productName, assignee, state, patchLCState);
         this.daysInState = daysInState;
     }
 
     @Override
     public Integer getDaysInState() {
+
         return Integer.parseInt(daysInState);
     }
 
@@ -71,11 +73,13 @@ public class OpenPatch extends Patch implements HtmlTableRow, Comparable<OpenPat
 
     @Override
     public int compareTo(OpenPatch patch1) {
+
         return patch1.getDaysInState().compareTo(this.getDaysInState());
     }
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) {
             return true;
         }
@@ -88,7 +92,7 @@ public class OpenPatch extends Patch implements HtmlTableRow, Comparable<OpenPat
 
     @Override
     public int hashCode() {
+
         return Objects.hash(daysInState);
     }
 }
-

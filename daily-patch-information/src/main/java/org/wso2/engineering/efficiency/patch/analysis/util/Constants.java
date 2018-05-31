@@ -14,7 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
-package org.wso2.engineering.efficiency.patch.analysis.constants;
+package org.wso2.engineering.efficiency.patch.analysis.util;
 
 import com.google.api.services.gmail.GmailScopes;
 
@@ -26,79 +26,96 @@ import java.util.List;
  * constant values.
  */
 public final class Constants {
-    // config file
-    public static final String CONFIG_FILE_PATH = "./config.properties";
-    public static final String DB_USERNAME = "dbUser";
-    public static final String DB_PASSWORD = "dbPassword";
-    public static final String PMT_CONNECTION = "pmtConnection";
-    public static final String JIRA_AUTHENTICATION = "JIRABasicAuth";
-    public static final String EMAIL_SENDER = "emailUser";
-    public static final String EMAIL_TO_LIST = "toList";
-    public static final String EMAIL_CC_LIST = "ccList";
-    public static final String URL_TO_JIRA_FILTER_CUSTOMER = "UrlToCustomerIssuesFilter";
-    public static final String URL_TO_JIRA_FILTER_INTERNAL = "UrlToInternalIssuesFilter";
 
     public static final String GRAY_BACKGROUND = "#efefef";
     public static final String WHITE_BACKGROUND = "#ffffff";
-
-    //SQL statements
-    public static final String SELECT_PATCHES_FOR_JIRA = "SELECT *, \n" +
-            "(5 * (DATEDIFF(CURDATE(), REPORT_DATE) DIV 7)+ MID('0123455401234434012332340122123401101234000123450'," +
-            "7 * WEEKDAY((REPORT_DATE)) + WEEKDAY(CURDATE()) + 1, 1)) AS DAYS_SINCE_REPORT,\n" +
-            "(5 *(DATEDIFF(CURDATE(),SIGN_REQUEST_SENT_ON) DIV 7)+" +
-            "MID('0123455401234434012332340122123401101234000123450'," +
-            "7 * WEEKDAY((SIGN_REQUEST_SENT_ON)) + WEEKDAY(CURDATE()) + 1, 1)) AS DAYS_IN_SIGNING FROM PATCH_ETA e " +
-            "RIGHT JOIN PATCH_QUEUE q ON e.PATCH_QUEUE_ID = q.ID\n" +
-            "where SUPPORT_JIRA like '%";
-    public static final String SELECT_SUPPORT_JIRAS = "SELECT SUPPORT_JIRA FROM PATCH_QUEUE\n" +
-            "WHERE YEAR(REPORT_DATE) > '2017';";
-
-    public static final String JIRA_URL_PREFIX = "https://support.wso2.com/jira/browse/";
-    public static final int JIRA_URL_PREFIX_LENGTH = 37;
-    public static final String NO_ENTRY_IN_PMT = "No Entry in PMT";
-    public static final String NA = "N/A";
-    //"active" on patch queue
-    public static final String OFF_QUEUE = "No";
-    public static final String IN_QUEUE = "Yes";
-    //LC States
-    public static final String STAGING = "Staging";
-    public static final String DEVELOPMENT = "Development";
-    public static final String TESTING = "Testing";
-    public static final String PRE_QA = "PreQADevelopment";
-    public static final String READY_FOR_QA = "ReadyForQA";
-    public static final String FAILED_QA = "FailedQA";
-    public static final String ON_HOLD = "OnHold";
-    public static final String RELEASED_LC = "Released";
-    public static final String RELEASED_NOT_AUTOMATED = "ReleasedNotAutomated";
-    public static final String RELEASED_NOT_IN_PUBLIC_SVN = "ReleasedNotInPublicSVN";
-    public static final String SUPPORT_JIRA_URL = "SUPPORT_JIRA";
-    //jira constants
-    public static final int RESULTS_PER_PAGE = 50;
-    public static final int OK = 200;
-    public static final String AUTH = "Authorization";
-    public static final String CONTENT = "Content-Type";
-    public static final String CONTENT_TYPE = "application/json; charset=UTF-8";
-    public static final String GET = "GET";
-    public static final String SEARCH_URL = "searchUrl";
-    public static final String TOTAL = "total";
-    public static final String ISSUES = "issues";
-    public static final String FIELDS = "fields";
-    public static final String ASSIGNEE = "assignee";
-    public static final String STATUS = "status";
-    public static final String DATE_CREATED = "created";
-    public static final String JIRA_KEY = "key";
-    public static final String EMAIL = "emailAddress";
-    public static final String NAME = "name";
-    public static final String NOT_SPECIFIED = "Not Specified";
 
     private Constants() {
     }
 
     /**
-     * States associated with tables in email.
+     * Configuration Constant values.
      */
-    public enum State {
-        IN_DEV, IN_PATCH_QUEUE, IN_SIGNING, RELEASED, INACTIVE
+    public static final class Configuration {
+
+        public static final String CONFIG_FILE_PATH = "./config.properties";
+        public static final String DB_USERNAME = "dbUser";
+        public static final String DB_PASSWORD = "dbPassword";
+        public static final String PMT_CONNECTION = "pmtConnection";
+        public static final String JIRA_AUTHENTICATION = "JIRABasicAuth";
+        public static final String EMAIL_SENDER = "emailUser";
+        public static final String EMAIL_TO_LIST = "toList";
+        public static final String EMAIL_CC_LIST = "ccList";
+        public static final String URL_TO_JIRA_FILTER_CUSTOMER = "UrlToCustomerIssuesFilter";
+        public static final String URL_TO_JIRA_FILTER_INTERNAL = "UrlToInternalIssuesFilter";
+    }
+
+    /**
+     * SQL Constant values.
+     */
+    public static final class SQLStatement {
+
+        public static final String SELECT_PATCHES_FOR_JIRA = "SELECT *, \n" +
+                "(5 * (DATEDIFF(CURDATE(), REPORT_DATE) DIV 7)+ " +
+                "MID('0123455401234434012332340122123401101234000123450'," +
+                "7 * WEEKDAY((REPORT_DATE)) + WEEKDAY(CURDATE()) + 1, 1)) AS DAYS_SINCE_REPORT,\n" +
+                "(5 *(DATEDIFF(CURDATE(),SIGN_REQUEST_SENT_ON) DIV 7)+" +
+                "MID('0123455401234434012332340122123401101234000123450'," +
+                "7 * WEEKDAY((SIGN_REQUEST_SENT_ON)) + WEEKDAY(CURDATE()) + 1, 1)) AS " +
+                "DAYS_IN_SIGNING FROM PATCH_ETA e " +
+                "RIGHT JOIN PATCH_QUEUE q ON e.PATCH_QUEUE_ID = q.ID\n" +
+                "where SUPPORT_JIRA like '%";
+
+        public static final String OR_JIRA = "OR SUPPORT_JIRA like '%";
+        public static final String SELECT_SUPPORT_JIRAS = "SELECT SUPPORT_JIRA FROM PATCH_QUEUE\n" +
+                "WHERE YEAR(REPORT_DATE) > '2017';";
+    }
+
+    /**
+     * PMT Constant values.
+     */
+    public static final class PMT {
+
+        public static final String JIRA_URL_PREFIX = "https://support.wso2.com/jira/browse/";
+        public static final int JIRA_URL_PREFIX_LENGTH = 37;
+        public static final String NO_ENTRY_IN_PMT = "No Entry in PMT";
+        public static final String NA = "N/A";
+        public static final String OFF_QUEUE = "No";
+        public static final String IN_QUEUE = "Yes";
+        public static final String STAGING = "Staging";
+        public static final String DEVELOPMENT = "Development";
+        public static final String TESTING = "Testing";
+        public static final String PRE_QA = "PreQADevelopment";
+        public static final String READY_FOR_QA = "ReadyForQA";
+        public static final String FAILED_QA = "FailedQA";
+        public static final String ON_HOLD = "OnHold";
+        public static final String RELEASED_LC = "Released";
+        public static final String RELEASED_NOT_AUTOMATED = "ReleasedNotAutomated";
+        public static final String RELEASED_NOT_IN_PUBLIC_SVN = "ReleasedNotInPublicSVN";
+        public static final String SUPPORT_JIRA_URL = "SUPPORT_JIRA";
+    }
+
+    /**
+     * JIRA constant values.
+     */
+    public static final class JIRA {
+
+        public static final int RESULTS_PER_PAGE = 50;
+        public static final int OK = 200;
+        public static final String AUTH = "Authorization";
+        public static final String CONTENT = "Content-Type";
+        public static final String CONTENT_TYPE = "application/json; charset=UTF-8";
+        public static final String SEARCH_URL = "searchUrl";
+        public static final String TOTAL = "total";
+        public static final String ISSUES = "issues";
+        public static final String FIELDS = "fields";
+        public static final String ASSIGNEE = "assignee";
+        public static final String STATUS = "status";
+        public static final String DATE_CREATED = "created";
+        public static final String JIRA_KEY = "key";
+        public static final String EMAIL = "emailAddress";
+        public static final String NAME = "name";
+        public static final String NOT_SPECIFIED = "Not Specified";
     }
 
     /**

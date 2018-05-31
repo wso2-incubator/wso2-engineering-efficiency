@@ -25,7 +25,6 @@
 target
 
 # Files
-*.log
 *.iml
 *.xml
 resources

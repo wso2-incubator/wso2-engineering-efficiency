@@ -28,11 +28,11 @@ import com.google.api.client.util.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
-import org.wso2.engineering.efficiency.patch.analysis.EmailsSender;
-import org.wso2.engineering.efficiency.patch.analysis.constants.Constants;
+import org.wso2.engineering.efficiency.patch.analysis.EmailSender;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
-import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchInformationException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisException;
+import org.wso2.engineering.efficiency.patch.analysis.util.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,17 +49,17 @@ import javax.mail.internet.MimeMessage;
 /**
  * Sends an email with the JIRA issues and associated patch information.
  */
-public class EmailSender {
+public class GmailAccessor {
 
-    private static EmailSender emailSender = new EmailSender();
+    private static GmailAccessor gmailAccessor = new GmailAccessor();
 
-    private EmailSender() {
+    private GmailAccessor() {
 
     }
 
-    public static EmailSender getEmailSender() {
+    public static GmailAccessor getInstance() {
 
-        return emailSender;
+        return gmailAccessor;
     }
 
     /**
@@ -71,7 +71,7 @@ public class EmailSender {
      */
     private Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
 
-        try (InputStream in = EmailsSender.class.getResourceAsStream(Constants.Email.CLIENT_SECRET_DIR)) {
+        try (InputStream in = EmailSender.class.getResourceAsStream(Constants.Email.CLIENT_SECRET_DIR)) {
             GoogleClientSecrets clientSecrets;
             clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new InputStreamReader(in,
                     Charset.defaultCharset()));
@@ -147,10 +147,10 @@ public class EmailSender {
      *
      * @param emailBody body of email.
      * @param subject   subject of the email.
-     * @throws PatchInformationException email was not sent.
+     * @throws PatchAnalysisException email was not sent.
      */
     public void sendMessage(String emailBody, String subject, String emailFrom, String emailTo, String emailCC)
-            throws PatchInformationException {
+            throws PatchAnalysisException {
 
         try {
             NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
