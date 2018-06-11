@@ -28,10 +28,10 @@ import com.google.api.client.util.Base64;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
-import org.wso2.engineering.efficiency.patch.analysis.EmailSender;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
-import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisDataException;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisException;
+import org.wso2.engineering.efficiency.patch.analysis.impl.SendEmailsServiceImpl;
 import org.wso2.engineering.efficiency.patch.analysis.util.Constants;
 
 import java.io.ByteArrayOutputStream;
@@ -71,7 +71,7 @@ public class GmailAccessor {
      */
     private Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
 
-        try (InputStream in = EmailSender.class.getResourceAsStream(Constants.Email.CLIENT_SECRET_DIR)) {
+        try (InputStream in = SendEmailsServiceImpl.class.getResourceAsStream(Constants.Email.CLIENT_SECRET_DIR)) {
             GoogleClientSecrets clientSecrets;
             clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new InputStreamReader(in,
                     Charset.defaultCharset()));
@@ -92,10 +92,10 @@ public class GmailAccessor {
      * @param subject  subject of the email.
      * @param bodyText body text of the email.
      * @return the MimeMessage to be used to send email.
-     * @throws ContentException email was not created.
+     * @throws PatchAnalysisDataException email was not created.
      */
     private MimeMessage createEmail(String subject, String bodyText, String emailFrom, String emailTo, String emailCC)
-            throws ContentException {
+            throws PatchAnalysisDataException {
 
         try {
             Properties props = new Properties();
@@ -116,7 +116,7 @@ public class GmailAccessor {
             email.setContent(bodyText, Constants.Email.EMAIL_TYPE);
             return email;
         } catch (MessagingException e) {
-            throw new ContentException("Failed to set up email", e);
+            throw new PatchAnalysisDataException("Failed to set up email", e);
         }
     }
 
@@ -125,15 +125,15 @@ public class GmailAccessor {
      *
      * @param emailContent email to be set to raw of message.
      * @return a message containing a base64url encoded email.
-     * @throws ContentException failed to create Message.
+     * @throws PatchAnalysisDataException failed to create Message.
      */
-    private Message createMessageWithEmail(MimeMessage emailContent) throws ContentException {
+    private Message createMessageWithEmail(MimeMessage emailContent) throws PatchAnalysisDataException {
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try {
             emailContent.writeTo(buffer);
         } catch (IOException | MessagingException e) {
-            throw new ContentException("Failed to extract email content from MimeMessage object", e);
+            throw new PatchAnalysisDataException("Failed to extract email content from MimeMessage object", e);
         }
         byte[] bytes = buffer.toByteArray();
         String encodedEmail = Base64.encodeBase64URLSafeString(bytes);

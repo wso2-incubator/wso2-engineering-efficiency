@@ -14,7 +14,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
-package org.wso2.engineering.efficiency.patch.analysis.configuration;
+package org.wso2.engineering.efficiency.patch.analysis;
+
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisConfigurationException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +27,9 @@ import java.util.Properties;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.CONFIG_FILE_PATH;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.DB_PASSWORD;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.DB_USERNAME;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.EEOP_CONNECTION;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.EEOP_PASSWORD;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.EEOP_USERNAME;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.EMAIL_CC_LIST;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.EMAIL_SENDER;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Configuration.EMAIL_TO_LIST;
@@ -39,8 +44,8 @@ import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.Conf
 public class Configuration {
 
     private static Configuration configuration;
-    private String dbUser;
-    private String dbPassword;
+    private String pmtUser;
+    private String pmtPassword;
     private String pmtConnection;
     private String jiraAuthentication;
     private String emailUser;
@@ -48,46 +53,75 @@ public class Configuration {
     private String ccList;
     private String urlToJIRAFilterCustomer;
     private String urlToJIRAFilterInternal;
+    private String dbUser;
+    private String dbPassword;
+    private String dbConnection;
 
-    private Configuration() throws IOException {
+    private Configuration() throws PatchAnalysisConfigurationException {
 
-        Properties prop = new Properties();
-        File file = new File(CONFIG_FILE_PATH);
-        InputStream propertyFile = new FileInputStream(file);
-        prop.load(propertyFile);
+        try {
+            Properties prop = new Properties();
+            File file = new File(CONFIG_FILE_PATH);
+            InputStream propertyFile = new FileInputStream(file);
+            prop.load(propertyFile);
+            this.pmtUser = prop.getProperty(DB_USERNAME);
+            this.pmtPassword = prop.getProperty(DB_PASSWORD);
+            this.pmtConnection = prop.getProperty(PMT_CONNECTION);
+            this.jiraAuthentication = prop.getProperty(JIRA_AUTHENTICATION);
+            this.emailUser = prop.getProperty(EMAIL_SENDER);
+            this.toList = prop.getProperty(EMAIL_TO_LIST);
+            this.ccList = prop.getProperty(EMAIL_CC_LIST);
+            this.urlToJIRAFilterCustomer = prop.getProperty(URL_TO_JIRA_FILTER_CUSTOMER);
+            this.urlToJIRAFilterInternal = prop.getProperty(URL_TO_JIRA_FILTER_INTERNAL);
+            this.dbUser = prop.getProperty(EEOP_USERNAME);
+            this.dbPassword = prop.getProperty(EEOP_PASSWORD);
+            this.dbConnection = prop.getProperty(EEOP_CONNECTION);
+        } catch (IOException e) {
+            throw new PatchAnalysisConfigurationException("Could not read values from Properties file", e);
+        }
 
-        this.dbUser = prop.getProperty(DB_USERNAME);
-        this.dbPassword = prop.getProperty(DB_PASSWORD);
-        this.pmtConnection = prop.getProperty(PMT_CONNECTION);
-        this.jiraAuthentication = prop.getProperty(JIRA_AUTHENTICATION);
-        this.emailUser = prop.getProperty(EMAIL_SENDER);
-        this.toList = prop.getProperty(EMAIL_TO_LIST);
-        this.ccList = prop.getProperty(EMAIL_CC_LIST);
-        this.urlToJIRAFilterCustomer = prop.getProperty(URL_TO_JIRA_FILTER_CUSTOMER);
-        this.urlToJIRAFilterInternal = prop.getProperty(URL_TO_JIRA_FILTER_INTERNAL);
     }
 
-    public static Configuration getInstance() throws IOException {
+    public static Configuration getInstance() throws PatchAnalysisConfigurationException {
 
         if (configuration == null) {
-            configuration = new Configuration();
+            synchronized (Configuration.class) {
+                if (configuration == null) {
+                    configuration = new Configuration();
+                }
+            }
         }
         return configuration;
     }
 
-    public String getDbUser() {
+    public String getPmtUser() {
 
-        return dbUser;
+        return pmtUser;
     }
 
-    public String getDbPassword() {
+   public String getPmtPassword() {
 
-        return dbPassword;
+        return pmtPassword;
     }
 
     public String getPmtConnection() {
 
         return pmtConnection;
+    }
+
+    public String getEEOPUser() {
+
+        return dbUser;
+    }
+
+    public String getEEOPPassword() {
+
+        return dbPassword;
+    }
+
+    public String getEEOPConnection() {
+
+        return dbConnection;
     }
 
     public String getJiraAuthentication() {

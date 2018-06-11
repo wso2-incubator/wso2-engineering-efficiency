@@ -23,31 +23,23 @@ import org.wso2.engineering.efficiency.patch.analysis.util.State;
 import java.util.Objects;
 
 /**
- * A patch which is onhold, broken, in regression, has no entry in the pmt, has an entry in PATCH_QUEUE table but not
- * in PATCH_ETA (Patches with "state" set to [reason for not going forward with the Patch]
+ * Represents a PMT Open Patch - Patches that are not on hold, in regression or broken.
  */
-public class InactivePatch extends Patch implements HtmlTableRow, Comparable<InactivePatch> {
+public class OpenPatch extends Patch implements HtmlTableRow, Comparable<OpenPatch> {
 
-    private String jiraCreateDate;
-    private String jiraState;
+    private String daysInState;
 
-    InactivePatch(String jiraLink, String name, String productName, String assignee,
-                  String patchLCState, String jiraCreateDate, String jiraState) {
+    OpenPatch(String jiraLink, String name, String productName, String assignee, State state,
+              String patchLCState, String daysInState, String patchQueueId, String reportDate) {
 
-        super(jiraLink, name, productName, assignee, State.INACTIVE, patchLCState);
-        this.jiraCreateDate = jiraCreateDate;
-        this.jiraState = jiraState;
+        super(jiraLink, name, productName, assignee, state, patchLCState, patchQueueId, reportDate);
+        this.daysInState = daysInState;
     }
 
     @Override
-    public int compareTo(InactivePatch patch1) {
+    public Integer getDaysInState() {
 
-        return this.getJiraCreateDate().compareTo(patch1.getJiraCreateDate());
-    }
-
-    private String getJiraCreateDate() {
-
-        return jiraCreateDate;
+        return Integer.parseInt(daysInState);
     }
 
     /**
@@ -56,31 +48,33 @@ public class InactivePatch extends Patch implements HtmlTableRow, Comparable<Ina
      * @param backgroundColor of table row.
      * @return Returns the HTML code for a table row.
      */
-    @Override
     public String objectToHTML(String backgroundColor) {
 
-        return "<tr><td width=\"" + "15%" + "\" align=\"left\" bgcolor=" + backgroundColor +
+        return "<tr><td width=\"" + "30%" + "\" align=\"left\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px;" +
                 " font-weight: 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                getJiraLink() + "<td width=\"" + "10%" + "\" align=\"center\" bgcolor=" + backgroundColor +
+                getJiraLink() + "<td width=\"" + "20%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; " +
                 "font-weight: 400;  line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                getName() + "<td width=\"" + "10%" + "\" align=\"center\" bgcolor=" + backgroundColor +
+                getName() + "<td width=\"" + "15%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; " +
                 "font-weight: 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
                 getProductName() + "<td width=\"" + "10%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:" +
                 " 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                getAssignee() + "<td width=\"" + "7%" + "\" align=\"center\" bgcolor=" + backgroundColor +
-                " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; " +
-                "font-weight: 400;  line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                jiraState + "<td width=\"" + "7%" + "\" align=\"center\" bgcolor=" + backgroundColor +
+                getAssignee() + "<td width=\"" + "10%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; " +
                 "font-weight: 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                getPatchLCState() + "<td width=\"" + "7%" + "\" align=\"center\" bgcolor=" + backgroundColor +
+                getPatchLCState() + "<td width=\"" + "15%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; " +
                 "font-weight: 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                jiraCreateDate;
+                daysInState;
+    }
+
+    @Override
+    public int compareTo(OpenPatch patch1) {
+
+        return patch1.getDaysInState().compareTo(this.getDaysInState());
     }
 
     @Override
@@ -92,14 +86,13 @@ public class InactivePatch extends Patch implements HtmlTableRow, Comparable<Ina
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InactivePatch that = (InactivePatch) o;
-        return Objects.equals(jiraCreateDate, that.jiraCreateDate) &&
-                Objects.equals(jiraState, that.jiraState);
+        OpenPatch openPatch = (OpenPatch) o;
+        return Objects.equals(daysInState, openPatch.daysInState);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(jiraCreateDate, jiraState);
+        return Objects.hash(daysInState);
     }
 }

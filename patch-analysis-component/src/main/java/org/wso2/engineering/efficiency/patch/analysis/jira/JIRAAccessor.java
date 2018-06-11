@@ -21,7 +21,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.ConnectionException;
-import org.wso2.engineering.efficiency.patch.analysis.exceptions.ContentException;
+import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisDataException;
 import org.wso2.engineering.efficiency.patch.analysis.exceptions.PatchAnalysisException;
 
 import java.io.BufferedReader;
@@ -59,9 +59,11 @@ public class JIRAAccessor {
     private static JIRAAccessor jiraAccessor = new JIRAAccessor();
 
     private JIRAAccessor() {
+
     }
 
     public static JIRAAccessor getInstance() {
+
         return jiraAccessor;
     }
 
@@ -88,7 +90,7 @@ public class JIRAAccessor {
         } catch (MalformedURLException e) {
             throw new ConnectionException("Url defined to access JIRA is malformed", e);
         } catch (ParseException e) {
-            throw new ContentException("Failed to parse JIRA response String to Json", e);
+            throw new PatchAnalysisDataException("Failed to parse JIRA response String to Json", e);
         }
     }
 
@@ -107,8 +109,8 @@ public class JIRAAccessor {
         for (int i = 0; i <= totalJIRAs / RESULTS_PER_PAGE; i++) { //paging the JIRAIssue response
             try {
                 String responseFromSplitSearchUrl = sendJIRARequest(new URL(urlToFilterResults +
-                        "&startAt=" + (i * RESULTS_PER_PAGE) + "&maxResults=" +
-                        (i + 1) * RESULTS_PER_PAGE + "&fields=key,assignee,created,status"),
+                                "&startAt=" + (i * RESULTS_PER_PAGE) + "&maxResults=" +
+                                (i + 1) * RESULTS_PER_PAGE + "&fields=key,assignee,created,status"),
                         authorizationValue);
                 JSONParser jsonParser = new JSONParser();
                 JSONObject jsonObjectFromSplitSearchURL = (JSONObject) jsonParser.parse(responseFromSplitSearchUrl);
@@ -126,13 +128,13 @@ public class JIRAAccessor {
                                 fieldsInJSON.get(DATE_CREATED).toString(),
                                 statusInJSON.get(NAME).toString()));
                     } catch (NullPointerException e) {
-                        throw new ContentException("Failed to extract JIRA issue's field data", e);
+                        throw new PatchAnalysisDataException("Failed to extract JIRA issue's field data", e);
                     }
                 }
             } catch (MalformedURLException e) {
                 throw new ConnectionException("Url defined to access JIRA is malformed", e);
             } catch (ParseException e) {
-                throw new ContentException("Failed to parse JIRA response string to Json", e);
+                throw new PatchAnalysisDataException("Failed to parse JIRA response string to Json", e);
             }
         }
         return jiraIssues;
@@ -163,7 +165,7 @@ public class JIRAAccessor {
                     }
                     return response.toString();
                 } catch (IOException e) {
-                    throw new ContentException("Failed to read from JIRA Response Stream", e);
+                    throw new PatchAnalysisDataException("Failed to read from JIRA Response Stream", e);
                 }
             } else {
                 String errorMessage = "Failed to get expected JIRA response, response code: " +

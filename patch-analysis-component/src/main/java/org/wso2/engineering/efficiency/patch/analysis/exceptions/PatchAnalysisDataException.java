@@ -19,7 +19,7 @@ package org.wso2.engineering.efficiency.patch.analysis.exceptions;
 /**
  * Exceptions that occur while dealing with content from either Jira, Pmt or email creation
  */
-public class ContentException extends PatchAnalysisException {
+public class PatchAnalysisDataException extends PatchAnalysisException {
 
     /**
      * Constructs an Exception with the specified detail message
@@ -28,7 +28,7 @@ public class ContentException extends PatchAnalysisException {
      * @param message The detailed message.
      * @param cause   the cause.
      */
-    public ContentException(String message, Throwable cause) {
+    public PatchAnalysisDataException(String message, Throwable cause) {
         super(message, cause);
     }
 }

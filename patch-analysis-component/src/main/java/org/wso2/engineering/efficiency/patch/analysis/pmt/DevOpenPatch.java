@@ -27,13 +27,11 @@ import java.util.Objects;
  */
 public class DevOpenPatch extends OpenPatch implements HtmlTableRow {
 
-    private String reportDate;
-
     DevOpenPatch(String url, String name, String productName, String assignee, State state,
-                 String patchLCState, String reportDate, String daysInState) {
+                 String patchLCState, String daysInState, String patchQueueId, String reportDate) {
 
-        super(url, name, productName, assignee, state, patchLCState, daysInState);
-        this.reportDate = reportDate;
+        super(url, name, productName, assignee, state, patchLCState, daysInState, patchQueueId, reportDate);
+
     }
 
     /**
@@ -77,7 +75,7 @@ public class DevOpenPatch extends OpenPatch implements HtmlTableRow {
                 getPatchLCState() + "<td width=\"" + "10%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; " +
                 "line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                this.reportDate + "<td width=\"" + "10%" + "\" align=\"center\" bgcolor=" + backgroundColor +
+                getReportDate() + "<td width=\"" + "10%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; " +
                 "line-height: 20px;  padding: 15px 10px 5px 10px;\">" +
                 getDaysInState();
@@ -97,12 +95,12 @@ public class DevOpenPatch extends OpenPatch implements HtmlTableRow {
             return false;
         }
         DevOpenPatch that = (DevOpenPatch) o;
-        return Objects.equals(reportDate, that.reportDate);
+        return Objects.equals(this.getReportDate(), that.getReportDate());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(super.hashCode(), reportDate);
+        return Objects.hash(super.hashCode());
     }
 }

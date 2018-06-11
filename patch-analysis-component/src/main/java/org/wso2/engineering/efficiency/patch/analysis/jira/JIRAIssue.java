@@ -20,6 +20,7 @@ package org.wso2.engineering.efficiency.patch.analysis.jira;
 import org.wso2.engineering.efficiency.patch.analysis.email.HtmlTableRow;
 import org.wso2.engineering.efficiency.patch.analysis.pmt.InactivePatch;
 import org.wso2.engineering.efficiency.patch.analysis.pmt.OpenPatch;
+import org.wso2.engineering.efficiency.patch.analysis.pmt.Patch;
 import org.wso2.engineering.efficiency.patch.analysis.util.State;
 
 import java.text.ParseException;
@@ -31,6 +32,7 @@ import java.util.Objects;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.JIRA.NOT_SPECIFIED;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.JIRA_URL_PREFIX;
 import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.NO_ENTRY_IN_PMT;
+import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.SQLStatement.INSERT_JIRA;
 
 /**
  * Represents a JIRA Issue.
@@ -38,9 +40,9 @@ import static org.wso2.engineering.efficiency.patch.analysis.util.Constants.PMT.
 public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
 
     private String name;
-    private String jiraLink;
+    private String link;
     private String assignee;
-    private String jiraCreateDate;
+    private String createDate;
     private String jiraState;
     private ArrayList<OpenPatch> openPatches;
     private ArrayList<OpenPatch> releasedPatches;
@@ -51,9 +53,9 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
     JIRAIssue(String jiraName, String assignee, String jiraCreateDate, String jiraState) {
 
         this.name = jiraName;
-        this.jiraLink = JIRA_URL_PREFIX + jiraName;
+        this.link = JIRA_URL_PREFIX + jiraName;
         this.assignee = assignee;
-        this.jiraCreateDate = stripDate(jiraCreateDate);
+        this.createDate = stripDate(jiraCreateDate);
         this.jiraState = jiraState;
         //patch details are set to empty ArrayLists
         this.openPatches = new ArrayList<>();
@@ -86,9 +88,22 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
         }
     }
 
+    public ArrayList<Patch> getPatches() {
+
+        ArrayList<Patch> patches = new ArrayList<>(this.inactivePatches);
+        patches.addAll(openPatches);
+        return patches;
+
+    }
+
     public String getJiraState() {
 
         return jiraState;
+    }
+
+    public String getLink() {
+
+        return link;
     }
 
     private String getReportDate() {
@@ -110,9 +125,9 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
         return reportDateReleasedPatches;
     }
 
-    public String getJiraCreateDate() {
+    public String getCreateDate() {
 
-        return jiraCreateDate;
+        return createDate;
     }
 
     public ArrayList<OpenPatch> getReleasedPatches() {
@@ -145,11 +160,11 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
         this.inactivePatches.add(patch);
     }
 
-    public void addOpenPatch(OpenPatch patch, String currentReportDate) {
+    public void addOpenPatch(OpenPatch patch) {
 
         this.openPatches.add(patch);
         if (patch.getState().equals(State.RELEASED)) {
-            addReleasedPatches(patch, currentReportDate);
+            addReleasedPatches(patch, patch.getReportDate());
         }
     }
 
@@ -174,7 +189,7 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
         return "<tr><td width=\"" + "30%" + "\" align=\"left\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:" +
                 " 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                jiraLink + "<td width=\"" + "20%" + "\" align=\"center\" bgcolor=" + backgroundColor +
+                link + "<td width=\"" + "20%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:" +
                 " 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
                 assignee + "<td width=\"" + "15%" + "\" align=\"center\" bgcolor=" + backgroundColor +
@@ -197,7 +212,7 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
         return "<tr><td width=\"" + "30%" + "\" align=\"left\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:" +
                 " 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
-                jiraLink + "<td width=\"" + "20%" + "\" align=\"center\" bgcolor=" + backgroundColor +
+                link + "<td width=\"" + "20%" + "\" align=\"center\" bgcolor=" + backgroundColor +
                 " style=\"font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight:" +
                 " 400; line-height: 20px; padding: 15px 10px 5px 10px;\">" +
                 assignee + "<td width=\"" + "15%" + "\" align=\"center\" bgcolor=" + backgroundColor +
@@ -242,9 +257,9 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
         }
         JIRAIssue jiraIssue = (JIRAIssue) o;
         return Objects.equals(name, jiraIssue.name) &&
-                Objects.equals(jiraLink, jiraIssue.jiraLink) &&
+                Objects.equals(link, jiraIssue.link) &&
                 Objects.equals(assignee, jiraIssue.assignee) &&
-                Objects.equals(jiraCreateDate, jiraIssue.jiraCreateDate) &&
+                Objects.equals(createDate, jiraIssue.createDate) &&
                 Objects.equals(jiraState, jiraIssue.jiraState) &&
                 Objects.equals(openPatches, jiraIssue.openPatches) &&
                 Objects.equals(releasedPatches, jiraIssue.releasedPatches) &&
@@ -256,7 +271,12 @@ public class JIRAIssue implements HtmlTableRow, Comparable<JIRAIssue> {
     @Override
     public int hashCode() {
 
-        return Objects.hash(name, jiraLink, assignee, jiraCreateDate,
+        return Objects.hash(name, link, assignee, createDate,
                 jiraState, openPatches, releasedPatches, inactivePatches, reportDate, reportDateReleasedPatches);
+    }
+
+    public String getInsertQuery() {
+
+        return INSERT_JIRA + this.assignee + "','" + this.link + "','" + this.createDate + "','";
     }
 }

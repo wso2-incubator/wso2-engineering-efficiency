@@ -31,6 +31,7 @@ public final class Constants {
     public static final String WHITE_BACKGROUND = "#ffffff";
 
     private Constants() {
+
     }
 
     /**
@@ -48,10 +49,13 @@ public final class Constants {
         public static final String EMAIL_CC_LIST = "ccList";
         public static final String URL_TO_JIRA_FILTER_CUSTOMER = "UrlToCustomerIssuesFilter";
         public static final String URL_TO_JIRA_FILTER_INTERNAL = "UrlToInternalIssuesFilter";
+        public static final String EEOP_USERNAME = "eeopUser";
+        public static final String EEOP_PASSWORD = "eeopPassword";
+        public static final String EEOP_CONNECTION = "eeopConnection";
     }
 
     /**
-     * SQL Constant values.
+     * MySQL query Constant values.
      */
     public static final class SQLStatement {
 
@@ -66,9 +70,35 @@ public final class Constants {
                 "RIGHT JOIN PATCH_QUEUE q ON e.PATCH_QUEUE_ID = q.ID\n" +
                 "where SUPPORT_JIRA like '%";
 
-        public static final String OR_JIRA = "OR SUPPORT_JIRA like '%";
         public static final String SELECT_SUPPORT_JIRAS = "SELECT SUPPORT_JIRA FROM PATCH_QUEUE\n" +
                 "WHERE YEAR(REPORT_DATE) > '2017';";
+        public static final String SET_PROACTIVE_JIRAS_AS_RESOLVED = "UPDATE JIRA SET IS_RESOLVED = 'Yes'" +
+                "WHERE JIRA_TYPE = 'Proactive';";
+        public static final String PROACTIVE_JIRA = "Proactive') ON DUPLICATE KEY UPDATE JIRA_NAME=JIRA_NAME, " +
+                "IS_RESOLVED = 'No';";
+        public static final String SET_CUSTOMER_JIRAS_AS_RESOLVED = "UPDATE JIRA SET IS_RESOLVED = 'Yes' " +
+                "WHERE JIRA_TYPE = 'Customer';";
+        public static final String CUSTOMER_JIRA = "Customer') ON DUPLICATE KEY UPDATE JIRA_NAME=JIRA_NAME, " +
+                "IS_RESOLVED = 'No';";
+        public static final String INSERT_JIRA = "INSERT INTO JIRA (JIRA_ASSIGNEE, JIRA_NAME, " +
+                "JIRA_CREATE_DATE, JIRA_TYPE) VALUES ('";
+        public static final String INSERT_PATCH = "INSERT INTO PATCH (PRODUCT_NAME, LC_STATE, " +
+                "PATCH_REPORT_DATE, PATCH_NAME, PMT_PATCH_QUEUE_ID)VALUES ('";
+        public static final String ON_PATCH_DUPLICATION = "')ON DUPLICATE KEY UPDATE LC_STATE = VALUES(LC_STATE),\n" +
+                "PATCH_NAME = VALUES(PATCH_NAME);";
+        public static final String INSERT_JIRA_PATCH_START = "INSERT INTO JIRA_PATCH (PMT_PATCH_QUEUE_ID, JIRA_ID)" +
+                " VALUES('";
+        public static final String INSERT_JIRA_PATCH_MID = "',(SELECT JIRA_ID FROM JIRA WHERE JIRA_NAME = '";
+        public static final String INSERT_JIRA_PATCH_END = "')) ON DUPLICATE KEY UPDATE PMT_PATCH_QUEUE_ID " +
+                "= VALUES(PMT_PATCH_QUEUE_ID), " +
+                "JIRA_ID = VALUES(JIRA_ID);";
+        public static final String SELECT_LAST_STATE_START = "SELECT STATE_NAME FROM STATE join PATCH on " +
+                "STATE.PMT_PATCH_QUEUE_ID = PATCH.PMT_PATCH_QUEUE_ID WHERE STATE.PMT_PATCH_QUEUE_ID = '";
+        public static final String SELECT_LAST_STATE_END = "' ORDER BY IN_STATE_ON DESC LIMIT 1;";
+        public static final String INSERT_STATE_START = "INSERT INTO STATE (STATE_NAME, IN_STATE_ON," +
+                " PMT_PATCH_QUEUE_ID)" +
+                " VALUES('";
+        public static final String INSERT_STATE_END = "', NOW(), '";
     }
 
     /**
@@ -93,6 +123,7 @@ public final class Constants {
         public static final String RELEASED_NOT_AUTOMATED = "ReleasedNotAutomated";
         public static final String RELEASED_NOT_IN_PUBLIC_SVN = "ReleasedNotInPublicSVN";
         public static final String SUPPORT_JIRA_URL = "SUPPORT_JIRA";
+        public static final String PATCH_ID_NOT_GENERATED = "Patch ID Not Generated";
     }
 
     /**
