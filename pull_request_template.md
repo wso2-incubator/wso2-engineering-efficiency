@@ -26,7 +26,7 @@
 > Link to drafts of marketing content that will describe and promote this feature, including product page changes, technical articles, blog posts, videos, etc., if applicable
 
 ## Automation tests
- - Unit tests 
+ - Unit tests
    > Code coverage information
  - Integration tests
    > Details about the test cases and coverage
@@ -47,6 +47,6 @@
 
 ## Test environment
 > List all JDK versions, operating systems, databases, and browser/versions on which this feature/fix was tested
- 
+
 ## Learning
 > Describe the research phase and any blog posts, patterns, libraries, or add-ons you used to solve the problem.
